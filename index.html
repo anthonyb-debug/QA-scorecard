@@ -1,0 +1,2215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Scorecard — Legacy &amp; Banyan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════════════════════ */
+:root {
+  /* Neutrals */
+  --bg: #f5f6fa;
+  --surface: #ffffff;
+  --surface-2: #f9fafb;
+  --border: #e8eaf0;
+  --border-subtle: #f0f1f6;
+
+  /* Text */
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-tertiary: #9ca3af;
+
+  /* Brand — Legacy */
+  --legacy: #1c4fa0;
+  --legacy-light: #eff4ff;
+  --legacy-mid: #dbeafe;
+
+  /* Brand — Banyan */
+  --banyan: #0e7c5a;
+  --banyan-light: #ecfdf5;
+  --banyan-mid: #d1fae5;
+
+  /* Semantic */
+  --major: #b45309;
+  --major-bg: #fffbeb;
+  --major-border: #fde68a;
+
+  --minor: #1d4ed8;
+  --minor-bg: #eff6ff;
+  --minor-border: #bfdbfe;
+
+  --ztp: #b91c1c;
+  --ztp-bg: #fef2f2;
+  --ztp-border: #fecaca;
+
+  --yes: #059669;
+  --yes-bg: #ecfdf5;
+  --yes-active: #d1fae5;
+
+  --no: #dc2626;
+  --no-bg: #fef2f2;
+  --no-active: #fee2e2;
+
+  --na: #6b7280;
+  --na-bg: #f9fafb;
+  --na-active: #f3f4f6;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(17,24,39,0.05);
+  --shadow-sm: 0 1px 3px rgba(17,24,39,0.08), 0 1px 2px rgba(17,24,39,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(17,24,39,0.07), 0 2px 4px -1px rgba(17,24,39,0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(17,24,39,0.08), 0 4px 6px -2px rgba(17,24,39,0.04);
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   STICKY TOP NAV
+═══════════════════════════════════════════════════════════ */
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-xs);
+}
+
+.top-nav-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  height: 52px;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+}
+
+.nav-brand-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--legacy);
+  transition: background 0.2s;
+}
+
+.brand-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  background: var(--bg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.brand-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.brand-btn:hover { background: var(--surface); color: var(--text-primary); }
+
+.brand-btn.active-legacy {
+  background: var(--legacy);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.brand-btn.active-banyan {
+  background: var(--banyan);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.brand-btn .dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.brand-btn.active-legacy .dot,
+.brand-btn.active-banyan .dot { background: rgba(255,255,255,0.6); }
+
+.dot-legacy { background: var(--legacy); }
+.dot-banyan { background: var(--banyan); }
+
+.nav-spacer { flex: 1; }
+
+.nav-section-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.nav-tab-btn {
+  padding: 5px 11px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.nav-tab-btn:hover { background: var(--surface-2); color: var(--text-primary); border-color: var(--border); }
+.nav-tab-btn.active-legacy { background: var(--legacy-light); color: var(--legacy); border-color: var(--legacy-mid); font-weight: 600; }
+.nav-tab-btn.active-banyan { background: var(--banyan-light); color: var(--banyan); border-color: var(--banyan-mid); font-weight: 600; }
+
+/* ═══════════════════════════════════════════════════════════
+   LAYOUT SHELL
+═══════════════════════════════════════════════════════════ */
+.app-shell {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-5) 60px;
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  grid-template-rows: auto 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.main-col { grid-column: 1; min-width: 0; }
+.side-col { grid-column: 2; position: sticky; top: 68px; }
+
+/* ═══════════════════════════════════════════════════════════
+   BRAND PANELS
+═══════════════════════════════════════════════════════════ */
+.brand-panel { display: none; }
+.brand-panel.active { display: contents; }
+
+/* ═══════════════════════════════════════════════════════════
+   AUDIT HEADER CARD
+═══════════════════════════════════════════════════════════ */
+.audit-header {
+  grid-column: 1 / -1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.audit-header-bar {
+  padding: 14px var(--space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.header-legacy-bar { background: linear-gradient(135deg, #1c4fa0 0%, #2563eb 100%); }
+.header-banyan-bar { background: linear-gradient(135deg, #0e7c5a 0%, #059669 100%); }
+
+.audit-title-block { flex: 1; }
+.audit-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.3px;
+}
+.audit-subtitle {
+  font-size: 11px;
+  color: rgba(255,255,255,0.65);
+  margin-top: 1px;
+}
+
+.header-inner-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  background: rgba(0,0,0,0.2);
+  border-radius: var(--radius-md);
+}
+
+.header-inner-tab {
+  padding: 5px 14px;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.15s;
+}
+
+.header-inner-tab:hover { background: rgba(255,255,255,0.15); color: #fff; }
+.header-inner-tab.active-tab { background: rgba(255,255,255,0.95); }
+.header-inner-tab.active-tab-legacy { color: var(--legacy); }
+.header-inner-tab.active-tab-banyan { color: var(--banyan); }
+
+/* META BAR */
+.meta-bar {
+  padding: var(--space-4) var(--space-6);
+  background: var(--surface-2);
+  border-top: 1px solid var(--border-subtle);
+  display: grid;
+  grid-template-columns: 1fr 1.8fr 1fr 1.2fr 1fr 0.7fr 0.7fr 0.7fr 1fr 1fr;
+  gap: 10px;
+  align-items: end;
+}
+
+.mf label {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+  margin-bottom: 4px;
+}
+
+.mf input, .mf select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 9px;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--text-primary);
+  background: var(--surface);
+  outline: none;
+  box-shadow: var(--shadow-xs);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.mf input:focus, .mf select:focus {
+  border-color: var(--legacy);
+  box-shadow: 0 0 0 3px var(--legacy-light);
+}
+
+.mf-banyan input:focus, .mf-banyan select:focus {
+  border-color: var(--banyan);
+  box-shadow: 0 0 0 3px var(--banyan-light);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FLOATING SCORE PANEL (sidebar)
+═══════════════════════════════════════════════════════════ */
+.score-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.score-panel-header {
+  padding: 14px var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.score-panel-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-3);
+}
+
+.score-circle-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-3) 0;
+}
+
+.score-value {
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: -2px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.score-perf-label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 6px;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.perf-excellent { background: var(--yes-bg); color: var(--yes); }
+.perf-outstanding { background: var(--minor-bg); color: var(--minor); }
+.perf-satisfactory { background: #fffbeb; color: #92400e; }
+.perf-needs { background: #fff7ed; color: #c2410c; }
+.perf-poor, .perf-autofail { background: var(--ztp-bg); color: var(--ztp); }
+
+.score-progress {
+  width: 100%;
+  height: 5px;
+  background: var(--border);
+  border-radius: 10px;
+  margin-top: var(--space-3);
+  overflow: hidden;
+}
+
+.score-progress-bar {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.3s ease, background 0.3s ease;
+  background: var(--yes);
+}
+
+.score-panel-sections {
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.score-section-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px var(--space-2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.score-section-row:hover { background: var(--surface-2); }
+
+.score-section-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.score-section-num {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-size: 9px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.section-num-legacy { background: var(--legacy-light); border-color: var(--legacy-mid); color: var(--legacy); }
+.section-num-banyan { background: var(--banyan-light); border-color: var(--banyan-mid); color: var(--banyan); }
+.section-num-ztp { background: var(--ztp-bg); border-color: var(--ztp-border); color: var(--ztp); }
+
+.score-section-pts {
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+}
+
+.score-section-pts.has-ded { color: var(--major); }
+.score-section-pts.ztp-ok { color: var(--yes); }
+.score-section-pts.ztp-fail { color: var(--ztp); }
+
+.score-panel-footer {
+  border-top: 1px solid var(--border-subtle);
+  padding: var(--space-3) var(--space-4);
+}
+
+.completion-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.completion-bar-track {
+  width: 100%;
+  height: 4px;
+  background: var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.completion-bar-fill {
+  height: 100%;
+  background: var(--minor);
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+.score-actions {
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.btn:hover { opacity: 0.87; transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.btn:active { transform: translateY(0); }
+
+.btn-primary-legacy { background: var(--legacy); color: #fff; }
+.btn-primary-banyan { background: var(--banyan); color: #fff; }
+.btn-log { background: #5b21b6; color: #fff; }
+.btn-log:disabled { background: #9ca3af; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-ghost { background: var(--surface); border: 1px solid var(--border); color: var(--text-secondary); }
+.btn-ghost:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+
+/* ZTP BANNER */
+.ztp-banner {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--ztp-bg);
+  border: 1px solid var(--ztp-border);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-3);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ztp);
+  box-shadow: var(--shadow-xs);
+}
+
+.ztp-banner.visible { display: flex; }
+
+.ztp-banner-icon {
+  width: 18px;
+  height: 18px;
+  background: var(--ztp);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION JUMP NAV (sticky)
+═══════════════════════════════════════════════════════════ */
+.section-nav {
+  display: flex;
+  gap: 4px;
+  margin-bottom: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.section-jump-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  background: var(--surface);
+  transition: all 0.15s;
+  box-shadow: var(--shadow-xs);
+  white-space: nowrap;
+}
+
+.section-jump-btn:hover { border-color: var(--legacy); color: var(--legacy); background: var(--legacy-light); }
+.section-jump-btn.banyan-jump:hover { border-color: var(--banyan); color: var(--banyan); background: var(--banyan-light); }
+
+.section-jump-num {
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  font-size: 8px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--bg);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ACCORDION SECTIONS
+═══════════════════════════════════════════════════════════ */
+.acc-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-3);
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.acc-section:hover { box-shadow: var(--shadow-sm); }
+
+.acc-section.open { box-shadow: var(--shadow-md); border-color: #d1d5e0; }
+
+.acc-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 13px var(--space-5);
+  cursor: pointer;
+  user-select: none;
+  background: var(--surface);
+  transition: background 0.12s;
+}
+
+.acc-header:hover { background: var(--surface-2); }
+.acc-section.open .acc-header { background: var(--surface); border-bottom: 1px solid var(--border-subtle); }
+
+.acc-num {
+  width: 26px; height: 26px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: -0.3px;
+}
+
+.acc-num-legacy { background: var(--legacy-light); color: var(--legacy); border: 1px solid var(--legacy-mid); }
+.acc-num-banyan { background: var(--banyan-light); color: var(--banyan); border: 1px solid var(--banyan-mid); }
+.acc-num-ztp { background: var(--ztp-bg); color: var(--ztp); border: 1px solid var(--ztp-border); }
+
+.acc-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.acc-status {
+  font-size: 11.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.acc-status.ok { color: var(--yes); }
+.acc-status.warn { color: var(--major); }
+.acc-status.critical { color: var(--ztp); }
+
+.acc-chevron {
+  width: 16px; height: 16px;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.acc-section.open .acc-chevron { transform: rotate(180deg); }
+
+.acc-body {
+  display: none;
+  overflow: hidden;
+}
+
+.acc-section.open .acc-body { display: block; }
+
+/* ═══════════════════════════════════════════════════════════
+   CRITERION ROWS
+═══════════════════════════════════════════════════════════ */
+.criterion-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.criterion-table thead th {
+  padding: 7px 14px;
+  background: var(--surface-2);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+  text-align: left;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.criterion-table tbody tr {
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background 0.1s;
+}
+
+.criterion-table tbody tr:last-child { border-bottom: none; }
+.criterion-table tbody tr:hover td { background: var(--surface-2); }
+.criterion-table .ztp-row td { background: var(--ztp-bg); }
+.criterion-table .ztp-row:hover td { background: #fde8e8; }
+
+.criterion-table td {
+  padding: 11px 14px;
+  vertical-align: middle;
+}
+
+.col-num {
+  width: 36px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.col-desc {
+  /* flexible */
+}
+
+.col-type { width: 72px; }
+.col-compliance { width: 160px; }
+.col-ded { width: 54px; text-align: center; }
+
+.criterion-title {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.criterion-sub {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+/* BADGE */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.badge-major { background: var(--major-bg); color: var(--major); border-color: var(--major-border); }
+.badge-minor { background: var(--minor-bg); color: var(--minor); border-color: var(--minor-border); }
+.badge-ztp { background: var(--ztp-bg); color: var(--ztp); border-color: var(--ztp-border); }
+
+/* TOGGLE CONTROL — pill buttons */
+.pill-toggle {
+  display: flex;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--surface-2);
+  width: 100%;
+}
+
+.pill-btn {
+  flex: 1;
+  padding: 6px 0;
+  border: none;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-tertiary);
+  transition: background 0.12s, color 0.12s;
+  position: relative;
+}
+
+.pill-btn:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 20%;
+  height: 60%;
+  width: 1px;
+  background: var(--border);
+}
+
+.pill-btn.ay {
+  background: var(--yes-active);
+  color: var(--yes);
+  box-shadow: inset 0 1px 3px rgba(5,150,105,0.1);
+}
+
+.pill-btn.an {
+  background: var(--no-active);
+  color: var(--no);
+}
+
+.pill-btn.aa {
+  background: var(--na-active);
+  color: var(--na);
+}
+
+.pill-btn:hover:not(.ay):not(.an):not(.aa) { background: var(--border-subtle); color: var(--text-secondary); }
+
+/* ZTP specific */
+.ztp-row .pill-btn.ay { background: var(--yes-active); color: var(--yes); }
+.ztp-row .pill-btn.an { background: var(--no-active); color: var(--no); font-weight: 700; }
+
+/* DEDUCTION VALUE */
+.dv {
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  display: block;
+  font-variant-numeric: tabular-nums;
+}
+
+.d0 { color: var(--text-tertiary); }
+.dm { color: var(--major); }
+.dn { color: var(--minor); }
+.dz { color: var(--ztp); }
+
+/* ═══════════════════════════════════════════════════════════
+   ZTP LOCKED STATE
+═══════════════════════════════════════════════════════════ */
+.ztp-locked {
+  position: relative;
+  pointer-events: none;
+  user-select: none;
+}
+
+.ztp-locked::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(245,246,250,0.72);
+  border-radius: var(--radius-lg);
+  z-index: 10;
+}
+
+.ztp-locked .acc-header { opacity: 0.45; }
+.ztp-locked .criterion-table td { color: #aaa !important; }
+.ztp-locked .pill-btn { background: #f3f4f6 !important; color: #ccc !important; border-color: #e5e7eb !important; }
+
+/* ═══════════════════════════════════════════════════════════
+   REMARKS CARD
+═══════════════════════════════════════════════════════════ */
+.remarks-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
+  margin-top: var(--space-3);
+}
+
+.remarks-card-header {
+  padding: 13px var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+}
+
+.remarks-card-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+}
+
+.remarks-body {
+  padding: var(--space-5);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.remarks-body .full { grid-column: 1 / -1; }
+
+.remarks-body label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+  margin-bottom: 5px;
+}
+
+.remarks-body input,
+.remarks-body select,
+.remarks-body textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  font-family: inherit;
+  font-size: 12.5px;
+  color: var(--text-primary);
+  background: var(--surface);
+  outline: none;
+  box-shadow: var(--shadow-xs);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  resize: vertical;
+}
+
+.remarks-body textarea { min-height: 68px; }
+
+.remarks-body input:focus,
+.remarks-body select:focus,
+.remarks-body textarea:focus {
+  border-color: var(--legacy);
+  box-shadow: 0 0 0 3px var(--legacy-light);
+}
+
+.focus-banyan input:focus,
+.focus-banyan select:focus,
+.focus-banyan textarea:focus {
+  border-color: var(--banyan);
+  box-shadow: 0 0 0 3px var(--banyan-light);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TAB PANELS
+═══════════════════════════════════════════════════════════ */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ═══════════════════════════════════════════════════════════
+   QA GUIDE
+═══════════════════════════════════════════════════════════ */
+.legend-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  padding: 14px var(--space-5);
+  margin-bottom: var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.legend-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+}
+
+.legend-items {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.legend-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-range {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.legend-perf {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.legend-sep {
+  width: 1px;
+  height: 28px;
+  background: var(--border);
+}
+
+.error-types {
+  display: flex;
+  gap: 6px;
+}
+
+.error-type-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+}
+
+.guide-sec {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  margin-bottom: var(--space-3);
+  overflow: hidden;
+}
+
+.guide-sec-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 12px var(--space-5);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.guide-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.guide-table th {
+  background: var(--surface-2);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+  padding: 7px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.guide-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: top;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.guide-table tr:last-child td { border-bottom: none; }
+.guide-table tr:hover td { background: var(--surface-2); }
+
+.guide-num { font-size: 11px; font-weight: 700; color: var(--text-tertiary); width: 28px; white-space: nowrap; }
+.guide-crit { font-weight: 600; font-size: 12px; color: var(--text-primary); width: 22%; }
+.guide-def { width: 28%; color: var(--text-secondary); }
+.guide-meet { width: 25%; color: var(--yes); }
+.guide-miss { width: 25%; color: var(--no); }
+.guide-meet ul, .guide-miss ul { margin: 0; padding-left: 14px; }
+.guide-meet li, .guide-miss li { margin-bottom: 3px; }
+
+.gm-yes { font-weight: 700; color: var(--yes); text-transform: uppercase; font-size: 9px; letter-spacing: .4px; display: block; margin-bottom: 3px; }
+.gm-no { font-weight: 700; color: var(--no); text-transform: uppercase; font-size: 9px; letter-spacing: .4px; display: block; margin-bottom: 3px; }
+.gm-empty { color: var(--text-tertiary); font-style: italic; font-size: 11px; }
+
+/* ═══════════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════════ */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--text-primary);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  z-index: 9999;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity .2s, transform .2s;
+  pointer-events: none;
+  max-width: 300px;
+}
+
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.error { background: var(--ztp); }
+
+/* ═══════════════════════════════════════════════════════════
+   PRINT STYLES
+═══════════════════════════════════════════════════════════ */
+@media print {
+  * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+
+  body { background: #fff; font-size: 11px; }
+
+  .top-nav { position: static; box-shadow: none; }
+  .top-nav-inner { padding: 8px 16px; height: auto; }
+  .brand-tabs, .nav-section-tabs, .nav-spacer { display: none !important; }
+
+  .app-shell { display: block; padding: 8px 0 0; max-width: 100%; }
+
+  .audit-header { border-radius: 8px; break-inside: avoid; box-shadow: none; }
+  .meta-bar { grid-template-columns: repeat(5, 1fr) repeat(3, 1fr); }
+
+  .side-col, .score-panel, .section-nav { display: none !important; }
+
+  .acc-section { break-inside: avoid; box-shadow: none; margin-bottom: 6px; border-radius: 6px; }
+  .acc-body { display: block !important; }
+  .acc-chevron { display: none; }
+
+  .brand-panel { display: none !important; }
+  .brand-panel.active { display: block !important; }
+
+  .tab-panel { display: none !important; }
+  .tab-panel.active { display: block !important; }
+
+  .ztp-banner { break-inside: avoid; }
+  .remarks-card { break-inside: avoid; box-shadow: none; }
+
+  .score-actions, .header-inner-tabs { display: none !important; }
+
+  .criterion-table td, .criterion-table th { padding: 6px 10px; }
+
+  .pill-toggle { width: auto; }
+  .pill-btn { padding: 4px 8px; font-size: 10px; }
+
+  @page { margin: 12mm 12mm 14mm; size: A4 portrait; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════ */
+@media (max-width: 1080px) {
+  .app-shell { grid-template-columns: 1fr; }
+  .side-col { position: static; }
+  .score-panel { display: none; }
+  .main-col { grid-column: 1; }
+  .audit-header { grid-column: 1; }
+}
+
+@media (max-width: 700px) {
+  .meta-bar { grid-template-columns: 1fr 1fr; }
+  .nav-section-tabs { display: none; }
+  .top-nav-inner { gap: var(--space-2); }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ TOP STICKY NAV ═══════════ -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <div class="nav-brand">
+      <span class="nav-brand-dot" id="nav-dot"></span>
+      QA Scorecard
+    </div>
+
+    <div class="brand-tabs">
+      <button class="brand-btn active-legacy" id="brand-btn-legacy" onclick="showBrand('legacy',this)">
+        <span class="dot dot-legacy"></span>
+        Legacy
+      </button>
+      <button class="brand-btn" id="brand-btn-banyan" onclick="showBrand('banyan',this)">
+        <span class="dot dot-banyan"></span>
+        Banyan
+      </button>
+    </div>
+
+    <div class="nav-spacer"></div>
+
+    <nav class="nav-section-tabs" id="nav-tabs-L" style="display:flex">
+      <button class="nav-tab-btn" onclick="showTab('L','scorecard',this)">Scorecard</button>
+      <button class="nav-tab-btn" onclick="showTab('L','guide',this)">QA Guide</button>
+    </nav>
+    <nav class="nav-section-tabs" id="nav-tabs-B" style="display:none">
+      <button class="nav-tab-btn" onclick="showTab('B','scorecard',this)">Scorecard</button>
+      <button class="nav-tab-btn" onclick="showTab('B','guide',this)">QA Guide</button>
+    </nav>
+  </div>
+</nav>
+
+<!-- ═══════════ MAIN APP SHELL ═══════════ -->
+<div class="app-shell">
+
+  <!-- ───── LEGACY BRAND PANEL ───── -->
+  <div class="brand-panel active" id="brand-legacy">
+
+    <!-- AUDIT HEADER + META -->
+    <div class="audit-header">
+      <div class="audit-header-bar header-legacy-bar">
+        <div class="audit-title-block">
+          <div class="audit-title">Legacy Quality Scorecard</div>
+          <div class="audit-subtitle">Contact Center QA Audit Platform</div>
+        </div>
+        <div class="header-inner-tabs">
+          <button class="header-inner-tab active-tab active-tab-legacy" onclick="showTab('L','scorecard',this)">Scorecard</button>
+          <button class="header-inner-tab" onclick="showTab('L','guide',this)">QA Guide</button>
+        </div>
+      </div>
+      <div class="meta-bar" id="L-metaBar">
+        <div class="mf"><label>Audit No.</label><input type="text" id="L-auditNo" placeholder="e.g. 2025-001"></div>
+        <div class="mf"><label>Agent</label><select id="L-agent"><option value="">Select Agent…</option><optgroup label="— Legacy Agents —"><option>Aban, Ma Melanie</option><option>Angel, Byron Jake</option><option>Bernardo, Sean</option><option>Buranis, Shenelyn</option><option>Dujale, John Vincent</option><option>Galong, Julia Mae</option><option>Lajo, Ella Mae</option><option>Lopez, Maria Nelia</option><option>Lumactod, Nikki</option><option>Magbanua, Rubie</option><option>Navarro, Stephanie</option><option>Padullano, Larinz</option><option>Perez, Karen</option><option>Rapis, Samuel</option><option>Regla, Ma Cecilia</option><option>Sagun, Rae</option><option>Villarta, Remington</option></optgroup></select></div>
+        <div class="mf"><label>CTM Phone</label><input type="text" id="L-ctmPhone" placeholder="(555) 000-0000"></div>
+        <div class="mf"><label>Call Date / Time</label><input type="datetime-local" id="L-callDateTime"></div>
+        <div class="mf"><label>Audit Date</label><input type="date" id="L-auditDate"></div>
+        <div class="mf"><label>Year</label><select id="L-year"></select></div>
+        <div class="mf"><label>Month</label><select id="L-month"></select></div>
+        <div class="mf"><label>Week</label><select id="L-week"><option value="">Select…</option><option>Week 1</option><option>Week 2</option><option>Week 3</option><option>Week 4</option><option>Week 5</option></select></div>
+        <div class="mf"><label>Team Leader</label><input type="text" placeholder="Name"></div>
+        <div class="mf"><label>QA Auditor</label><input type="text" placeholder="Name"></div>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT COL -->
+    <div class="main-col">
+
+      <!-- SCORECARD TAB -->
+      <div class="tab-panel active" id="L-tab-scorecard">
+
+        <!-- Section quick-jump -->
+        <div class="section-nav" id="L-section-nav">
+          <button class="section-jump-btn" onclick="jumpTo('L-sc-s1')"><span class="acc-num acc-num-legacy section-jump-num">I</span>Identification</button>
+          <button class="section-jump-btn" onclick="jumpTo('L-sc-s2')"><span class="acc-num acc-num-legacy section-jump-num">II</span>Resolution</button>
+          <button class="section-jump-btn" onclick="jumpTo('L-sc-s3')"><span class="acc-num acc-num-legacy section-jump-num">III</span>Compliance</button>
+          <button class="section-jump-btn" onclick="jumpTo('L-sc-s4')"><span class="acc-num acc-num-legacy section-jump-num">IV</span>Caller Exp.</button>
+          <button class="section-jump-btn" onclick="jumpTo('L-sc-s5')"><span class="acc-num acc-num-ztp section-jump-num">V</span>ZTP</button>
+        </div>
+
+        <div class="ztp-banner" id="L-ztp-banner">
+          <span class="ztp-banner-icon">!</span>
+          Zero Tolerance Policy violated — Sections I–IV are automatically graded as failed.
+        </div>
+
+        <!-- Section I -->
+        <div class="acc-section open" id="L-sc-s1">
+          <div class="acc-header" onclick="toggleAcc(this.parentElement)">
+            <span class="acc-num acc-num-legacy">I</span>
+            <span class="acc-title">Identification of Need</span>
+            <span class="acc-status" id="L-pts-s1">—</span>
+            <svg class="acc-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg>
+          </div>
+          <div class="acc-body">
+            <table class="criterion-table">
+              <thead><tr><th class="col-num">#</th><th>Criterion</th><th class="col-type">Type</th><th class="col-compliance">Compliance</th><th class="col-ded">Ded.</th></tr></thead>
+              <tbody>
+                <tr><td class="col-num">01</td><td><div class="criterion-title">Correct Call Driver Identification</div><div class="criterion-sub">No assumed intent; probing questions asked</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">02</td><td><div class="criterion-title">Correct SF Entry (Creation or Verification)</div><div class="criterion-sub">No duplicates; correct fields updated</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">03</td><td><div class="criterion-title">Verified Key Details per Workflow</div><div class="criterion-sub">Relationship, age, location, substance, insurance confirmed</div></td><td><span class="badge badge-minor">Minor</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Minor" data-val="0">0</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section II -->
+        <div class="acc-section" id="L-sc-s2">
+          <div class="acc-header" onclick="toggleAcc(this.parentElement)">
+            <span class="acc-num acc-num-legacy">II</span>
+            <span class="acc-title">Correct Resolution</span>
+            <span class="acc-status" id="L-pts-s2">—</span>
+            <svg class="acc-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg>
+          </div>
+          <div class="acc-body">
+            <table class="criterion-table">
+              <thead><tr><th class="col-num">#</th><th>Criterion</th><th class="col-type">Type</th><th class="col-compliance">Compliance</th><th class="col-ded">Ded.</th></tr></thead>
+              <tbody>
+                <tr><td class="col-num">04</td><td><div class="criterion-title">Used Correct Decisioning Logic</div><div class="criterion-sub">Eligibility &amp; routing rules followed; no premature transfer</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">05</td><td><div class="criterion-title">Delivered HIPAA Spiel Perfectly <em style="font-size:10px;color:var(--text-tertiary)">(if applicable)</em></div><div class="criterion-sub">Verbatim script; consent obtained</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">06</td><td><div class="criterion-title">Provided Correct Facility Number per SF <em style="font-size:10px;color:var(--text-tertiary)">(if applicable)</em></div><div class="criterion-sub">Matches SF; no outdated contacts</div></td><td><span class="badge badge-minor">Minor</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Minor" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">07</td><td><div class="criterion-title">Followed Correct Routing Based on Eligibility Logic</div><div class="criterion-sub">Transfer only when criteria met; non-qualified routed correctly</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">08</td><td><div class="criterion-title">Offered Callback When Admissions Unavailable</div><div class="criterion-sub">Process explained; best number &amp; time confirmed</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section III -->
+        <div class="acc-section" id="L-sc-s3">
+          <div class="acc-header" onclick="toggleAcc(this.parentElement)">
+            <span class="acc-num acc-num-legacy">III</span>
+            <span class="acc-title">Compliance &amp; Risk Control</span>
+            <span class="acc-status" id="L-pts-s3">—</span>
+            <svg class="acc-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg>
+          </div>
+          <div class="acc-body">
+            <table class="criterion-table">
+              <thead><tr><th class="col-num">#</th><th>Criterion</th><th class="col-type">Type</th><th class="col-compliance">Compliance</th><th class="col-ded">Ded.</th></tr></thead>
+              <tbody>
+                <tr><td class="col-num">09</td><td><div class="criterion-title">Followed Protocols for Sensitive / Restricted Lookups</div><div class="criterion-sub">All follow-up questions asked; authority verified</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">10</td><td><div class="criterion-title">Strict Compliance with Risk-Control Scripts</div><div class="criterion-sub">SI, overdose, abuse &amp; competitor/AA calls per script</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">11</td><td><div class="criterion-title">Documentation Accuracy in Salesforce</div><div class="criterion-sub">Accurate summaries, correct dispositions</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">12</td><td><div class="criterion-title">Agent Pivoted the Call</div><div class="criterion-sub">Smoothly redirected to treatment exploration</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">13</td><td><div class="criterion-title">Agent Pitched Private Pay</div><div class="criterion-sub">Introduced when insurance unavailable; approved language only</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">14</td><td><div class="criterion-title">Agent Asked Mandatory Intake Questions</div><div class="criterion-sub">Demographics, insurance, drug of choice gathered</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">15</td><td><div class="criterion-title">Qualified Callers Transferred to Admissions</div><div class="criterion-sub">Warm transfer; context provided</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">16</td><td><div class="criterion-title">Non-Qualified Callers Receive Alternative Resources</div><div class="criterion-sub">SAMHSA, Crisis Line, AA offered with correct details</div></td><td><span class="badge badge-minor">Minor</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Minor" data-val="0">0</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section IV -->
+        <div class="acc-section" id="L-sc-s4">
+          <div class="acc-header" onclick="toggleAcc(this.parentElement)">
+            <span class="acc-num acc-num-legacy">IV</span>
+            <span class="acc-title">Caller Experience</span>
+            <span class="acc-status" id="L-pts-s4">—</span>
+            <svg class="acc-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg>
+          </div>
+          <div class="acc-body">
+            <table class="criterion-table">
+              <thead><tr><th class="col-num">#</th><th>Criterion</th><th class="col-type">Type</th><th class="col-compliance">Compliance</th><th class="col-ded">Ded.</th></tr></thead>
+              <tbody>
+                <tr><td class="col-num">17</td><td><div class="criterion-title">Active Listening</div><div class="criterion-sub">Paraphrases; no interruptions; emotional cues recognized</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">18</td><td><div class="criterion-title">Empathy and Tone</div><div class="criterion-sub">Compassionate, calm, supportive; not rushed or dismissive</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">19</td><td><div class="criterion-title">Clarity and Ownership</div><div class="criterion-sub">Clear explanations; no dead air; owns next steps</div></td><td><span class="badge badge-minor">Minor</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Minor" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">20</td><td><div class="criterion-title">Professional Closing</div><div class="criterion-sub">Polite, confident; thanks caller; confirms understanding</div></td><td><span class="badge badge-minor">Minor</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Minor" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">21</td><td><div class="criterion-title">Clearly Explained Next Steps to Caller</div><div class="criterion-sub">Caller understands transfer, callback, or follow-up</div></td><td><span class="badge badge-minor">Minor</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Minor" data-val="0">0</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section V — ZTP -->
+        <div class="acc-section" id="L-sc-s5">
+          <div class="acc-header" onclick="toggleAcc(this.parentElement)">
+            <span class="acc-num acc-num-ztp">V</span>
+            <span class="acc-title">Zero Tolerance Policy</span>
+            <span class="acc-status" id="L-pts-s5">—</span>
+            <svg class="acc-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg>
+          </div>
+          <div class="acc-body">
+            <table class="criterion-table">
+              <thead><tr><th class="col-num">#</th><th>Criterion</th><th class="col-type">Type</th><th class="col-compliance">Status</th><th class="col-ded">Ded.</th></tr></thead>
+              <tbody>
+                <tr class="ztp-row"><td class="col-num">22</td><td><div class="criterion-title">Disclosed PHI Directly</div><div class="criterion-sub">Shared PHI without authorization</div></td><td><span class="badge badge-ztp">ZTP</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Clear</button><button onclick="sc('L',this,'no')" class="pill-btn">Violated</button></div></td><td><span class="dv d0" data-type="ZTP" data-val="0">0</span></td></tr>
+                <tr class="ztp-row"><td class="col-num">23</td><td><div class="criterion-title">Confirmed/Denied Loved One's Presence</div><div class="criterion-sub">Disclosed facility presence to unauthorized party</div></td><td><span class="badge badge-ztp">ZTP</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Clear</button><button onclick="sc('L',this,'no')" class="pill-btn">Violated</button></div></td><td><span class="dv d0" data-type="ZTP" data-val="0">0</span></td></tr>
+                <tr class="ztp-row"><td class="col-num">24</td><td><div class="criterion-title">Misbranding of Call Opening</div><div class="criterion-sub">Incorrect brand stated (Legacy, Shorepoint, Citadel 12)</div></td><td><span class="badge badge-ztp">ZTP</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Clear</button><button onclick="sc('L',this,'no')" class="pill-btn">Violated</button></div></td><td><span class="dv d0" data-type="ZTP" data-val="0">0</span></td></tr>
+                <tr class="ztp-row"><td class="col-num">25</td><td><div class="criterion-title">Missed BD Call Transfer</div><div class="criterion-sub">Failed to transfer Business Development call</div></td><td><span class="badge badge-ztp">ZTP</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Clear</button><button onclick="sc('L',this,'no')" class="pill-btn">Violated</button></div></td><td><span class="dv d0" data-type="ZTP" data-val="0">0</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Remarks -->
+        <div class="remarks-card">
+          <div class="remarks-card-header"><span class="remarks-card-title">Remarks &amp; Coaching Notes</span></div>
+          <div class="remarks-body">
+            <div class="full"><label>Call Summary</label><textarea placeholder="Brief summary of the call…" rows="3"></textarea></div>
+            <div><label>Priority Level</label><select><option>No Action Needed</option><option>Moderate – Monitor</option><option>High – Coaching Needed</option><option>Critical – Immediate Action Required</option></select></div>
+            <div><label>Auditor Signature</label><input type="text" placeholder="Full name"></div>
+            <div class="full"><label>Coaching Notes</label><textarea placeholder="Strengths, areas for improvement, and specific feedback…" rows="3"></textarea></div>
+          </div>
+        </div>
+
+      </div>
+      <!-- /LEGACY SCORECARD TAB -->
+
+      <!-- LEGACY QA GUIDE TAB -->
+      <div class="tab-panel" id="L-tab-guide">
+        <div class="legend-card">
+          <span class="legend-label">Performance</span>
+          <div class="legend-items">
+            <div class="legend-item"><div class="legend-dot" style="background:#059669"></div><span class="legend-range">100%</span><span class="legend-perf" style="color:#059669">Excellent</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#1d4ed8"></div><span class="legend-range">95–99%</span><span class="legend-perf" style="color:#1d4ed8">Outstanding</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#b45309"></div><span class="legend-range">87–94%</span><span class="legend-perf" style="color:#b45309">Satisfactory</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#c2410c"></div><span class="legend-range">81–86%</span><span class="legend-perf" style="color:#c2410c">Needs Improvement</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div><span class="legend-range">≤80%</span><span class="legend-perf" style="color:#dc2626">Poor</span></div>
+          </div>
+          <div class="legend-sep"></div>
+          <div class="error-types">
+            <div class="error-type-chip" style="background:var(--major-bg)"><span class="badge badge-major">Major</span><span style="color:var(--major);font-weight:700;font-size:11px">−5</span></div>
+            <div class="error-type-chip" style="background:var(--minor-bg)"><span class="badge badge-minor">Minor</span><span style="color:var(--minor);font-weight:700;font-size:11px">−1</span></div>
+            <div class="error-type-chip" style="background:var(--ztp-bg)"><span class="badge badge-ztp">ZTP</span><span style="color:var(--ztp);font-weight:700;font-size:11px">−100</span></div>
+          </div>
+        </div>
+
+        <div class="guide-sec">
+          <div class="guide-sec-header"><span class="acc-num acc-num-legacy">I</span><span style="font-size:13px;font-weight:600">Identification of Need</span></div>
+          <table class="guide-table"><thead><tr><th style="width:26px">#</th><th class="guide-crit">Criterion</th><th class="guide-def">Definition</th><th class="guide-meet">Meets Expectation</th><th class="guide-miss">Does Not Meet</th></tr></thead><tbody>
+            <tr><td class="guide-num">01</td><td class="guide-crit">Correct Call Driver Identification <span class="badge badge-major">Major</span></td><td class="guide-def">Agent correctly identifies the primary reason for the call (e.g., seeking treatment, insurance inquiry, loved one in crisis, detox vs residential).</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Asks appropriate probing questions</li><li>Accurately classifies the caller's intent</li><li>Aligns call handling with the identified need</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Assumes intent without confirmation</li><li>Mislabels the call driver</li><li>Proceeds with incorrect workflow</li></ul></td></tr>
+            <tr><td class="guide-num">02</td><td class="guide-crit">Correct SF Entry (Creation or Verification) <span class="badge badge-major">Major</span></td><td class="guide-def">Agent correctly creates a new record or verifies an existing record in Salesforce.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Searches for duplicates before creating a new record</li><li>Updates existing records accurately</li><li>Selects correct lead/source fields</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Creates duplicate records</li><li>Fails to verify existing information</li><li>Incorrect or incomplete SF fields</li></ul></td></tr>
+            <tr><td class="guide-num">03</td><td class="guide-crit">Verified key details per workflow <span class="badge badge-minor">Minor</span></td><td class="guide-def">Agent verifies required information according to the approved workflow.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Caller relationship to patient</li><li>Age, location, substance of choice</li><li>Insurance status (if applicable)</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Skips required verification steps</li><li>Assumes information without confirmation</li></ul></td></tr>
+          </tbody></table>
+        </div>
+
+        <div class="guide-sec">
+          <div class="guide-sec-header"><span class="acc-num acc-num-legacy">II</span><span style="font-size:13px;font-weight:600">Correct Resolution</span></div>
+          <table class="guide-table"><thead><tr><th style="width:26px">#</th><th class="guide-crit">Criterion</th><th class="guide-def">Definition</th><th class="guide-meet">Meets Expectation</th><th class="guide-miss">Does Not Meet</th></tr></thead><tbody>
+            <tr><td class="guide-num">04</td><td class="guide-crit">Used correct decisioning logic <span class="badge badge-major">Major</span></td><td class="guide-def">Agent follows approved logic to determine eligibility, routing, or next steps.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Uses correct eligibility and routing rules</li><li>Does not bypass decision trees</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Incorrect eligibility determination</li><li>Transfers or routes prematurely</li></ul></td></tr>
+            <tr><td class="guide-num">05</td><td class="guide-crit">Delivered HIPAA spiel perfectly (if applicable) <span class="badge badge-major">Major</span></td><td class="guide-def">Agent provides the required HIPAA disclosure verbatim when PHI may be discussed.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Uses approved script</li><li>Obtains consent before proceeding</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Missing or incomplete HIPAA disclosure</li><li>Paraphrasing critical language</li></ul></td></tr>
+            <tr><td class="guide-num">06</td><td class="guide-crit">Provided correct facility number per SF (if applicable) <span class="badge badge-minor">Minor</span></td><td class="guide-def">Agent provides the phone number corresponding to the correct facility listed in Salesforce.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Gives incorrect or outdated number</li><li>Shares non-approved contact details</li></ul></td></tr>
+            <tr><td class="guide-num">07</td><td class="guide-crit">Followed correct routing based on eligibility logic <span class="badge badge-major">Major</span></td><td class="guide-def">Agent routes the call correctly based on qualification outcomes.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Transfers only when criteria are met</li><li>Routes non-qualified callers appropriately</li></ul></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
+            <tr><td class="guide-num">08</td><td class="guide-crit">If no admissions representative was available, the agent offered a callback. <span class="badge badge-major">Major</span></td><td class="guide-def">If Admissions is unavailable, agent offers a callback following protocol.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Clearly explains callback process</li><li>Confirms best callback number and time</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Ends call without offering callback</li><li>Gives unclear or misleading expectations</li></ul></td></tr>
+          </tbody></table>
+        </div>
+
+        <div class="guide-sec">
+          <div class="guide-sec-header"><span class="acc-num acc-num-legacy">III</span><span style="font-size:13px;font-weight:600">Compliance &amp; Risk Control</span></div>
+          <table class="guide-table"><thead><tr><th style="width:26px">#</th><th class="guide-crit">Criterion</th><th class="guide-def">Definition</th><th class="guide-meet">Meets Expectation</th><th class="guide-miss">Does Not Meet</th></tr></thead><tbody>
+            <tr><td class="guide-num">09</td><td class="guide-crit">Agent followed approved protocols for sensitive or restricted lookups <span class="badge badge-major">Major</span></td><td class="guide-def">Agent strictly follows approved procedures including asking all required follow-up questions to confirm eligibility or authority.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Performs unauthorized lookups</li><li>Shares internal or restricted information</li><li>Did not ask if the caller works for the state</li></ul></td></tr>
+            <tr><td class="guide-num">10</td><td class="guide-crit">Strict Compliance with Risk-Control Scripts <span class="badge badge-major">Major</span></td><td class="guide-def">Agent strictly adheres to predefined scripts during high-risk situations (e.g., suicidal ideation, overdose, abuse) and follows specific scripts for designated call types.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Deviates from script</li><li>Misses required escalation</li></ul></td></tr>
+            <tr><td class="guide-num">11</td><td class="guide-crit">Documentation accuracy in Salesforce <span class="badge badge-major">Major</span></td><td class="guide-def">Call notes are complete, factual, and align with the call content.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Accurate summaries</li><li>Correct dispositions</li><li>No misleading or missing info</li></ul></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
+            <tr><td class="guide-num">12</td><td class="guide-crit">Agent pivoted the call <span class="badge badge-major">Major</span></td><td class="guide-def">Agent effectively redirects the conversation to treatment exploration when appropriate.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Transitions smoothly</li><li>Maintains control of the call flow</li></ul></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
+            <tr><td class="guide-num">13</td><td class="guide-crit">Agent pitched private pay <span class="badge badge-major">Major</span></td><td class="guide-def">Agent appropriately introduces private pay when insurance is unavailable or insufficient.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Uses approved language</li><li>Does not pressure or misrepresent costs</li></ul></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
+            <tr><td class="guide-num">14</td><td class="guide-crit">Agent asked mandatory intake questions <span class="badge badge-major">Major</span></td><td class="guide-def">Agent gathered client demographics, insurance information and drug of choice.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Agent failed to gather required info</li><li>Did not attempt to gather all necessary insurance information</li></ul></td></tr>
+            <tr><td class="guide-num">15</td><td class="guide-crit">Qualified callers are transferred to Admissions <span class="badge badge-major">Major</span></td><td class="guide-def">All qualified callers are warm-transferred to Admissions.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Missed transfer opportunity</li><li>Cold transfer without context</li><li>Did not attempt to transfer the call</li></ul></td></tr>
+            <tr><td class="guide-num">16</td><td class="guide-crit">Non-qualified callers receive alternative resources <span class="badge badge-minor">Minor</span></td><td class="guide-def">Agent provides approved resources (SAMHSA, Crisis Line, AA, etc.).</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Offers relevant resources</li><li>Provides correct contact details</li></ul></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
+          </tbody></table>
+        </div>
+
+        <div class="guide-sec">
+          <div class="guide-sec-header"><span class="acc-num acc-num-legacy">IV</span><span style="font-size:13px;font-weight:600">Caller Experience</span></div>
+          <table class="guide-table"><thead><tr><th style="width:26px">#</th><th class="guide-crit">Criterion</th><th class="guide-def">Definition</th><th class="guide-meet">Meets Expectation</th><th class="guide-miss">Does Not Meet</th></tr></thead><tbody>
+            <tr><td class="guide-num">17</td><td class="guide-crit">Active listening <span class="badge badge-major">Major</span></td><td class="guide-def">Agent demonstrates understanding through paraphrasing and appropriate responses.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Interrupts caller</li><li>Misses emotional cues</li></ul></td></tr>
+            <tr><td class="guide-num">18</td><td class="guide-crit">Empathy and tone <span class="badge badge-major">Major</span></td><td class="guide-def">Agent maintains compassionate, calm, and supportive tone throughout the call.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Sounds compassionate and non-judgmental</li></ul></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
+            <tr><td class="guide-num">19</td><td class="guide-crit">Clarity and ownership <span class="badge badge-minor">Minor</span></td><td class="guide-def">Agent clearly explains processes and takes ownership of next steps.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Uses vague language</li><li>Pushes responsibility to caller</li><li>Dead Air / Hold Time</li></ul></td></tr>
+            <tr><td class="guide-num">20</td><td class="guide-crit">Professional closing <span class="badge badge-minor">Minor</span></td><td class="guide-def">Agent closes the call politely and confidently.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Thanks caller</li><li>Confirms understanding</li></ul></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
+            <tr><td class="guide-num">21</td><td class="guide-crit">Clearly explained next steps to the caller <span class="badge badge-minor">Minor</span></td><td class="guide-def">Caller understands what will happen next (transfer, callback, follow-up).</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
+          </tbody></table>
+        </div>
+
+        <div class="guide-sec">
+          <div class="guide-sec-header"><span class="acc-num acc-num-ztp">V</span><span style="font-size:13px;font-weight:600;color:var(--ztp)">Zero Tolerance Policy</span></div>
+          <table class="guide-table"><thead><tr><th style="width:26px">#</th><th class="guide-crit">Criterion</th><th class="guide-def">Definition</th><th class="guide-meet">Meets Expectation</th><th class="guide-miss">Does Not Meet</th></tr></thead><tbody>
+            <tr><td class="guide-num">22</td><td class="guide-crit">Disclosed PHI directly <span class="badge badge-ztp">ZTP</span></td><td class="guide-def">Shared protected health information without authorization.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
+            <tr><td class="guide-num">23</td><td class="guide-crit">Told someone their loved one is or is not in the facility <span class="badge badge-ztp">ZTP</span></td><td class="guide-def">Confirmed or told someone their loved one is or is not in a facility.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
+            <tr><td class="guide-num">24</td><td class="guide-crit">Misbranding of call opening <span class="badge badge-ztp">ZTP</span></td><td class="guide-def">Incorrectly stated brand names during call opening (e.g., Legacy, Shorepoint, Citadel 12).</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
+            <tr><td class="guide-num">25</td><td class="guide-crit">Missed BD Call Transfer <span class="badge badge-ztp">ZTP</span></td><td class="guide-def">Failure to transfer a Business Development (BD) call to the appropriate team or resource, resulting in a lost opportunity.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Agent correctly identifies and transfers all Business Development calls to the designated team</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Agent fails to transfer a Business Development call</li><li>Transfer is delayed, incorrect, or handled incorrectly</li></ul></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <!-- /LEGACY QA GUIDE TAB -->
+
+    </div>
+    <!-- /MAIN COL -->
+
+    <!-- SIDEBAR SCORE PANEL -->
+    <div class="side-col">
+      <div class="score-panel">
+        <div class="score-panel-header">
+          <div class="score-panel-label">Live Score</div>
+          <div class="score-circle-wrap">
+            <div class="score-value" id="L-displayScore">100%</div>
+            <div class="score-perf-label perf-excellent" id="L-perfLabel">Excellent</div>
+            <div class="score-progress">
+              <div class="score-progress-bar" id="L-progressBar" style="width:100%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="score-panel-sections">
+          <div class="score-section-row" onclick="jumpTo('L-sc-s1')">
+            <div class="score-section-name"><span class="score-section-num section-num-legacy">I</span>Identification</div>
+            <span class="score-section-pts" id="L-side-s1">—</span>
+          </div>
+          <div class="score-section-row" onclick="jumpTo('L-sc-s2')">
+            <div class="score-section-name"><span class="score-section-num section-num-legacy">II</span>Resolution</div>
+            <span class="score-section-pts" id="L-side-s2">—</span>
+          </div>
+          <div class="score-section-row" onclick="jumpTo('L-sc-s3')">
+            <div class="score-section-name"><span class="score-section-num section-num-legacy">III</span>Compliance</div>
+            <span class="score-section-pts" id="L-side-s3">—</span>
+          </div>
+          <div class="score-section-row" onclick="jumpTo('L-sc-s4')">
+            <div class="score-section-name"><span class="score-section-num section-num-legacy">IV</span>Caller Exp.</div>
+            <span class="score-section-pts" id="L-side-s4">—</span>
+          </div>
+          <div class="score-section-row" onclick="jumpTo('L-sc-s5')">
+            <div class="score-section-name"><span class="score-section-num section-num-ztp">V</span>ZTP</div>
+            <span class="score-section-pts ztp-ok" id="L-side-s5">✓ Clear</span>
+          </div>
+        </div>
+
+        <div class="score-panel-footer">
+          <div class="completion-bar-label">
+            <span>Completion</span>
+            <span id="L-completionPct">0%</span>
+          </div>
+          <div class="completion-bar-track">
+            <div class="completion-bar-fill" id="L-completionBar" style="width:0%"></div>
+          </div>
+        </div>
+
+        <div class="score-actions">
+          <button class="btn btn-log" id="L-logBtn" onclick="logQAResult('L')">📤 Log QA Result</button>
+          <button class="btn btn-primary-legacy" onclick="window.print()">🖨 Print / Save PDF</button>
+          <button class="btn btn-ghost" onclick="openSheet()">📊 QA Database</button>
+          <button class="btn btn-ghost" onclick="resetForm('L')">↺ Reset Form</button>
+        </div>
+      </div>
+    </div>
+    <!-- /SIDEBAR -->
+
+  </div>
+  <!-- /LEGACY BRAND PANEL -->
+
+
+  <!-- ───── BANYAN BRAND PANEL ───── -->
+  <div class="brand-panel" id="brand-banyan">
+
+    <!-- AUDIT HEADER + META -->
+    <div class="audit-header">
+      <div class="audit-header-bar header-banyan-bar">
+        <div class="audit-title-block">
+          <div class="audit-title">Banyan Quality Scorecard</div>
+          <div class="audit-subtitle">Contact Center QA Audit Platform</div>
+        </div>
+        <div class="header-inner-tabs">
+          <button class="header-inner-tab active-tab active-tab-banyan" onclick="showTab('B','scorecard',this)">Scorecard</button>
+          <button class="header-inner-tab" onclick="showTab('B','guide',this)">QA Guide</button>
+        </div>
+      </div>
+      <div class="meta-bar mf-banyan" id="B-metaBar">
+        <div class="mf"><label>Audit No.</label><input type="text" id="B-auditNo" placeholder="e.g. 2025-001"></div>
+        <div class="mf"><label>Agent</label><select id="B-agent"><option value="">Select Agent…</option><optgroup label="— Banyan Agents —"><option>Bartolome, Christian Byron</option><option>Bugto, Alexandra Monique</option><option>Flores, Gohhan</option><option>Guzman, Joseph Roy</option><option>Lim, Dyan</option><option>Matanguihan, Deniele</option><option>Pineda, Marc Francis</option><option>Precioso, Gerard</option><option>Respicio, Sherry-an</option></optgroup></select></div>
+        <div class="mf"><label>CTM Phone</label><input type="text" id="B-ctmPhone" placeholder="(555) 000-0000"></div>
+        <div class="mf"><label>Call Date / Time</label><input type="datetime-local" id="B-callDateTime"></div>
+        <div class="mf"><label>Audit Date</label><input type="date" id="B-auditDate"></div>
+        <div class="mf"><label>Year</label><select id="B-year"></select></div>
+        <div class="mf"><label>Month</label><select id="B-month"></select></div>
+        <div class="mf"><label>Week</label><select id="B-week"><option value="">Select…</option><option>Week 1</option><option>Week 2</option><option>Week 3</option><option>Week 4</option><option>Week 5</option></select></div>
+        <div class="mf"><label>Team Leader</label><input type="text" placeholder="Name"></div>
+        <div class="mf"><label>QA Auditor</label><input type="text" placeholder="Name"></div>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT COL -->
+    <div class="main-col">
+
+      <!-- SCORECARD TAB -->
+      <div class="tab-panel active" id="B-tab-scorecard">
+
+        <div class="section-nav">
+          <button class="section-jump-btn banyan-jump" onclick="jumpTo('B-sc-s1')"><span class="acc-num acc-num-banyan section-jump-num">I</span>Identification</button>
+          <button class="section-jump-btn banyan-jump" onclick="jumpTo('B-sc-s2')"><span class="acc-num acc-num-banyan section-jump-num">II</span>Resolution</button>
+          <button class="section-jump-btn banyan-jump" onclick="jumpTo('B-sc-s3')"><span class="acc-num acc-num-banyan section-jump-num">III</span>Compliance</button>
+          <button class="section-jump-btn banyan-jump" onclick="jumpTo('B-sc-s4')"><span class="acc-num acc-num-banyan section-jump-num">IV</span>Caller Exp.</button>
+          <button class="section-jump-btn banyan-jump" onclick="jumpTo('B-sc-s5')"><span class="acc-num acc-num-ztp section-jump-num">V</span>ZTP</button>
+        </div>
+
+        <div class="ztp-banner" id="B-ztp-banner">
+          <span class="ztp-banner-icon">!</span>
+          Zero Tolerance Policy violated — Sections I–IV are automatically graded as failed.
+        </div>
+
+        <!-- Section I -->
+        <div class="acc-section open" id="B-sc-s1">
+          <div class="acc-header" onclick="toggleAcc(this.parentElement)">
+            <span class="acc-num acc-num-banyan">I</span>
+            <span class="acc-title">Identification of Need</span>
+            <span class="acc-status" id="B-pts-s1">—</span>
+            <svg class="acc-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg>
+          </div>
+          <div class="acc-body">
+            <table class="criterion-table">
+              <thead><tr><th class="col-num">#</th><th>Criterion</th><th class="col-type">Type</th><th class="col-compliance">Compliance</th><th class="col-ded">Ded.</th></tr></thead>
+              <tbody>
+                <tr><td class="col-num">01</td><td><div class="criterion-title">Correct Call Driver Identification</div><div class="criterion-sub">No assumed intent; probing questions asked</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">02</td><td><div class="criterion-title">Correct SF Entry (Creation or Verification)</div><div class="criterion-sub">No duplicates; correct fields updated</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">03</td><td><div class="criterion-title">Verified Key Details per Workflow</div><div class="criterion-sub">Caller role, patient demographics, facility or unit confirmed</div></td><td><span class="badge badge-minor">Minor</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Minor" data-val="0">0</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section II -->
+        <div class="acc-section" id="B-sc-s2">
+          <div class="acc-header" onclick="toggleAcc(this.parentElement)">
+            <span class="acc-num acc-num-banyan">II</span>
+            <span class="acc-title">Correct Resolution</span>
+            <span class="acc-status" id="B-pts-s2">—</span>
+            <svg class="acc-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg>
+          </div>
+          <div class="acc-body">
+            <table class="criterion-table">
+              <thead><tr><th class="col-num">#</th><th>Criterion</th><th class="col-type">Type</th><th class="col-compliance">Compliance</th><th class="col-ded">Ded.</th></tr></thead>
+              <tbody>
+                <tr><td class="col-num">04</td><td><div class="criterion-title">Used Correct Decisioning Logic</div><div class="criterion-sub">Eligibility &amp; routing rules followed; no premature transfer</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">05</td><td><div class="criterion-title">Delivered HIPAA Spiel Perfectly <em style="font-size:10px;color:var(--text-tertiary)">(if applicable)</em></div><div class="criterion-sub">Verbatim script; consent obtained</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">06</td><td><div class="criterion-title">Provided Correct Facility Number per SF <em style="font-size:10px;color:var(--text-tertiary)">(if applicable)</em></div><div class="criterion-sub">Matches SF; no outdated contacts</div></td><td><span class="badge badge-minor">Minor</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Minor" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">07</td><td><div class="criterion-title">Collected Required Hospital Referral Details <em style="font-size:10px;color:var(--text-tertiary)">(if applicable)</em></div><div class="criterion-sub">All applicable hospital referral info accurately gathered</div></td><td><span class="badge badge-minor">Minor</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Minor" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">08</td><td><div class="criterion-title">Followed Correct Routing Based on Eligibility Logic</div><div class="criterion-sub">Transfer only when criteria met; non-qualified routed correctly</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">09</td><td><div class="criterion-title">Offered Callback When Admissions Unavailable</div><div class="criterion-sub">Process explained; best number &amp; time confirmed</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section III -->
+        <div class="acc-section" id="B-sc-s3">
+          <div class="acc-header" onclick="toggleAcc(this.parentElement)">
+            <span class="acc-num acc-num-banyan">III</span>
+            <span class="acc-title">Compliance &amp; Risk Control</span>
+            <span class="acc-status" id="B-pts-s3">—</span>
+            <svg class="acc-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg>
+          </div>
+          <div class="acc-body">
+            <table class="criterion-table">
+              <thead><tr><th class="col-num">#</th><th>Criterion</th><th class="col-type">Type</th><th class="col-compliance">Compliance</th><th class="col-ded">Ded.</th></tr></thead>
+              <tbody>
+                <tr><td class="col-num">10</td><td><div class="criterion-title">Provided Correct Instructions for Sensitive Lookups</div><div class="criterion-sub">All follow-up questions asked; authority verified</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">11</td><td><div class="criterion-title">Followed Required Scripts for Risk-Control Points</div><div class="criterion-sub">SI, overdose, abuse; competitor/AA calls per script</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">12</td><td><div class="criterion-title">Documentation Accuracy in Salesforce</div><div class="criterion-sub">Accurate summaries, correct dispositions, no missing info</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">13</td><td><div class="criterion-title">Sex Offender Check <em style="font-size:10px;color:var(--text-tertiary)">(if applicable)</em></div><div class="criterion-sub">Check conducted correctly when situation requires it</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">14</td><td><div class="criterion-title">Agent Made Attempt to Transfer Call (Admission Call)</div><div class="criterion-sub">Genuine attempt to transfer per protocol</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">15</td><td><div class="criterion-title">Agent Created a Ticket <em style="font-size:10px;color:var(--text-tertiary)">(if applicable)</em></div><div class="criterion-sub">Ticket created in system when required</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">16</td><td><div class="criterion-title">Agent Asked Mandatory Intake Questions <em style="font-size:10px;color:var(--text-tertiary)">(if applicable)</em></div><div class="criterion-sub">Demographics, insurance, drug of choice gathered</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">17</td><td><div class="criterion-title">Agent Refrained from Asking Admission Questions in Group Chat <em style="font-size:10px;color:var(--text-tertiary)">(if applicable)</em></div><div class="criterion-sub">Communication protocol followed; no admission questions in group chat</div></td><td><span class="badge badge-minor">Minor</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Minor" data-val="0">0</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section IV -->
+        <div class="acc-section" id="B-sc-s4">
+          <div class="acc-header" onclick="toggleAcc(this.parentElement)">
+            <span class="acc-num acc-num-banyan">IV</span>
+            <span class="acc-title">Caller Experience</span>
+            <span class="acc-status" id="B-pts-s4">—</span>
+            <svg class="acc-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg>
+          </div>
+          <div class="acc-body">
+            <table class="criterion-table">
+              <thead><tr><th class="col-num">#</th><th>Criterion</th><th class="col-type">Type</th><th class="col-compliance">Compliance</th><th class="col-ded">Ded.</th></tr></thead>
+              <tbody>
+                <tr><td class="col-num">18</td><td><div class="criterion-title">Active Listening</div><div class="criterion-sub">Paraphrases; no interruptions; emotional cues recognized</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">19</td><td><div class="criterion-title">Empathy and Tone</div><div class="criterion-sub">Compassionate, calm, supportive; not rushed or dismissive</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">20</td><td><div class="criterion-title">Clarity and Ownership</div><div class="criterion-sub">Clear explanations; no dead air; owns next steps</div></td><td><span class="badge badge-minor">Minor</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Minor" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">21</td><td><div class="criterion-title">Professional Closing</div><div class="criterion-sub">Polite, confident; thanks caller; confirms understanding</div></td><td><span class="badge badge-minor">Minor</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Minor" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">22</td><td><div class="criterion-title">Clearly Explained Next Steps to Caller</div><div class="criterion-sub">Caller understands transfer, callback, or follow-up</div></td><td><span class="badge badge-minor">Minor</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Minor" data-val="0">0</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Section V — ZTP -->
+        <div class="acc-section" id="B-sc-s5">
+          <div class="acc-header" onclick="toggleAcc(this.parentElement)">
+            <span class="acc-num acc-num-ztp">V</span>
+            <span class="acc-title">Zero Tolerance Policy</span>
+            <span class="acc-status" id="B-pts-s5">—</span>
+            <svg class="acc-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg>
+          </div>
+          <div class="acc-body">
+            <table class="criterion-table">
+              <thead><tr><th class="col-num">#</th><th>Criterion</th><th class="col-type">Type</th><th class="col-compliance">Status</th><th class="col-ded">Ded.</th></tr></thead>
+              <tbody>
+                <tr class="ztp-row"><td class="col-num">23</td><td><div class="criterion-title">Disclosed PHI Directly</div><div class="criterion-sub">Shared PHI without authorization</div></td><td><span class="badge badge-ztp">ZTP</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Clear</button><button onclick="sc('B',this,'no')" class="pill-btn">Violated</button></div></td><td><span class="dv d0" data-type="ZTP" data-val="0">0</span></td></tr>
+                <tr class="ztp-row"><td class="col-num">24</td><td><div class="criterion-title">Told Someone Their Loved One Is or Is Not in the Facility</div><div class="criterion-sub">Disclosed facility presence to unauthorized party</div></td><td><span class="badge badge-ztp">ZTP</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Clear</button><button onclick="sc('B',this,'no')" class="pill-btn">Violated</button></div></td><td><span class="dv d0" data-type="ZTP" data-val="0">0</span></td></tr>
+                <tr class="ztp-row"><td class="col-num">25</td><td><div class="criterion-title">Misrepresented Timeline</div><div class="criterion-sub">Gave inaccurate timelines (e.g., wrong "24–48 hours")</div></td><td><span class="badge badge-ztp">ZTP</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Clear</button><button onclick="sc('B',this,'no')" class="pill-btn">Violated</button></div></td><td><span class="dv d0" data-type="ZTP" data-val="0">0</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Remarks -->
+        <div class="remarks-card focus-banyan">
+          <div class="remarks-card-header"><span class="remarks-card-title">Remarks &amp; Coaching Notes</span></div>
+          <div class="remarks-body">
+            <div class="full"><label>Call Summary</label><textarea placeholder="Brief summary of the call…" rows="3"></textarea></div>
+            <div><label>Priority Level</label><select><option>No Action Needed</option><option>Moderate – Monitor</option><option>High – Coaching Needed</option><option>Critical – Immediate Action Required</option></select></div>
+            <div><label>Auditor Signature</label><input type="text" placeholder="Full name"></div>
+            <div class="full"><label>Coaching Notes</label><textarea placeholder="Strengths, areas for improvement, and specific feedback…" rows="3"></textarea></div>
+          </div>
+        </div>
+
+      </div>
+      <!-- /BANYAN SCORECARD TAB -->
+
+      <!-- BANYAN QA GUIDE TAB -->
+      <div class="tab-panel" id="B-tab-guide">
+        <div class="legend-card">
+          <span class="legend-label">Performance</span>
+          <div class="legend-items">
+            <div class="legend-item"><div class="legend-dot" style="background:#059669"></div><span class="legend-range">100%</span><span class="legend-perf" style="color:#059669">Excellent</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#1d4ed8"></div><span class="legend-range">95–99%</span><span class="legend-perf" style="color:#1d4ed8">Outstanding</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#b45309"></div><span class="legend-range">87–94%</span><span class="legend-perf" style="color:#b45309">Satisfactory</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#c2410c"></div><span class="legend-range">81–86%</span><span class="legend-perf" style="color:#c2410c">Needs Improvement</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div><span class="legend-range">≤80%</span><span class="legend-perf" style="color:#dc2626">Poor</span></div>
+          </div>
+          <div class="legend-sep"></div>
+          <div class="error-types">
+            <div class="error-type-chip" style="background:var(--major-bg)"><span class="badge badge-major">Major</span><span style="color:var(--major);font-weight:700;font-size:11px">−5</span></div>
+            <div class="error-type-chip" style="background:var(--minor-bg)"><span class="badge badge-minor">Minor</span><span style="color:var(--minor);font-weight:700;font-size:11px">−1</span></div>
+            <div class="error-type-chip" style="background:var(--ztp-bg)"><span class="badge badge-ztp">ZTP</span><span style="color:var(--ztp);font-weight:700;font-size:11px">−100</span></div>
+          </div>
+        </div>
+
+        <div class="guide-sec">
+          <div class="guide-sec-header"><span class="acc-num acc-num-banyan">I</span><span style="font-size:13px;font-weight:600">Identification of Need</span></div>
+          <table class="guide-table"><thead><tr><th style="width:26px">#</th><th class="guide-crit">Criterion</th><th class="guide-def">Definition</th><th class="guide-meet">Meets Expectation</th><th class="guide-miss">Does Not Meet</th></tr></thead><tbody>
+            <tr><td class="guide-num">01</td><td class="guide-crit">Correct Call Driver Identification <span class="badge badge-major">Major</span></td><td class="guide-def">Agent accurately identifies the primary reason for the call (hospital referral, admissions follow-up, eligibility check, placement request, etc.).</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Asks clarifying questions</li><li>Correctly categorizes the call type</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Assumes intent</li><li>Routes incorrectly due to misidentification</li></ul></td></tr>
+            <tr><td class="guide-num">02</td><td class="guide-crit">Correct SF Entry (Creation or Verification) <span class="badge badge-major">Major</span></td><td class="guide-def">Agent verifies existing records or creates a new one following SF standards.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Searches for duplicates</li><li>Correct lead/account selection</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Duplicate creation</li><li>Missing or incorrect data fields</li></ul></td></tr>
+            <tr><td class="guide-num">03</td><td class="guide-crit">Verified Key Details per Workflow <span class="badge badge-minor">Minor</span></td><td class="guide-def">Agent verifies patient and caller details relevant to the call type.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Correct demographics confirmed</li><li>Facility or unit verified</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Missing key verification steps</li></ul></td></tr>
+          </tbody></table>
+        </div>
+
+        <div class="guide-sec">
+          <div class="guide-sec-header"><span class="acc-num acc-num-banyan">II</span><span style="font-size:13px;font-weight:600">Correct Resolution</span></div>
+          <table class="guide-table"><thead><tr><th style="width:26px">#</th><th class="guide-crit">Criterion</th><th class="guide-def">Definition</th><th class="guide-meet">Meets Expectation</th><th class="guide-miss">Does Not Meet</th></tr></thead><tbody>
+            <tr><td class="guide-num">04</td><td class="guide-crit">Used Correct Decisioning Logic <span class="badge badge-major">Major</span></td><td class="guide-def">Agent follows approved eligibility and routing logic.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Correct routing followed</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Incorrect eligibility determination</li></ul></td></tr>
+            <tr><td class="guide-num">05</td><td class="guide-crit">Delivered HIPAA Spiel Perfectly (if applicable) <span class="badge badge-major">Major</span></td><td class="guide-def">Agent delivers required HIPAA disclosure verbatim when PHI may be discussed.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Uses approved script</li><li>Obtains consent</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Missing or incomplete HIPAA disclosure</li></ul></td></tr>
+            <tr><td class="guide-num">06</td><td class="guide-crit">Provided Correct Facility Number per SF (if applicable) <span class="badge badge-minor">Minor</span></td><td class="guide-def">Agent provides the correct facility number from SF.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Incorrect or outdated number</li></ul></td></tr>
+            <tr><td class="guide-num">07</td><td class="guide-crit">Collected Required Hospital Referral Details (if applicable) <span class="badge badge-minor">Minor</span></td><td class="guide-def">All applicable hospital referral information accurately gathered.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Missing referral details</li></ul></td></tr>
+            <tr><td class="guide-num">08</td><td class="guide-crit">Followed Correct Routing Based on Eligibility Logic <span class="badge badge-major">Major</span></td><td class="guide-def">Agent routes correctly per eligibility outcomes.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Transfers only when criteria met</li></ul></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
+            <tr><td class="guide-num">09</td><td class="guide-crit">Offered Callback When Admissions Unavailable <span class="badge badge-major">Major</span></td><td class="guide-def">Agent offers callback when Admissions is unavailable.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Explains callback process</li><li>Confirms best callback number and time</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Ends call without offering callback</li></ul></td></tr>
+          </tbody></table>
+        </div>
+
+        <div class="guide-sec">
+          <div class="guide-sec-header"><span class="acc-num acc-num-banyan">III</span><span style="font-size:13px;font-weight:600">Compliance &amp; Risk Control</span></div>
+          <table class="guide-table"><thead><tr><th style="width:26px">#</th><th class="guide-crit">Criterion</th><th class="guide-def">Definition</th><th class="guide-meet">Meets Expectation</th><th class="guide-miss">Does Not Meet</th></tr></thead><tbody>
+            <tr><td class="guide-num">10</td><td class="guide-crit">Provided Correct Instructions for Sensitive Lookups <span class="badge badge-major">Major</span></td><td class="guide-def">Agent follows approved procedures; all follow-up questions asked; authority verified.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Unauthorized lookup</li><li>Authority not verified</li></ul></td></tr>
+            <tr><td class="guide-num">11</td><td class="guide-crit">Followed Required Scripts for Risk-Control Points <span class="badge badge-major">Major</span></td><td class="guide-def">Agent strictly adheres to predefined scripts for high-risk situations.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Deviates from script</li><li>Misses required escalation</li></ul></td></tr>
+            <tr><td class="guide-num">12</td><td class="guide-crit">Documentation Accuracy in Salesforce <span class="badge badge-major">Major</span></td><td class="guide-def">Call notes are complete, factual, and aligned with call content.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Accurate summaries</li><li>Correct dispositions</li></ul></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
+            <tr><td class="guide-num">13</td><td class="guide-crit">Sex Offender Check (if applicable) <span class="badge badge-major">Major</span></td><td class="guide-def">Check conducted correctly when situation requires it.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Check not performed when required</li></ul></td></tr>
+            <tr><td class="guide-num">14</td><td class="guide-crit">Agent Made Attempt to Transfer Call (Admission Call) <span class="badge badge-major">Major</span></td><td class="guide-def">Genuine attempt to transfer per protocol.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>No transfer attempt made</li></ul></td></tr>
+            <tr><td class="guide-num">15</td><td class="guide-crit">Agent Created a Ticket (if applicable) <span class="badge badge-major">Major</span></td><td class="guide-def">Ticket created in system when required.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Ticket not created when required</li></ul></td></tr>
+            <tr><td class="guide-num">16</td><td class="guide-crit">Agent Asked Mandatory Intake Questions (if applicable) <span class="badge badge-major">Major</span></td><td class="guide-def">All required intake information collected.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Missing required information</li></ul></td></tr>
+            <tr><td class="guide-num">17</td><td class="guide-crit">Agent Refrained from Asking Admission Questions in Group Chat <span class="badge badge-minor">Minor</span></td><td class="guide-def">Communication protocol followed; admission questions not asked in group chat.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Admission questions asked in group chat</li></ul></td></tr>
+          </tbody></table>
+        </div>
+
+        <div class="guide-sec">
+          <div class="guide-sec-header"><span class="acc-num acc-num-banyan">IV</span><span style="font-size:13px;font-weight:600">Caller Experience</span></div>
+          <table class="guide-table"><thead><tr><th style="width:26px">#</th><th class="guide-crit">Criterion</th><th class="guide-def">Definition</th><th class="guide-meet">Meets Expectation</th><th class="guide-miss">Does Not Meet</th></tr></thead><tbody>
+            <tr><td class="guide-num">18</td><td class="guide-crit">Active Listening <span class="badge badge-major">Major</span></td><td class="guide-def">Agent demonstrates understanding through paraphrasing and appropriate responses.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Interrupts caller</li><li>Misses emotional cues</li></ul></td></tr>
+            <tr><td class="guide-num">19</td><td class="guide-crit">Empathy and Tone <span class="badge badge-major">Major</span></td><td class="guide-def">Agent maintains compassionate, calm, and supportive tone throughout the call.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Sounds compassionate and non-judgmental</li></ul></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
+            <tr><td class="guide-num">20</td><td class="guide-crit">Clarity and Ownership <span class="badge badge-minor">Minor</span></td><td class="guide-def">Agent clearly explains processes and takes ownership of next steps.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Uses vague language</li><li>Dead Air / Hold Time</li></ul></td></tr>
+            <tr><td class="guide-num">21</td><td class="guide-crit">Professional Closing <span class="badge badge-minor">Minor</span></td><td class="guide-def">Agent closes the call politely and confidently.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Thanks caller</li><li>Confirms understanding</li></ul></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
+            <tr><td class="guide-num">22</td><td class="guide-crit">Clearly Explained Next Steps to Caller <span class="badge badge-minor">Minor</span></td><td class="guide-def">Caller understands what will happen next (transfer, callback, follow-up).</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
+          </tbody></table>
+        </div>
+
+        <div class="guide-sec">
+          <div class="guide-sec-header"><span class="acc-num acc-num-ztp">V</span><span style="font-size:13px;font-weight:600;color:var(--ztp)">Zero Tolerance Policy</span></div>
+          <table class="guide-table"><thead><tr><th style="width:26px">#</th><th class="guide-crit">Criterion</th><th class="guide-def">Definition</th><th class="guide-meet">Meets Expectation</th><th class="guide-miss">Does Not Meet</th></tr></thead><tbody>
+            <tr><td class="guide-num">23</td><td class="guide-crit">Disclosed PHI directly <span class="badge badge-ztp">ZTP</span></td><td class="guide-def">Shared protected health information without authorization.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
+            <tr><td class="guide-num">24</td><td class="guide-crit">Told someone their loved one is or is not in the facility <span class="badge badge-ztp">ZTP</span></td><td class="guide-def">Confirmed or denied a loved one's presence in a facility.</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
+            <tr><td class="guide-num">25</td><td class="guide-crit">Misrepresented Timeline <span class="badge badge-ztp">ZTP</span></td><td class="guide-def">Gave inaccurate timelines to caller (e.g., wrong "24–48 hours").</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <!-- /BANYAN QA GUIDE TAB -->
+
+    </div>
+    <!-- /MAIN COL -->
+
+    <!-- SIDEBAR SCORE PANEL -->
+    <div class="side-col">
+      <div class="score-panel">
+        <div class="score-panel-header">
+          <div class="score-panel-label">Live Score</div>
+          <div class="score-circle-wrap">
+            <div class="score-value" id="B-displayScore">100%</div>
+            <div class="score-perf-label perf-excellent" id="B-perfLabel">Excellent</div>
+            <div class="score-progress">
+              <div class="score-progress-bar" id="B-progressBar" style="width:100%;background:var(--banyan)"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="score-panel-sections">
+          <div class="score-section-row" onclick="jumpTo('B-sc-s1')">
+            <div class="score-section-name"><span class="score-section-num section-num-banyan">I</span>Identification</div>
+            <span class="score-section-pts" id="B-side-s1">—</span>
+          </div>
+          <div class="score-section-row" onclick="jumpTo('B-sc-s2')">
+            <div class="score-section-name"><span class="score-section-num section-num-banyan">II</span>Resolution</div>
+            <span class="score-section-pts" id="B-side-s2">—</span>
+          </div>
+          <div class="score-section-row" onclick="jumpTo('B-sc-s3')">
+            <div class="score-section-name"><span class="score-section-num section-num-banyan">III</span>Compliance</div>
+            <span class="score-section-pts" id="B-side-s3">—</span>
+          </div>
+          <div class="score-section-row" onclick="jumpTo('B-sc-s4')">
+            <div class="score-section-name"><span class="score-section-num section-num-banyan">IV</span>Caller Exp.</div>
+            <span class="score-section-pts" id="B-side-s4">—</span>
+          </div>
+          <div class="score-section-row" onclick="jumpTo('B-sc-s5')">
+            <div class="score-section-name"><span class="score-section-num section-num-ztp">V</span>ZTP</div>
+            <span class="score-section-pts ztp-ok" id="B-side-s5">✓ Clear</span>
+          </div>
+        </div>
+
+        <div class="score-panel-footer">
+          <div class="completion-bar-label">
+            <span>Completion</span>
+            <span id="B-completionPct">0%</span>
+          </div>
+          <div class="completion-bar-track">
+            <div class="completion-bar-fill" id="B-completionBar" style="width:0%;background:var(--banyan)"></div>
+          </div>
+        </div>
+
+        <div class="score-actions">
+          <button class="btn btn-log" id="B-logBtn" onclick="logQAResult('B')">📤 Log QA Result</button>
+          <button class="btn btn-primary-banyan" onclick="window.print()">🖨 Print / Save PDF</button>
+          <button class="btn btn-ghost" onclick="openSheet()">📊 QA Database</button>
+          <button class="btn btn-ghost" onclick="resetForm('B')">↺ Reset Form</button>
+        </div>
+      </div>
+    </div>
+    <!-- /SIDEBAR -->
+
+  </div>
+  <!-- /BANYAN BRAND PANEL -->
+
+</div>
+<!-- /APP SHELL -->
+
+<div class="toast" id="qa-toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   BRAND / TAB SWITCHING
+═══════════════════════════════════════════════════════════ */
+function showBrand(brand, btn) {
+  document.querySelectorAll('.brand-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active-legacy','active-banyan'));
+  document.getElementById('brand-' + brand).classList.add('active');
+  btn.classList.add('active-' + brand);
+
+  // nav dot color
+  document.getElementById('nav-dot').style.background = brand === 'legacy' ? '#1c4fa0' : '#0e7c5a';
+
+  // show correct nav tabs
+  document.getElementById('nav-tabs-L').style.display = brand === 'legacy' ? 'flex' : 'none';
+  document.getElementById('nav-tabs-B').style.display = brand === 'banyan' ? 'flex' : 'none';
+}
+
+function showTab(prefix, tab, btn) {
+  const panels = document.getElementById('brand-' + (prefix === 'L' ? 'legacy' : 'banyan'));
+  const brandStr = prefix === 'L' ? 'legacy' : 'banyan';
+
+  // Hide all tab-panels
+  panels.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(prefix + '-tab-' + tab).classList.add('active');
+
+  // Update header inner tabs
+  const headerTabs = panels.querySelectorAll('.header-inner-tab');
+  headerTabs.forEach(t => {
+    t.classList.remove('active-tab','active-tab-legacy','active-tab-banyan');
+  });
+
+  // find header tab matching this tab
+  headerTabs.forEach(t => {
+    const isScore = (tab === 'scorecard' && t.textContent.trim() === 'Scorecard');
+    const isGuide = (tab === 'guide' && t.textContent.trim() === 'QA Guide');
+    if (isScore || isGuide) {
+      t.classList.add('active-tab', 'active-tab-' + brandStr);
+    }
+  });
+
+  // Update nav tabs
+  const navTabGroup = document.getElementById('nav-tabs-' + prefix);
+  if (navTabGroup) {
+    navTabGroup.querySelectorAll('.nav-tab-btn').forEach(t => {
+      t.classList.remove('active-legacy', 'active-banyan');
+    });
+    if (btn && btn.classList.contains('nav-tab-btn')) {
+      btn.classList.add('active-' + brandStr);
+    }
+  }
+
+  // Show/hide section nav and score panel
+  const sectionNav = document.getElementById(prefix + '-section-nav');
+  if (sectionNav) sectionNav.style.display = tab === 'scorecard' ? 'flex' : 'none';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ACCORDION
+═══════════════════════════════════════════════════════════ */
+function toggleAcc(section) {
+  section.classList.toggle('open');
+}
+
+function jumpTo(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (!el.classList.contains('open')) el.classList.add('open');
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCORING
+═══════════════════════════════════════════════════════════ */
+function sc(prefix, btn, action) {
+  const row = btn.closest('tr');
+  const dvEl = row.querySelector('.dv');
+  const pills = btn.closest('.pill-toggle').querySelectorAll('.pill-btn');
+  const type = dvEl.dataset.type;
+
+  // Clear all pill states
+  pills.forEach(b => b.classList.remove('ay','an','aa'));
+
+  let deduction = 0;
+
+  if (action === 'yes') {
+    btn.classList.add('ay');
+    deduction = 0;
+  } else if (action === 'no') {
+    btn.classList.add('an');
+    deduction = type === 'Major' ? 5 : type === 'Minor' ? 1 : 100;
+  } else {
+    btn.classList.add('aa');
+    deduction = 0;
+  }
+
+  dvEl.dataset.val = deduction;
+  dvEl.textContent = deduction === 0 ? '0' : '-' + deduction;
+  dvEl.className = 'dv ' + (deduction === 0 ? 'd0' : type === 'Major' ? 'dm' : type === 'Minor' ? 'dn' : 'dz');
+
+  updateScore(prefix);
+  applyZTPGreyout(prefix);
+  updateCompletion(prefix);
+}
+
+function getSections(prefix) {
+  if (prefix === 'L') {
+    return [
+      { id: 'L-pts-s1', sideId: 'L-side-s1', rows: [0,1,2] },
+      { id: 'L-pts-s2', sideId: 'L-side-s2', rows: [3,4,5,6,7] },
+      { id: 'L-pts-s3', sideId: 'L-side-s3', rows: [8,9,10,11,12,13,14,15] },
+      { id: 'L-pts-s4', sideId: 'L-side-s4', rows: [16,17,18,19,20] },
+      { id: 'L-pts-s5', sideId: 'L-side-s5', rows: [21,22,23,24], ztp: true },
+    ];
+  } else {
+    return [
+      { id: 'B-pts-s1', sideId: 'B-side-s1', rows: [0,1,2] },
+      { id: 'B-pts-s2', sideId: 'B-side-s2', rows: [3,4,5,6,7,8] },
+      { id: 'B-pts-s3', sideId: 'B-side-s3', rows: [9,10,11,12,13,14,15,16] },
+      { id: 'B-pts-s4', sideId: 'B-side-s4', rows: [17,18,19,20,21] },
+      { id: 'B-pts-s5', sideId: 'B-side-s5', rows: [22,23,24], ztp: true },
+    ];
+  }
+}
+
+function updateScore(prefix) {
+  const scoreTab = document.getElementById(prefix + '-tab-scorecard');
+  const all = [...scoreTab.querySelectorAll('.dv')];
+  const secs = getSections(prefix);
+  let totalDed = 0;
+
+  secs.forEach(s => {
+    let sd = 0;
+    s.rows.forEach(i => sd += parseInt(all[i]?.dataset.val || 0));
+    totalDed += sd;
+
+    // Update accordion header status
+    const accEl = document.getElementById(s.id);
+    // Update sidebar status
+    const sideEl = s.sideId ? document.getElementById(s.sideId) : null;
+
+    if (s.ztp) {
+      const v = s.rows.filter(i => parseInt(all[i]?.dataset.val || 0) > 0).length;
+      const txt = v === 0 ? '✓ Clear' : v + ' violation' + (v > 1 ? 's' : '') + ' — AUTO-FAIL';
+      const cls = v > 0 ? 'acc-status critical' : 'acc-status ztp-ok';
+
+      if (accEl) { accEl.textContent = txt; accEl.className = cls; }
+      if (sideEl) {
+        sideEl.textContent = v === 0 ? '✓ Clear' : v + ' viol.';
+        sideEl.className = 'score-section-pts ' + (v > 0 ? 'ztp-fail' : 'ztp-ok');
+      }
+    } else {
+      const txt = sd === 0 ? '✓' : '−' + sd + ' pts';
+      if (accEl) { accEl.textContent = txt; accEl.className = 'acc-status ' + (sd > 0 ? 'warn' : 'ok'); }
+      if (sideEl) {
+        sideEl.textContent = sd === 0 ? '✓' : '−' + sd;
+        sideEl.className = 'score-section-pts ' + (sd > 0 ? 'has-ded' : '');
+      }
+    }
+  });
+
+  const pct = Math.max(0, 100 - totalDed);
+  document.getElementById(prefix + '-displayScore').textContent = pct + '%';
+
+  // Progress bar
+  const bar = document.getElementById(prefix + '-progressBar');
+  if (bar) {
+    bar.style.width = pct + '%';
+    const barColor = pct === 100 ? '#059669' : pct >= 87 ? '#d97706' : '#dc2626';
+    bar.style.background = barColor;
+  }
+
+  // Perf label
+  let perf, perfClass;
+  if (totalDed >= 100) { perf = 'Auto-Fail (ZTP)'; perfClass = 'perf-autofail'; }
+  else if (pct === 100) { perf = 'Excellent'; perfClass = 'perf-excellent'; }
+  else if (pct >= 95) { perf = 'Outstanding'; perfClass = 'perf-outstanding'; }
+  else if (pct >= 87) { perf = 'Satisfactory'; perfClass = 'perf-satisfactory'; }
+  else if (pct >= 81) { perf = 'Needs Improvement'; perfClass = 'perf-needs'; }
+  else { perf = 'Poor Performance'; perfClass = 'perf-poor'; }
+
+  const perfEl = document.getElementById(prefix + '-perfLabel');
+  perfEl.textContent = perf;
+  perfEl.className = 'score-perf-label ' + perfClass;
+}
+
+function updateCompletion(prefix) {
+  const scoreTab = document.getElementById(prefix + '-tab-scorecard');
+  const allPills = [...scoreTab.querySelectorAll('.pill-toggle')];
+  const answered = allPills.filter(pt => pt.querySelector('.ay, .an, .aa')).length;
+  const total = allPills.length;
+  const pct = total === 0 ? 0 : Math.round((answered / total) * 100);
+
+  const bar = document.getElementById(prefix + '-completionBar');
+  const label = document.getElementById(prefix + '-completionPct');
+  if (bar) bar.style.width = pct + '%';
+  if (label) label.textContent = pct + '%';
+}
+
+function applyZTPGreyout(prefix) {
+  const scoreTab = document.getElementById(prefix + '-tab-scorecard');
+  const all = [...scoreTab.querySelectorAll('.dv')];
+  const secs = getSections(prefix);
+  const ztpSec = secs.find(s => s.ztp);
+  const violated = ztpSec.rows.some(i => parseInt(all[i]?.dataset.val || 0) > 0);
+
+  const banner = document.getElementById(prefix + '-ztp-banner');
+  banner.classList.toggle('visible', violated);
+
+  ['s1','s2','s3','s4'].forEach(sid => {
+    const el = document.getElementById(prefix + '-sc-' + sid);
+    if (!el) return;
+    el.classList.toggle('ztp-locked', violated);
+    el.querySelectorAll('.pill-btn').forEach(b => b.disabled = violated);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GOOGLE SHEETS LOGGING
+═══════════════════════════════════════════════════════════ */
+const QA_LOG_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxL81f7KhV9dztn2ZzM2HTQc8471MS2ukzd0EmS-C8WRDdkXRfvib7PK6M9uU3VTkv1/exec';
+const QA_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1GdFTdlaSgrE2y0ZSCGb_3VgUUsEoQeYIeHUDqP75anc/edit?usp=sharing';
+
+const loggedCTMPhones = { L: new Set(), B: new Set() };
+const sessionLogged = { L: false, B: false };
+
+function openSheet() {
+  window.open(QA_SHEET_URL, '_blank');
+}
+
+function populateYearMonth(prefix) {
+  const yearSel = document.getElementById(prefix + '-year');
+  const monthSel = document.getElementById(prefix + '-month');
+  if (!yearSel || !monthSel) return;
+  const now = new Date();
+  const curYear = now.getFullYear();
+  yearSel.innerHTML = '';
+  for (let y = curYear - 1; y <= curYear + 2; y++) {
+    const opt = document.createElement('option');
+    opt.value = y; opt.textContent = y;
+    if (y === curYear) opt.selected = true;
+    yearSel.appendChild(opt);
+  }
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  monthSel.innerHTML = '';
+  months.forEach((m, i) => {
+    const opt = document.createElement('option');
+    opt.value = m; opt.textContent = m;
+    if (i === now.getMonth()) opt.selected = true;
+    monthSel.appendChild(opt);
+  });
+}
+
+function showToast(msg, isError) {
+  let t = document.getElementById('qa-toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' error' : '');
+  clearTimeout(t._hideTimer);
+  t._hideTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function logQAResult(prefix) {
+  const brand = prefix === 'L' ? 'Legacy' : 'Banyan';
+  const year = document.getElementById(prefix + '-year')?.value || '';
+  const month = document.getElementById(prefix + '-month')?.value || '';
+  const week = document.getElementById(prefix + '-week')?.value || '';
+  const name = (document.getElementById(prefix + '-agent')?.value || '').trim();
+  const auditNo = (document.getElementById(prefix + '-auditNo')?.value || '').trim();
+  const qaScore = document.getElementById(prefix + '-displayScore')?.textContent || '';
+  const ctmPhone = (document.getElementById(prefix + '-ctmPhone')?.value || '').trim();
+  const callDateTime = (document.getElementById(prefix + '-callDateTime')?.value || '').trim();
+  const auditDate = (document.getElementById(prefix + '-auditDate')?.value || '').trim();
+
+  if (!name || !auditNo || !week) {
+    showToast('Please fill in Agent, Audit No., and Week before logging.', true);
+    return;
+  }
+  if (!QA_LOG_SCRIPT_URL || QA_LOG_SCRIPT_URL.indexOf('PASTE_YOUR') === 0) {
+    showToast("Logging isn't configured yet — add the Web App URL in the script.", true);
+    return;
+  }
+
+  if (ctmPhone && loggedCTMPhones[prefix].has(ctmPhone)) {
+    if (!confirm(`⚠ A record with CTM Phone "${ctmPhone}" has already been logged this session.\n\nLog it again anyway?`)) return;
+  }
+
+  const btn = document.getElementById(prefix + '-logBtn');
+  const original = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'Logging…'; }
+
+  const fd = new FormData();
+  fd.append('year', year);
+  fd.append('month', month);
+  fd.append('name', name);
+  fd.append('auditNo', auditNo);
+  fd.append('week', week);
+  fd.append('qaScore', qaScore);
+  fd.append('campaign', brand);
+  fd.append('ctmPhone', ctmPhone);
+  fd.append('callDateTime', callDateTime);
+  fd.append('auditDate', auditDate);
+
+  fetch(QA_LOG_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: fd })
+    .then(() => {
+      if (ctmPhone) loggedCTMPhones[prefix].add(ctmPhone);
+      sessionLogged[prefix] = true;
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = '✓ Logged';
+        btn.style.background = '#6b7280';
+        btn.title = 'Already logged. Reset the form to log a new entry.';
+      }
+      showToast('✓ QA result logged to the spreadsheet.');
+    })
+    .catch(() => {
+      showToast('⚠ Could not reach the log server. Check your connection.', true);
+      if (btn) { btn.disabled = false; btn.textContent = original; }
+    });
+}
+
+function resetForm(prefix) {
+  if (!confirm('Reset all entries for this scorecard?')) return;
+  const scoreTab = document.getElementById(prefix + '-tab-scorecard');
+
+  scoreTab.querySelectorAll('.pill-toggle').forEach(g => {
+    const bs = g.querySelectorAll('.pill-btn');
+    bs.forEach(b => b.classList.remove('ay','an','aa'));
+    if (bs[0]) bs[0].classList.add('ay');
+  });
+
+  scoreTab.querySelectorAll('.dv').forEach(s => {
+    s.dataset.val = 0;
+    s.textContent = '0';
+    s.className = 'dv d0';
+  });
+
+  scoreTab.querySelectorAll('textarea, input[type=text], input[type=datetime-local], input[type=date]').forEach(el => el.value = '');
+  scoreTab.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+
+  const metaBar = document.getElementById(prefix + '-metaBar');
+  if (metaBar) {
+    metaBar.querySelectorAll('input[type=text], input[type=datetime-local], input[type=date]').forEach(el => el.value = '');
+    metaBar.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+  }
+
+  sessionLogged[prefix] = false;
+  const btn = document.getElementById(prefix + '-logBtn');
+  if (btn) { btn.disabled = false; btn.textContent = '📤 Log QA Result'; btn.style.background = ''; btn.title = ''; }
+
+  updateScore(prefix);
+  applyZTPGreyout(prefix);
+  updateCompletion(prefix);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════ */
+// Set first nav tab active
+document.querySelectorAll('#nav-tabs-L .nav-tab-btn')[0]?.classList.add('active-legacy');
+document.querySelectorAll('#nav-tabs-B .nav-tab-btn')[0]?.classList.add('active-banyan');
+
+updateScore('L');
+updateScore('B');
+applyZTPGreyout('L');
+applyZTPGreyout('B');
+updateCompletion('L');
+updateCompletion('B');
+populateYearMonth('L');
+populateYearMonth('B');
+</script>
+</body>
+</html>
