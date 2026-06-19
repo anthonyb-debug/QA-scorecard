@@ -2459,7 +2459,7 @@ body {
         <div class="mf"><label>Audit Date</label><input type="date" id="L-auditDate"></div>
         <div class="mf"><label>Year</label><select id="L-year"></select></div>
         <div class="mf"><label>Month</label><select id="L-month"></select></div>
-        <div class="mf"><label>Week</label><select id="L-week"><option value="">Select…</option><option>Week 1</option><option>Week 2</option><option>Week 3</option><option>Week 4</option><option>Week 5</option></select></div>
+        <div class="mf"><label>Week</label><select id="L-week"><option value="">Select…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
         <div class="mf"><label>Team Leader</label><select id="L-teamLeader"><option value="">Select…</option><option>Pineda, John Tristan</option></select></div>
         <div class="mf"><label>QA Auditor</label><select id="L-qaAuditor"><option value="">Select…</option><option>Bucatcat, Raphael Zaldy</option></select></div>
       </div>
@@ -4733,6 +4733,11 @@ populateDashYearMonth('B');
 function savePDF(prefix) {
   const brand = prefix === 'L' ? 'Legacy' : 'Banyan';
 
+  function pdfFileName(meta) {
+    const clean = (v) => (v || 'Unknown').toString().replace(/[\\/:*?"<>|]/g, '').trim();
+    return `Audit${clean(meta.auditNo)}_Week${clean(meta.week)}_${clean(meta.agent)}_${clean(meta.month)}_${clean(meta.year)}`;
+  }
+
   // ── collect meta fields ──────────────────────────────────
   function val(id) {
     const el = document.getElementById(id);
@@ -4842,11 +4847,12 @@ function savePDF(prefix) {
   ).join('');
 
   // ── assemble full HTML ───────────────────────────────────
+  const pdfName = pdfFileName(meta);
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>QA Scorecard — ${brand}</title>
+<title>${pdfName}</title>
 <style>
   @page { size: A4 portrait; margin: 12mm 12mm 14mm; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -5011,7 +5017,7 @@ function savePDF(prefix) {
   <div class="sig-field"><div class="sig-label">QA Auditor Signature</div><div class="sig-line"></div></div>
 </div>
 
-<script>window.onload = function(){ window.print(); }<\/script>
+<script>window.onload = function(){ document.title = '${pdfName}'; window.print(); }<\/script>
 </body>
 </html>`;
 
@@ -6150,6 +6156,10 @@ Log it again anyway?`)) return;
 ═══════════════════════════════════════════════════════════ */
 function saveChatPDF() {
   function val(id) { const el = document.getElementById(id); return el ? (el.value || '') : ''; }
+  function pdfFileName(meta) {
+    const clean = (v) => (v || 'Unknown').toString().replace(/[\\/:*?"<>|]/g, '').trim();
+    return `Audit${clean(meta.auditNo)}_Week${clean(meta.week)}_${clean(meta.agent)}_${clean(meta.month)}_${clean(meta.year)}`;
+  }
 
   const meta = {
     auditNo:      val('L-auditNo'),
@@ -6227,9 +6237,11 @@ function saveChatPDF() {
   ];
   const metaHTML = metaRows.map(([k,v]) => `<div class="mrow"><span class="mk">${k}</span><span class="mv">${v}</span></div>`).join('');
 
+  const pdfName = pdfFileName({auditNo, agent, week, month, year});
+
   const html = `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
-<title>Chat QA Scorecard — Legacy</title>
+<title>${pdfName}</title>
 <style>
   @page { size: A4 portrait; margin: 12mm 12mm 14mm; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -6296,7 +6308,7 @@ function saveChatPDF() {
   <div class="sig-field"><div class="sig-label">Team Leader Signature</div><div class="sig-line"></div></div>
   <div class="sig-field"><div class="sig-label">QA Auditor Signature</div><div class="sig-line"></div></div>
 </div>
-<script>window.onload = function(){ window.print(); }<\/script>
+<script>window.onload = function(){ document.title = '${pdfName}'; window.print(); }<\/script>
 </body></html>`;
 
   const win = window.open('', '_blank', 'width=900,height=700');
