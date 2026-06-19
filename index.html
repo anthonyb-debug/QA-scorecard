@@ -1515,8 +1515,7 @@ body {
         </div>
 
         <div class="score-actions">
-          <button class="btn btn-log" id="L-logBtn" onclick="logQAResult('L')">📤 Log QA Result</button>
-          <button class="btn btn-primary-legacy" onclick="window.print()">🖨 Print / Save PDF</button>
+          <button class="btn btn-log" id="L-submitBtn" onclick="submitAudit('L')">📤 Submit Audit</button>
           <button class="btn btn-ghost" onclick="openSheet()">📊 QA Database</button>
           <button class="btn btn-ghost" onclick="resetForm('L')">↺ Reset Form</button>
         </div>
@@ -1830,8 +1829,7 @@ body {
         </div>
 
         <div class="score-actions">
-          <button class="btn btn-log" id="B-logBtn" onclick="logQAResult('B')">📤 Log QA Result</button>
-          <button class="btn btn-primary-banyan" onclick="window.print()">🖨 Print / Save PDF</button>
+          <button class="btn btn-log" id="B-submitBtn" onclick="submitAudit('B')">📤 Submit Audit</button>
           <button class="btn btn-ghost" onclick="openSheet()">📊 QA Database</button>
           <button class="btn btn-ghost" onclick="resetForm('B')">↺ Reset Form</button>
         </div>
@@ -2065,16 +2063,118 @@ function applyZTPGreyout(prefix) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   GOOGLE SHEETS LOGGING
+   GOOGLE SHEETS + DRIVE SUBMISSION
 ═══════════════════════════════════════════════════════════ */
-const QA_LOG_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxL81f7KhV9dztn2ZzM2HTQc8471MS2ukzd0EmS-C8WRDdkXRfvib7PK6M9uU3VTkv1/exec';
+const QA_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwXDsKQtNAYWHU-npSpxWbHMGwHtum5wp3WtgfuVS-fw8wnkYYjemzAHRZSvnXHrcVL/exec';
 const QA_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1GdFTdlaSgrE2y0ZSCGb_3VgUUsEoQeYIeHUDqP75anc/edit?usp=sharing';
 
-const loggedCTMPhones = { L: new Set(), B: new Set() };
-const sessionLogged = { L: false, B: false };
+const sessionSubmitted = { L: false, B: false };
 
 function openSheet() {
   window.open(QA_SHEET_URL, '_blank');
+}
+
+function gatherCriteria(prefix) {
+  const scoreTab = document.getElementById(prefix + '-tab-scorecard');
+  const rows = [...scoreTab.querySelectorAll('table.criterion-table tbody tr')];
+  return rows.map(row => {
+    const num = row.querySelector('.col-num')?.textContent.trim() || '';
+    const title = row.querySelector('.criterion-title')?.textContent.trim() || '';
+    const type = row.querySelector('.badge')?.textContent.trim() || '';
+    const activeBtn = row.querySelector('.pill-btn.ay, .pill-btn.an, .pill-btn.aa');
+    const answer = activeBtn ? activeBtn.textContent.trim() : 'Not answered';
+    const ded = row.querySelector('.dv')?.dataset.val || '0';
+    return { num, title, type, answer, deduction: ded };
+  });
+}
+
+function submitAudit(prefix) {
+  const brand = prefix === 'L' ? 'Legacy' : 'Banyan';
+
+  // Gather meta fields
+  const auditNo    = (document.getElementById(prefix + '-auditNo')?.value || '').trim();
+  const agent      = (document.getElementById(prefix + '-agent')?.value || '').trim();
+  const ctmPhone   = (document.getElementById(prefix + '-ctmPhone')?.value || '').trim();
+  const callDT     = (document.getElementById(prefix + '-callDateTime')?.value || '').trim();
+  const auditDate  = (document.getElementById(prefix + '-auditDate')?.value || '').trim();
+  const year       = document.getElementById(prefix + '-year')?.value || '';
+  const month      = document.getElementById(prefix + '-month')?.value || '';
+  const week       = document.getElementById(prefix + '-week')?.value || '';
+  const teamLeader = document.getElementById(prefix + '-teamLeader')?.value || '';
+  const qaAuditor  = document.getElementById(prefix + '-qaAuditor')?.value || '';
+  const qaScore    = document.getElementById(prefix + '-displayScore')?.textContent || '';
+  const perfLabel  = document.getElementById(prefix + '-perfLabel')?.textContent || '';
+
+  // Remarks
+  const callSummary   = (document.getElementById(prefix + '-callSummary')?.value || '').trim();
+  const priority      = document.getElementById(prefix + '-priority')?.value || '';
+  const auditorSig    = (document.getElementById(prefix + '-auditorSig')?.value || '').trim();
+  const coachingNotes = (document.getElementById(prefix + '-coachingNotes')?.value || '').trim();
+
+  // Validation
+  if (!auditNo || !agent || !week || !qaAuditor || !teamLeader) {
+    showToast('⚠ Please fill in Audit No., Agent, Week, QA Auditor, and Team Leader.', true);
+    return;
+  }
+  if (!QA_SCRIPT_URL || QA_SCRIPT_URL.includes('YOUR_APPS_SCRIPT')) {
+    showToast('⚠ Apps Script URL not configured yet.', true);
+    return;
+  }
+  if (sessionSubmitted[prefix]) {
+    if (!confirm('This audit has already been submitted this session.\n\nSubmit again?')) return;
+  }
+
+  const btn = document.getElementById(prefix + '-submitBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Submitting…'; }
+
+  const criteria = gatherCriteria(prefix);
+
+  const payload = {
+    campaign: brand,
+    auditNo, agent, ctmPhone, callDT, auditDate,
+    year, month, week, teamLeader, qaAuditor,
+    qaScore, perfLabel,
+    callSummary, priority, auditorSig, coachingNotes,
+    criteria
+  };
+
+  fetch(QA_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === 'success') {
+      sessionSubmitted[prefix] = true;
+      if (btn) {
+        btn.textContent = '✓ Submitted';
+        btn.style.background = '#059669';
+        btn.title = 'Audit submitted. Reset the form to log a new entry.';
+      }
+      let msg = '✓ Audit saved to Google Sheets.';
+      if (data.pdfUrl) {
+        msg += ' PDF saved to Drive.';
+        showToastWithLink(msg, data.pdfUrl);
+      } else {
+        showToast(msg);
+      }
+    } else {
+      throw new Error(data.message || 'Unknown error');
+    }
+  })
+  .catch(err => {
+    showToast('⚠ Submission failed: ' + err.message, true);
+    if (btn) { btn.disabled = false; btn.textContent = '📤 Submit Audit'; btn.style.background = ''; }
+  });
+}
+
+function showToastWithLink(msg, url) {
+  let t = document.getElementById('qa-toast');
+  t.innerHTML = msg + ' <a href="' + url + '" target="_blank" style="color:#fff;text-decoration:underline;margin-left:6px;">Open PDF ↗</a>';
+  t.className = 'toast show';
+  clearTimeout(t._hideTimer);
+  t._hideTimer = setTimeout(() => t.classList.remove('show'), 6000);
 }
 
 function populateYearMonth(prefix) {
@@ -2108,64 +2208,7 @@ function showToast(msg, isError) {
   t._hideTimer = setTimeout(() => t.classList.remove('show'), 3500);
 }
 
-function logQAResult(prefix) {
-  const brand = prefix === 'L' ? 'Legacy' : 'Banyan';
-  const year = document.getElementById(prefix + '-year')?.value || '';
-  const month = document.getElementById(prefix + '-month')?.value || '';
-  const week = document.getElementById(prefix + '-week')?.value || '';
-  const name = (document.getElementById(prefix + '-agent')?.value || '').trim();
-  const auditNo = (document.getElementById(prefix + '-auditNo')?.value || '').trim();
-  const qaScore = document.getElementById(prefix + '-displayScore')?.textContent || '';
-  const ctmPhone = (document.getElementById(prefix + '-ctmPhone')?.value || '').trim();
-  const callDateTime = (document.getElementById(prefix + '-callDateTime')?.value || '').trim();
-  const auditDate = (document.getElementById(prefix + '-auditDate')?.value || '').trim();
-
-  if (!name || !auditNo || !week) {
-    showToast('Please fill in Agent, Audit No., and Week before logging.', true);
-    return;
-  }
-  if (!QA_LOG_SCRIPT_URL || QA_LOG_SCRIPT_URL.indexOf('PASTE_YOUR') === 0) {
-    showToast("Logging isn't configured yet — add the Web App URL in the script.", true);
-    return;
-  }
-
-  if (ctmPhone && loggedCTMPhones[prefix].has(ctmPhone)) {
-    if (!confirm(`⚠ A record with CTM Phone "${ctmPhone}" has already been logged this session.\n\nLog it again anyway?`)) return;
-  }
-
-  const btn = document.getElementById(prefix + '-logBtn');
-  const original = btn ? btn.textContent : '';
-  if (btn) { btn.disabled = true; btn.textContent = 'Logging…'; }
-
-  const fd = new FormData();
-  fd.append('year', year);
-  fd.append('month', month);
-  fd.append('name', name);
-  fd.append('auditNo', auditNo);
-  fd.append('week', week);
-  fd.append('qaScore', qaScore);
-  fd.append('campaign', brand);
-  fd.append('ctmPhone', ctmPhone);
-  fd.append('callDateTime', callDateTime);
-  fd.append('auditDate', auditDate);
-
-  fetch(QA_LOG_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: fd })
-    .then(() => {
-      if (ctmPhone) loggedCTMPhones[prefix].add(ctmPhone);
-      sessionLogged[prefix] = true;
-      if (btn) {
-        btn.disabled = true;
-        btn.textContent = '✓ Logged';
-        btn.style.background = '#6b7280';
-        btn.title = 'Already logged. Reset the form to log a new entry.';
-      }
-      showToast('✓ QA result logged to the spreadsheet.');
-    })
-    .catch(() => {
-      showToast('⚠ Could not reach the log server. Check your connection.', true);
-      if (btn) { btn.disabled = false; btn.textContent = original; }
-    });
-}
+/* logQAResult replaced by submitAudit */
 
 function resetForm(prefix) {
   if (!confirm('Reset all entries for this scorecard?')) return;
@@ -2193,8 +2236,9 @@ function resetForm(prefix) {
   }
 
   sessionLogged[prefix] = false;
-  const btn = document.getElementById(prefix + '-logBtn');
-  if (btn) { btn.disabled = false; btn.textContent = '📤 Log QA Result'; btn.style.background = ''; btn.title = ''; }
+  sessionSubmitted[prefix] = false;
+  const btn = document.getElementById(prefix + '-submitBtn');
+  if (btn) { btn.disabled = false; btn.textContent = '📤 Submit Audit'; btn.style.background = ''; btn.title = ''; }
 
   updateScore(prefix);
   applyZTPGreyout(prefix);
