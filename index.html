@@ -2038,6 +2038,34 @@ body {
 }
 .filter-btn-ghost:hover { background: var(--surface-2); opacity: 1; }
 
+/* ── Auto-refresh status indicator ── */
+.refresh-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  padding: 0 2px;
+}
+.refresh-indicator-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--yes);
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.refresh-indicator.is-refreshing .refresh-indicator-dot {
+  background: var(--legacy);
+  animation: refreshPulse 0.9s ease-in-out infinite;
+}
+@keyframes refreshPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.7); }
+}
+
 /* ═══════════════════════════════════════════════════════════
    REPORTING TABS (within reporting page)
 ═══════════════════════════════════════════════════════════ */
@@ -3424,6 +3452,7 @@ body {
         </div>
         <select id="dash-year-sel" class="filter-select" onchange="refreshDashPage()" style="min-width:80px"></select>
         <select id="dash-month-sel" class="filter-select" onchange="refreshDashPage()" style="min-width:90px"></select>
+        <span class="refresh-indicator" id="dash-refresh-indicator"><span class="refresh-indicator-dot"></span><span id="dash-refresh-label">—</span></span>
         <button class="filter-btn" onclick="loadAndRefreshDash()">⟳ Refresh</button>
       </div>
     </div>
@@ -3592,6 +3621,7 @@ body {
       <select class="filter-select" id="profile-month-sel" onchange="renderAgentProfile()" style="min-width:140px">
         <option value="all">All Months</option>
       </select>
+      <span class="refresh-indicator" id="profile-refresh-indicator"><span class="refresh-indicator-dot"></span><span id="profile-refresh-label">—</span></span>
       <button class="filter-btn" onclick="loadAndRefreshProfiles()">⟳ Refresh</button>
     </div>
 
@@ -3751,6 +3781,7 @@ body {
         <div class="page-header-sub">QA trends, team performance, common failures, and auditor metrics</div>
       </div>
       <div class="page-header-right">
+        <span class="refresh-indicator" id="report-refresh-indicator"><span class="refresh-indicator-dot"></span><span id="report-refresh-label">—</span></span>
         <button class="filter-btn" onclick="loadAndRefreshReports()">⟳ Refresh Data</button>
       </div>
     </div>
@@ -5279,15 +5310,17 @@ function loadAndRefreshDash() {
   statusEl.style.display = 'none';
   if (!sharedState.loaded) {
     loadSharedData((err) => {
-      if (err) { statusEl.textContent = '⚠ ' + err.error; statusEl.style.display = ''; return; }
+      if (err) { statusEl.textContent = '⚠ ' + err.error; statusEl.style.display = ''; setRefreshing('dashboard', false); return; }
       refreshDashPage();
+      markRefreshed('dashboard');
     });
   } else {
     // force reload
     sharedState.loaded = false;
     loadSharedData((err) => {
-      if (err) { statusEl.textContent = '⚠ ' + err.error; statusEl.style.display = ''; return; }
+      if (err) { statusEl.textContent = '⚠ ' + err.error; statusEl.style.display = ''; setRefreshing('dashboard', false); return; }
       refreshDashPage();
+      markRefreshed('dashboard');
     });
   }
 }
@@ -5543,14 +5576,16 @@ function loadAndRefreshProfiles() {
   statusEl.style.display = 'none';
   if (!sharedState.loaded) {
     loadSharedData((err) => {
-      if (err) { statusEl.textContent = '⚠ ' + err.error; statusEl.style.display = ''; return; }
+      if (err) { statusEl.textContent = '⚠ ' + err.error; statusEl.style.display = ''; setRefreshing('profiles', false); return; }
       renderAgentProfile();
+      markRefreshed('profiles');
     });
   } else {
     sharedState.loaded = false;
     loadSharedData((err) => {
-      if (err) { statusEl.textContent = '⚠ ' + err.error; statusEl.style.display = ''; return; }
+      if (err) { statusEl.textContent = '⚠ ' + err.error; statusEl.style.display = ''; setRefreshing('profiles', false); return; }
       renderAgentProfile();
+      markRefreshed('profiles');
     });
   }
 }
@@ -5750,10 +5785,11 @@ function loadAndRefreshReports() {
   statusEl.style.display = 'none';
   sharedState.loaded = false;
   loadSharedData((err) => {
-    if (err) { statusEl.textContent = '⚠ ' + err.error; statusEl.style.display = ''; return; }
+    if (err) { statusEl.textContent = '⚠ ' + err.error; statusEl.style.display = ''; setRefreshing('reports', false); return; }
     // populate agent & auditor dropdowns
     populateReportSelects();
     applyReportFilters();
+    markRefreshed('reports');
   });
 }
 
@@ -6036,6 +6072,88 @@ function initGlobalPages() {
 
 
 initGlobalPages();
+
+/* ═══════════════════════════════════════════════════════════
+   SILENT BACKGROUND AUTO-REFRESH (every 60s)
+   - Only refreshes read-only pages (Dashboard / Profiles / Reports).
+   - Never touches the Scorecard entry form, so in-progress audits
+     are never disturbed or reset.
+   - Skips if the tab is hidden or a load is already in-flight.
+   - Fails silently (no alerts/toasts) so a missed refresh never
+     interrupts the user.
+   - Shows a small live indicator ("Updated Xs ago / refreshing…")
+     next to each page's Refresh button so the activity is visible.
+═══════════════════════════════════════════════════════════ */
+const AUTO_REFRESH_MS = 60 * 1000;
+
+const refreshMeta = {
+  dashboard: { lastUpdated: null, indicatorId: 'dash-refresh-indicator', labelId: 'dash-refresh-label' },
+  profiles:  { lastUpdated: null, indicatorId: 'profile-refresh-indicator', labelId: 'profile-refresh-label' },
+  reports:   { lastUpdated: null, indicatorId: 'report-refresh-indicator', labelId: 'report-refresh-label' },
+};
+
+function setRefreshing(page, isRefreshing) {
+  const meta = refreshMeta[page];
+  if (!meta) return;
+  const el = document.getElementById(meta.indicatorId);
+  if (!el) return;
+  el.classList.toggle('is-refreshing', isRefreshing);
+  if (isRefreshing) {
+    const label = document.getElementById(meta.labelId);
+    if (label) label.textContent = 'Refreshing…';
+  }
+}
+
+function markRefreshed(page) {
+  const meta = refreshMeta[page];
+  if (!meta) return;
+  meta.lastUpdated = Date.now();
+  setRefreshing(page, false);
+  updateRefreshLabels();
+}
+
+function updateRefreshLabels() {
+  Object.keys(refreshMeta).forEach(page => {
+    const meta = refreshMeta[page];
+    const el = document.getElementById(meta.indicatorId);
+    const label = document.getElementById(meta.labelId);
+    if (!el || !label) return;
+    if (el.classList.contains('is-refreshing')) return; // don't overwrite "Refreshing…"
+    if (!meta.lastUpdated) { label.textContent = '—'; return; }
+    const secs = Math.max(0, Math.round((Date.now() - meta.lastUpdated) / 1000));
+    if (secs < 5) label.textContent = 'Updated just now';
+    else if (secs < 60) label.textContent = `Updated ${secs}s ago`;
+    else label.textContent = `Updated ${Math.floor(secs / 60)}m ago`;
+  });
+}
+
+// Tick the visible labels every second (cheap DOM text update only, no network calls)
+setInterval(updateRefreshLabels, 1000);
+
+function autoRefreshTick() {
+  try {
+    if (document.visibilityState !== 'visible') return; // tab not active, skip
+    if (sharedState.loading) return;                    // a load is already running, skip
+    if (currentPage === 'dashboard') {
+      setRefreshing('dashboard', true);
+      loadAndRefreshDash();
+    } else if (currentPage === 'profiles') {
+      setRefreshing('profiles', true);
+      loadAndRefreshProfiles();
+    } else if (currentPage === 'reports') {
+      setRefreshing('reports', true);
+      loadAndRefreshReports();
+    }
+    // currentPage === 'scorecard' or 'guide': intentionally do nothing
+  } catch (e) {
+    // Swallow errors so a failed background refresh never surfaces to the user
+    console.warn('Auto-refresh skipped:', e);
+  }
+}
+
+setInterval(autoRefreshTick, AUTO_REFRESH_MS);
+
+
 /* ═══════════════════════════════════════════════════════════
    CHAT QA SCORING ENGINE  (prefix = 'LC')
 ═══════════════════════════════════════════════════════════ */
