@@ -3481,7 +3481,6 @@ body {
           <div class="panel-subtitle">3 audits required per agent per week</div>
         </div>
         <div id="dash-coverage-status" style="font-size:11px;color:var(--text-tertiary)"></div>
-        <div id="dash-debug-panel" style="margin-top:10px;font-size:11px;color:var(--text-secondary);background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:10px;overflow-x:auto"></div>
       </div>
       <div class="coverage-wrap">
         <table class="coverage-table">
@@ -4594,21 +4593,29 @@ function renderDashboard(prefix) {
     (r[3] || '') === month
   );
 
+  // Normalise week: sheet may store "1" or "Week 1" — unify to "Week 1" format
+  function normWk(raw) {
+    const s = (raw || '').toString().trim();
+    if (/^\d$/.test(s)) return 'Week ' + s;
+    if (/^Week\s*\d$/i.test(s)) return 'Week ' + s.replace(/\D/g,'');
+    return s;
+  }
+
   // Build counts: agent -> week -> count
   const counts = {};
   agents.forEach(a => { counts[a] = { 'Week 1':0,'Week 2':0,'Week 3':0,'Week 4':0,'Week 5':0 }; });
 
   filtered.forEach(r => {
     const agentName = (r[5] || '').trim();
-    const week = (r[4] || '').trim();
+    const week = normWk(r[4]);
     if (counts[agentName] && counts[agentName].hasOwnProperty(week)) {
       counts[agentName][week]++;
     }
   });
 
-  // Determine which weeks actually have data this month (to mark N/A for weeks that haven't happened)
+  // Determine which weeks actually have data this month
   const weeksWithAnyData = new Set();
-  filtered.forEach(r => { if (r[4]) weeksWithAnyData.add(r[4].trim()); });
+  filtered.forEach(r => { if (r[4]) weeksWithAnyData.add(normWk(r[4])); });
   // A week counts as "active" (should be audited) if it's <= the highest week number seen in data,
   // or if it's the current week/month being viewed. Simplest reliable rule: a week is required
   // once at least one audit (for ANY agent) exists in that week, OR the week is on/before today's
@@ -4661,13 +4668,13 @@ function renderDashboard(prefix) {
       agentMet += met;
       if (cnt >= REQUIRED_PER_WEEK) {
         cellClass += ' wk-met';
-        display = `✓ ${cnt}/${REQUIRED_PER_WEEK}`;
+        display = `${cnt}/3`;
       } else if (cnt > 0) {
         cellClass += ' wk-partial';
-        display = `${cnt}/${REQUIRED_PER_WEEK}`;
+        display = `${cnt}/3`;
       } else {
         cellClass += ' wk-missing';
-        display = `✗ 0/${REQUIRED_PER_WEEK}`;
+        display = `0/3`;
       }
       weekCellsHtml += `<td class="${cellClass}">${display}</td>`;
     });
@@ -5242,7 +5249,9 @@ function refreshDashPage() {
   const counts = {};
   agents.forEach(a => { counts[a] = {'Week 1':0,'Week 2':0,'Week 3':0,'Week 4':0,'Week 5':0}; });
   filtered.forEach(r => {
-    const a = (r[5]||'').trim(), w = (r[4]||'').trim();
+    const a = (r[5]||'').trim();
+    const raw = (r[4]||'').toString().trim();
+    const w = /^\d$/.test(raw) ? 'Week '+raw : (/^Week\s*\d$/i.test(raw) ? 'Week '+raw.replace(/\D/g,'') : raw);
     if (counts[a] && counts[a].hasOwnProperty(w)) counts[a][w]++;
   });
 
@@ -5250,7 +5259,14 @@ function refreshDashPage() {
   const isCurrentMonth = (Number(year) === now.getFullYear()) &&
     (['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()] === month);
   const todayWeekNum = Math.min(5, Math.ceil(now.getDate()/7));
-  const weeksWithData = new Set(); filtered.forEach(r => { if (r[4]) weeksWithData.add(r[4].trim()); });
+  const weeksWithData = new Set();
+  filtered.forEach(r => {
+    if (r[4]) {
+      const raw = r[4].toString().trim();
+      const w = /^\d$/.test(raw) ? 'Week '+raw : (/^Week\s*\d$/i.test(raw) ? 'Week '+raw.replace(/\D/g,'') : raw);
+      weeksWithData.add(w);
+    }
+  });
   const allWks = ['Week 1','Week 2','Week 3','Week 4','Week 5'];
   const reqWks = allWks.filter((w,idx) => {
     const wn = idx+1;
@@ -5375,7 +5391,7 @@ function refreshDashPage() {
       const cnt = counts[a][w];
       ar+=3; am+=Math.min(cnt,3);
       const cls = cnt>=3?'wk-met':cnt>0?'wk-partial':'wk-missing';
-      const lbl = cnt>=3?`✓ ${cnt}/3`:cnt>0?`${cnt}/3`:`✗ 0/3`;
+      const lbl = cnt>=3?`${cnt}/3`:cnt>0?`${cnt}/3`:`0/3`;
       cells += `<td><span class="wk-pill ${cls}">${lbl}</span></td>`;
     });
     const total = allWks.reduce((s,w)=>s+counts[a][w],0);
@@ -5392,26 +5408,6 @@ function refreshDashPage() {
 
   const pct = totalReq>0 ? Math.round(totalMet/totalReq*100) : 0;
   document.getElementById('dash-coverage-status').textContent = `${pct}% overall coverage`;
-
-  // ── RAW DATA DEBUG — shows first 5 sheet rows so you can verify column mapping ──
-  const allRows = getAllRows();
-  const debugEl = document.getElementById('dash-debug-panel');
-  if (debugEl) {
-    if (allRows.length === 0) {
-      debugEl.innerHTML = '<b>Debug:</b> No rows returned from sheet at all.';
-    } else {
-      const colLabels = ['A','B','C','D','E','F','G','H','I','J','K'];
-      let html = `<b>Debug — first ${Math.min(3,allRows.length)} raw sheet rows (A–K):</b><br>`;
-      html += `<i style="color:#888">Code expects: A=Timestamp, B=Campaign, C=Year, D=Month, E=Week, F=AgentName, G=AuditNo, H=QAScore</i><table style="border-collapse:collapse;font-size:11px;margin-top:4px">`;
-      html += '<tr>' + colLabels.map(c=>`<th style="border:1px solid #ccc;padding:2px 6px;background:#f3f4f6">${c}</th>`).join('') + '</tr>';
-      allRows.slice(0,3).forEach((r,i) => {
-        html += `<tr><td colspan="${colLabels.length}" style="background:#e8eaf0;font-size:10px;padding:1px 4px">Row ${i+2}</td></tr>`;
-        html += '<tr>' + colLabels.map((_,ci) => `<td style="border:1px solid #e5e7eb;padding:2px 6px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(r[ci]||'').replace(/"/g,'')}">${r[ci]||'<span style=color:#bbb>—</span>'}</td>`).join('') + '</tr>';
-      });
-      html += '</table>';
-      debugEl.innerHTML = html;
-    }
-  }
 }
 
 /* ═══════════════════════════════════════════════════════════
