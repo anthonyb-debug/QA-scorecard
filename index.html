@@ -1232,6 +1232,64 @@ body {
 .dash-wk-cell.wk-partial { color: var(--major); }
 .dash-wk-cell.wk-missing { color: var(--ztp); }
 .dash-wk-cell.wk-na { color: var(--text-tertiary); font-weight: 400; }
+.dash-wk-cell.wk-over { color: #7c3aed; font-weight: 700; }
+
+/* Over-audit warning badge (inline table cells) */
+.over-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #7c3aed;
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-left: 4px;
+  vertical-align: middle;
+  cursor: default;
+  white-space: nowrap;
+}
+.over-badge svg { flex-shrink: 0; }
+
+/* Tooltip wrapper for over-audit cells */
+.over-tip-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+}
+.over-tip-wrap:hover .over-tip { opacity: 1; pointer-events: auto; transform: translateY(-2px); }
+.over-tip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) translateY(0);
+  background: #1e1b4b;
+  color: #e0e7ff;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 5px 9px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 99;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+.over-tip::after {
+  content: '';
+  position: absolute;
+  top: 100%; left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #1e1b4b;
+}
+[data-theme="dark"] .over-badge { background: #2e1a6e; border-color: #6d28d9; color: #c4b5fd; }
+[data-theme="dark"] .over-tip { background: #3730a3; color: #e0e7ff; }
+[data-theme="dark"] .over-tip::after { border-top-color: #3730a3; }
 .dash-status-pill {
   display: inline-block;
   padding: 3px 10px;
@@ -1876,6 +1934,7 @@ body {
 .wk-partial { background: var(--major-bg); color: var(--major); }
 .wk-missing { background: var(--ztp-bg); color: var(--ztp); }
 .wk-na { background: var(--bg); color: var(--text-tertiary); font-weight: 400; }
+.wk-over { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; font-weight: 700; }
 
 /* ═══════════════════════════════════════════════════════════
    CATEGORY PERFORMANCE BARS
@@ -4666,15 +4725,21 @@ function renderDashboard(prefix) {
       agentRequired += REQUIRED_PER_WEEK;
       const met = Math.min(cnt, REQUIRED_PER_WEEK);
       agentMet += met;
-      if (cnt >= REQUIRED_PER_WEEK) {
+      if (cnt > REQUIRED_PER_WEEK) {
+        // Over-audit: exceeds the weekly target
+        cellClass += ' wk-over';
+        const overCount = cnt - REQUIRED_PER_WEEK;
+        const warnIcon = `<svg width="10" height="10" viewBox="0 0 16 16" fill="none" style="vertical-align:middle;margin-right:1px"><path d="M8 1.5L1 14.5h14L8 1.5z" fill="#7c3aed" opacity=".15"/><path d="M8 1.5L1 14.5h14L8 1.5z" stroke="#7c3aed" stroke-width="1.5" fill="none"/><line x1="8" y1="6" x2="8" y2="10" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="12.5" r=".75" fill="#7c3aed"/></svg>`;
+        display = `<span class="over-tip-wrap">${warnIcon}${cnt}/${REQUIRED_PER_WEEK}<span class="over-tip">⚠ Over Target — ${overCount} extra audit${overCount > 1 ? 's' : ''} logged</span></span>`;
+      } else if (cnt === REQUIRED_PER_WEEK) {
         cellClass += ' wk-met';
-        display = `${cnt}/3`;
+        display = `${cnt}/${REQUIRED_PER_WEEK}`;
       } else if (cnt > 0) {
         cellClass += ' wk-partial';
-        display = `${cnt}/3`;
+        display = `${cnt}/${REQUIRED_PER_WEEK}`;
       } else {
         cellClass += ' wk-missing';
-        display = `0/3`;
+        display = `0/${REQUIRED_PER_WEEK}`;
       }
       weekCellsHtml += `<td class="${cellClass}">${display}</td>`;
     });
@@ -4686,11 +4751,14 @@ function renderDashboard(prefix) {
 
     const totalAudits = weekKeys.reduce((s, w) => s + counts[agent][w], 0);
     const auditsShort = agentRequired - agentMet;
+    const hasOverAudit = requiredWeeks.some(w => counts[agent][w] > REQUIRED_PER_WEEK);
     const statusHtml = agentRequired === 0
       ? `<span class="dash-status-pill" style="background:var(--surface-2);color:var(--text-tertiary)">No weeks yet</span>`
-      : isAgentComplete
-        ? `<span class="dash-status-pill complete">On Track</span>`
-        : `<span class="dash-status-pill incomplete">${auditsShort} Audit${auditsShort === 1 ? '' : 's'} Short</span>`;
+      : hasOverAudit && isAgentComplete
+        ? `<span class="dash-status-pill" style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe" title="One or more weeks exceeded the 3-audit target">⚠ Over Target</span>`
+        : isAgentComplete
+          ? `<span class="dash-status-pill complete">On Track</span>`
+          : `<span class="dash-status-pill incomplete">${auditsShort} Audit${auditsShort === 1 ? '' : 's'} Short</span>`;
 
     row.innerHTML = nameCell + weekCellsHtml + `<td><strong>${totalAudits}</strong></td><td>${statusHtml}</td>`;
     tbody.appendChild(row);
@@ -5390,17 +5458,34 @@ function refreshDashPage() {
     reqWks.forEach(w => {
       const cnt = counts[a][w];
       ar+=3; am+=Math.min(cnt,3);
-      const cls = cnt>=3?'wk-met':cnt>0?'wk-partial':'wk-missing';
-      const lbl = cnt>=3?`${cnt}/3`:cnt>0?`${cnt}/3`:`0/3`;
+      let cls, lbl;
+      if (cnt > 3) {
+        // Over-audit warning
+        const overCount = cnt - 3;
+        const warnSvg = `<svg width="10" height="10" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><path d="M8 1.5L1 14.5h14L8 1.5z" fill="#7c3aed" opacity=".15"/><path d="M8 1.5L1 14.5h14L8 1.5z" stroke="#7c3aed" stroke-width="1.5" fill="none"/><line x1="8" y1="6" x2="8" y2="10" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="12.5" r=".75" fill="#7c3aed"/></svg>`;
+        cls = 'wk-over';
+        lbl = `<span class="over-tip-wrap" style="gap:3px">${warnSvg}${cnt}/3<span class="over-tip">⚠ Over Target — ${overCount} extra audit${overCount > 1 ? 's' : ''} logged</span></span>`;
+      } else if (cnt === 3) {
+        cls = 'wk-met'; lbl = `${cnt}/3`;
+      } else if (cnt > 0) {
+        cls = 'wk-partial'; lbl = `${cnt}/3`;
+      } else {
+        cls = 'wk-missing'; lbl = `0/3`;
+      }
       cells += `<td><span class="wk-pill ${cls}">${lbl}</span></td>`;
     });
     const total = allWks.reduce((s,w)=>s+counts[a][w],0);
     const ok = ar>0 && am===ar;
     const short = ar-am;
+    // Check if any week is over target for this agent
+    const hasOverAudit = reqWks.some(w => counts[a][w] > 3);
     const statusHtml = ar===0
       ? `<span class="wk-pill wk-na">No weeks</span>`
-      : ok ? `<span class="wk-pill wk-met">On Track</span>`
-           : `<span class="wk-pill wk-missing">${short} Short</span>`;
+      : hasOverAudit && ok
+        ? `<span class="wk-pill wk-over" title="One or more weeks exceeded the 3-audit target">⚠ Over Target</span>`
+        : ok
+          ? `<span class="wk-pill wk-met">On Track</span>`
+          : `<span class="wk-pill wk-missing">${short} Short</span>`;
     const tr = document.createElement('tr');
     tr.innerHTML = `<td class="agent-td">${a}</td>${cells}<td><strong>${total}</strong></td><td>${statusHtml}</td>`;
     coverageTbodyEl.appendChild(tr);
