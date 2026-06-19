@@ -954,6 +954,116 @@ body {
 .tab-panel.active { display: block; }
 
 /* ═══════════════════════════════════════════════════════════
+   QA DASHBOARD
+═══════════════════════════════════════════════════════════ */
+.dash-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+.dash-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.dash-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.dash-toolbar-left label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-left: 4px;
+}
+.dash-toolbar-left select {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 13px;
+  background: var(--surface-2);
+  color: var(--text-primary);
+}
+.dash-status {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  padding: 10px 0;
+}
+.dash-status.error { color: var(--ztp); }
+.dash-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.dash-summary-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.dash-summary-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+.dash-summary-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.dash-summary-card.ok .dash-summary-num { color: var(--yes); }
+.dash-summary-card.warn .dash-summary-num { color: var(--major); }
+.dash-table-wrap { overflow-x: auto; }
+.dash-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.dash-table th {
+  text-align: center;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-tertiary);
+  border-bottom: 2px solid var(--border);
+  padding: 8px 6px;
+}
+.dash-table .dash-agent-col { text-align: left; min-width: 170px; }
+.dash-table td {
+  text-align: center;
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+}
+.dash-table td.dash-agent-name {
+  text-align: left;
+  font-weight: 600;
+}
+.dash-wk-cell { font-weight: 600; }
+.dash-wk-cell.wk-met { color: var(--yes); }
+.dash-wk-cell.wk-missing { color: var(--ztp); }
+.dash-wk-cell.wk-na { color: var(--text-tertiary); font-weight: 400; }
+.dash-status-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.dash-status-pill.complete { background: var(--yes-bg); color: var(--yes); }
+.dash-status-pill.incomplete { background: var(--ztp-bg); color: var(--ztp); }
+
+/* ═══════════════════════════════════════════════════════════
    QA GUIDE
 ═══════════════════════════════════════════════════════════ */
 .legend-card {
@@ -1201,10 +1311,12 @@ body {
     <nav class="nav-section-tabs" id="nav-tabs-L" style="display:flex">
       <button class="nav-tab-btn" onclick="showTab('L','scorecard',this)">Scorecard</button>
       <button class="nav-tab-btn" onclick="showTab('L','guide',this)">QA Guide</button>
+      <button class="nav-tab-btn" onclick="showTab('L','dashboard',this)">📊 Dashboard</button>
     </nav>
     <nav class="nav-section-tabs" id="nav-tabs-B" style="display:none">
       <button class="nav-tab-btn" onclick="showTab('B','scorecard',this)">Scorecard</button>
       <button class="nav-tab-btn" onclick="showTab('B','guide',this)">QA Guide</button>
+      <button class="nav-tab-btn" onclick="showTab('B','dashboard',this)">📊 Dashboard</button>
     </nav>
   </div>
 </nav>
@@ -1228,6 +1340,7 @@ body {
         <div class="header-inner-tabs">
           <button class="header-inner-tab active-tab active-tab-legacy" onclick="showTab('L','scorecard',this)">Scorecard</button>
           <button class="header-inner-tab" onclick="showTab('L','guide',this)">QA Guide</button>
+          <button class="header-inner-tab" onclick="showTab('L','dashboard',this)">📊 Dashboard</button>
         </div>
       </div>
       <div class="meta-bar" id="L-metaBar">
@@ -1464,6 +1577,36 @@ body {
       </div>
       <!-- /LEGACY QA GUIDE TAB -->
 
+      <!-- LEGACY DASHBOARD TAB -->
+      <div class="tab-panel" id="L-tab-dashboard">
+        <div class="dash-wrap" id="L-dash-wrap">
+          <div class="dash-toolbar">
+            <div class="dash-toolbar-left">
+              <label>Year</label>
+              <select id="L-dash-year" onchange="renderDashboard('L')"></select>
+              <label>Month</label>
+              <select id="L-dash-month" onchange="renderDashboard('L')"></select>
+            </div>
+            <button class="btn btn-ghost" onclick="loadDashboardData('L')">⟳ Refresh</button>
+          </div>
+          <div class="dash-status" id="L-dash-status">Loading audit data…</div>
+          <div class="dash-summary" id="L-dash-summary"></div>
+          <div class="dash-table-wrap">
+            <table class="dash-table" id="L-dash-table">
+              <thead>
+                <tr>
+                  <th class="dash-agent-col">Agent</th>
+                  <th>Wk 1</th><th>Wk 2</th><th>Wk 3</th><th>Wk 4</th><th>Wk 5</th>
+                  <th>Total</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="L-dash-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- /LEGACY DASHBOARD TAB -->
+
     </div>
     <!-- /MAIN COL -->
 
@@ -1544,6 +1687,7 @@ body {
         <div class="header-inner-tabs">
           <button class="header-inner-tab active-tab active-tab-banyan" onclick="showTab('B','scorecard',this)">Scorecard</button>
           <button class="header-inner-tab" onclick="showTab('B','guide',this)">QA Guide</button>
+          <button class="header-inner-tab" onclick="showTab('B','dashboard',this)">📊 Dashboard</button>
         </div>
       </div>
       <div class="meta-bar mf-banyan" id="B-metaBar">
@@ -1779,6 +1923,36 @@ body {
       </div>
       <!-- /BANYAN QA GUIDE TAB -->
 
+      <!-- BANYAN DASHBOARD TAB -->
+      <div class="tab-panel" id="B-tab-dashboard">
+        <div class="dash-wrap" id="B-dash-wrap">
+          <div class="dash-toolbar">
+            <div class="dash-toolbar-left">
+              <label>Year</label>
+              <select id="B-dash-year" onchange="renderDashboard('B')"></select>
+              <label>Month</label>
+              <select id="B-dash-month" onchange="renderDashboard('B')"></select>
+            </div>
+            <button class="btn btn-ghost" onclick="loadDashboardData('B')">⟳ Refresh</button>
+          </div>
+          <div class="dash-status" id="B-dash-status">Loading audit data…</div>
+          <div class="dash-summary" id="B-dash-summary"></div>
+          <div class="dash-table-wrap">
+            <table class="dash-table" id="B-dash-table">
+              <thead>
+                <tr>
+                  <th class="dash-agent-col">Agent</th>
+                  <th>Wk 1</th><th>Wk 2</th><th>Wk 3</th><th>Wk 4</th><th>Wk 5</th>
+                  <th>Total</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="B-dash-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- /BANYAN DASHBOARD TAB -->
+
     </div>
     <!-- /MAIN COL -->
 
@@ -1883,7 +2057,8 @@ function showTab(prefix, tab, btn) {
   headerTabs.forEach(t => {
     const isScore = (tab === 'scorecard' && t.textContent.trim() === 'Scorecard');
     const isGuide = (tab === 'guide' && t.textContent.trim() === 'QA Guide');
-    if (isScore || isGuide) {
+    const isDash  = (tab === 'dashboard' && t.textContent.trim() === '📊 Dashboard');
+    if (isScore || isGuide || isDash) {
       t.classList.add('active-tab', 'active-tab-' + brandStr);
     }
   });
@@ -1902,6 +2077,11 @@ function showTab(prefix, tab, btn) {
   // Show/hide section nav and score panel
   const sectionNav = document.getElementById(prefix + '-section-nav');
   if (sectionNav) sectionNav.style.display = tab === 'scorecard' ? 'flex' : 'none';
+
+  // Load dashboard data the first time the tab is opened
+  if (tab === 'dashboard') {
+    loadDashboardData(prefix);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -2202,6 +2382,214 @@ function resetForm(prefix) {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   QA DASHBOARD — weekly audit coverage per agent
+═══════════════════════════════════════════════════════════ */
+const SHEETS_API_KEY = 'AIzaSyB3FaLQy8jgESP-piCHtUqsMN8n4qM00rI'; // ⚠ paste your read-only Google Sheets API key here
+const QA_SPREADSHEET_ID = '1GdFTdlaSgrE2y0ZSCGb_3VgUUsEoQeYIeHUDqP75anc';
+const QA_LOG_SHEET_NAME = 'QA Log';
+// Columns in "QA Log": A Timestamp | B Campaign | C Year | D Month | E Week
+//                       F Agent Name | G Audit No. | H QA Score | I CTM Phone
+//                       J Call Date/Time | K Audit Date
+
+const DASH_AGENTS = {
+  L: ['Aban, Ma Melanie','Angel, Byron Jake','Bernardo, Sean','Buranis, Shenelyn','Dujale, John Vincent','Galong, Julia Mae','Lajo, Ella Mae','Lopez, Maria Nelia','Lumactod, Nikki','Magbanua, Rubie','Navarro, Stephanie','Padullano, Larinz','Perez, Karen','Rapis, Samuel','Regla, Ma Cecilia','Sagun, Rae','Villarta, Remington'],
+  B: ['Bartolome, Christian Byron','Bugto, Alexandra Monique','Flores, Gohhan','Guzman, Joseph Roy','Lim, Dyan','Matanguihan, Deniele','Pineda, Marc Francis','Precioso, Gerard','Respicio, Sherry-an']
+};
+
+const dashState = {
+  L: { rows: null, loaded: false, loading: false },
+  B: { rows: null, loaded: false, loading: false }
+};
+
+function populateDashYearMonth(prefix) {
+  const yearSel = document.getElementById(prefix + '-dash-year');
+  const monthSel = document.getElementById(prefix + '-dash-month');
+  if (!yearSel || !monthSel) return;
+  const now = new Date();
+  const curYear = now.getFullYear();
+  yearSel.innerHTML = '';
+  for (let y = curYear - 1; y <= curYear + 2; y++) {
+    const opt = document.createElement('option');
+    opt.value = y; opt.textContent = y;
+    if (y === curYear) opt.selected = true;
+    yearSel.appendChild(opt);
+  }
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  monthSel.innerHTML = '';
+  months.forEach((m, i) => {
+    const opt = document.createElement('option');
+    opt.value = m; opt.textContent = m;
+    if (i === now.getMonth()) opt.selected = true;
+    monthSel.appendChild(opt);
+  });
+}
+
+function loadDashboardData(prefix) {
+  const statusEl = document.getElementById(prefix + '-dash-status');
+  const state = dashState[prefix];
+
+  if (!SHEETS_API_KEY || SHEETS_API_KEY === 'YOUR_API_KEY_HERE') {
+    statusEl.textContent = '⚠ Dashboard not configured yet — add your Google Sheets API key in the script (SHEETS_API_KEY).';
+    statusEl.className = 'dash-status error';
+    return;
+  }
+
+  state.loading = true;
+  statusEl.textContent = 'Loading audit data…';
+  statusEl.className = 'dash-status';
+
+  const range = encodeURIComponent(`'${QA_LOG_SHEET_NAME}'!A2:K`);
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${QA_SPREADSHEET_ID}/values/${range}?key=${SHEETS_API_KEY}`;
+
+  fetch(url)
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(data => {
+      state.rows = data.values || [];
+      state.loaded = true;
+      state.loading = false;
+      statusEl.textContent = '';
+      renderDashboard(prefix);
+    })
+    .catch(err => {
+      state.loading = false;
+      statusEl.textContent = '⚠ Could not load data: ' + err.message + '. Check the API key and that the sheet is shared as "Anyone with the link → Viewer".';
+      statusEl.className = 'dash-status error';
+    });
+}
+
+function renderDashboard(prefix) {
+  const state = dashState[prefix];
+  if (!state.loaded) return;
+
+  const brand = prefix === 'L' ? 'Legacy' : 'Banyan';
+  const year = document.getElementById(prefix + '-dash-year')?.value || '';
+  const month = document.getElementById(prefix + '-dash-month')?.value || '';
+  const agents = DASH_AGENTS[prefix];
+
+  // Filter rows for this campaign + year + month
+  // Row layout: [Timestamp, Campaign, Year, Month, Week, AgentName, AuditNo, QAScore, CTMPhone, CallDT, AuditDate]
+  const filtered = state.rows.filter(r =>
+    (r[1] || '') === brand &&
+    String(r[2] || '') === String(year) &&
+    (r[3] || '') === month
+  );
+
+  // Build counts: agent -> week -> count
+  const counts = {};
+  agents.forEach(a => { counts[a] = { 'Week 1':0,'Week 2':0,'Week 3':0,'Week 4':0,'Week 5':0 }; });
+
+  filtered.forEach(r => {
+    const agentName = (r[5] || '').trim();
+    const week = (r[4] || '').trim();
+    if (counts[agentName] && counts[agentName].hasOwnProperty(week)) {
+      counts[agentName][week]++;
+    }
+  });
+
+  // Determine which weeks actually have data this month (to mark N/A for weeks that haven't happened)
+  const weeksWithAnyData = new Set();
+  filtered.forEach(r => { if (r[4]) weeksWithAnyData.add(r[4].trim()); });
+  // A week counts as "active" (should be audited) if it's <= the highest week number seen in data,
+  // or if it's the current week/month being viewed. Simplest reliable rule: a week is required
+  // once at least one audit (for ANY agent) exists in that week, OR the week is on/before today's
+  // actual week-of-month when viewing the current month/year.
+  const now = new Date();
+  const isCurrentMonth = (Number(year) === now.getFullYear()) &&
+    (['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()] === month);
+  const todayWeekNum = Math.min(5, Math.ceil(now.getDate() / 7));
+
+  const weekKeys = ['Week 1','Week 2','Week 3','Week 4','Week 5'];
+  const requiredWeeks = weekKeys.filter((w, idx) => {
+    const wn = idx + 1;
+    if (weeksWithAnyData.has(w)) return true;
+    if (isCurrentMonth && wn <= todayWeekNum) return true;
+    if (!isCurrentMonth && Number(year) < now.getFullYear()) return true; // past year — all 5 weeks considered required up to data
+    if (!isCurrentMonth && Number(year) === now.getFullYear()) {
+      const monthIdx = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].indexOf(month);
+      if (monthIdx < now.getMonth()) return true; // a fully past month — require all weeks
+    }
+    return false;
+  });
+
+  // Render table rows
+  const tbody = document.getElementById(prefix + '-dash-tbody');
+  tbody.innerHTML = '';
+
+  let totalRequired = 0, totalMet = 0;
+  let agentsComplete = 0;
+
+  agents.forEach(agent => {
+    const row = document.createElement('tr');
+    let nameCell = `<td class="dash-agent-name">${agent}</td>`;
+    let weekCellsHtml = '';
+    let agentRequired = 0, agentMet = 0;
+
+    weekKeys.forEach(w => {
+      const cnt = counts[agent][w];
+      const isRequired = requiredWeeks.includes(w);
+      let cellClass = 'dash-wk-cell';
+      let display = '—';
+
+      if (!isRequired) {
+        cellClass += ' wk-na';
+        display = '·';
+      } else {
+        agentRequired++;
+        if (cnt >= 1) {
+          agentMet++;
+          cellClass += ' wk-met';
+          display = '✓' + (cnt > 1 ? ` (${cnt})` : '');
+        } else {
+          cellClass += ' wk-missing';
+          display = '✗';
+        }
+      }
+      weekCellsHtml += `<td class="${cellClass}">${display}</td>`;
+    });
+
+    totalRequired += agentRequired;
+    totalMet += agentMet;
+    const isAgentComplete = agentRequired > 0 && agentMet === agentRequired;
+    if (isAgentComplete) agentsComplete++;
+
+    const totalAudits = weekKeys.reduce((s, w) => s + counts[agent][w], 0);
+    const statusHtml = agentRequired === 0
+      ? `<span class="dash-status-pill" style="background:var(--surface-2);color:var(--text-tertiary)">No weeks yet</span>`
+      : isAgentComplete
+        ? `<span class="dash-status-pill complete">On Track</span>`
+        : `<span class="dash-status-pill incomplete">${agentRequired - agentMet} Missing</span>`;
+
+    row.innerHTML = nameCell + weekCellsHtml + `<td><strong>${totalAudits}</strong></td><td>${statusHtml}</td>`;
+    tbody.appendChild(row);
+  });
+
+  // Summary cards
+  const summaryEl = document.getElementById(prefix + '-dash-summary');
+  const pctComplete = totalRequired === 0 ? 0 : Math.round((totalMet / totalRequired) * 100);
+  summaryEl.innerHTML = `
+    <div class="dash-summary-card ${pctComplete === 100 ? 'ok' : 'warn'}">
+      <div class="dash-summary-num">${pctComplete}%</div>
+      <div class="dash-summary-label">Coverage This Month</div>
+    </div>
+    <div class="dash-summary-card">
+      <div class="dash-summary-num">${totalMet} / ${totalRequired}</div>
+      <div class="dash-summary-label">Agent-Weeks Audited</div>
+    </div>
+    <div class="dash-summary-card ${agentsComplete === agents.length ? 'ok' : ''}">
+      <div class="dash-summary-num">${agentsComplete} / ${agents.length}</div>
+      <div class="dash-summary-label">Agents Fully On Track</div>
+    </div>
+    <div class="dash-summary-card">
+      <div class="dash-summary-num">${filtered.length}</div>
+      <div class="dash-summary-label">Total Audits Logged</div>
+    </div>
+  `;
+}
+
+/* ═══════════════════════════════════════════════════════════
    INIT
 ═══════════════════════════════════════════════════════════ */
 // Set first nav tab active
@@ -2216,6 +2604,8 @@ updateCompletion('L');
 updateCompletion('B');
 populateYearMonth('L');
 populateYearMonth('B');
+populateDashYearMonth('L');
+populateDashYearMonth('B');
 </script>
 </body>
 </html>
