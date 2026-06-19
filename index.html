@@ -3019,7 +3019,7 @@ body {
         <div class="mf"><label>Audit Date</label><input type="date" id="B-auditDate"></div>
         <div class="mf"><label>Year</label><select id="B-year"></select></div>
         <div class="mf"><label>Month</label><select id="B-month"></select></div>
-        <div class="mf"><label>Week</label><select id="B-week"><option value="">Select…</option><option>Week 1</option><option>Week 2</option><option>Week 3</option><option>Week 4</option><option>Week 5</option></select></div>
+        <div class="mf"><label>Week</label><select id="B-week"><option value="">Select…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
         <div class="mf"><label>Team Leader</label><select id="B-teamLeader"><option value="">Select…</option><option>Pineda, John Tristan</option></select></div>
         <div class="mf"><label>QA Auditor</label><select id="B-qaAuditor"><option value="">Select…</option><option>Bucatcat, Raphael Zaldy</option></select></div>
       </div>
@@ -3345,7 +3345,7 @@ body {
 <!-- ═══════════════════════════════════════════════════════════
      GLOBAL DASHBOARD PAGE
 ═══════════════════════════════════════════════════════════ -->
-<div class="global-panel active" id="page-dashboard">
+<div class="global-panel" id="page-dashboard">
   <div class="page-chrome">
     <div class="page-header">
       <div class="page-header-left">
@@ -5058,6 +5058,12 @@ function showPage(page, btn) {
 
   if (page === 'scorecard') {
     document.getElementById('scorecard-shell').style.display = '';
+    // Restore the correct brand's nav-tabs when returning to scorecard
+    const activeBrand = document.querySelector('.brand-btn.active-legacy') ? 'legacy' : 'banyan';
+    const navL = document.getElementById('nav-tabs-L');
+    const navB = document.getElementById('nav-tabs-B');
+    if (navL) navL.style.display = activeBrand === 'legacy' ? 'flex' : 'none';
+    if (navB) navB.style.display = activeBrand === 'banyan' ? 'flex' : 'none';
   } else {
     document.getElementById('scorecard-shell').style.display = 'none';
     const panel = document.getElementById('page-' + page);
