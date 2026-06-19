@@ -80,6 +80,123 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
+   DARK MODE TOKENS — soft, low-contrast, easy on the eyes
+═══════════════════════════════════════════════════════════ */
+[data-theme="dark"] {
+  /* Neutrals */
+  --bg: #141718;
+  --surface: #1e2122;
+  --surface-2: #252829;
+  --border: #2e3234;
+  --border-subtle: #272b2c;
+
+  /* Text — slightly warm, not pure white */
+  --text-primary: #e2e4e8;
+  --text-secondary: #9ba1ab;
+  --text-tertiary: #5c6370;
+
+  /* Brand — Legacy (softened for dark) */
+  --legacy: #5b8dee;
+  --legacy-light: #1a2540;
+  --legacy-mid: #1e2e52;
+
+  /* Brand — Banyan (softened for dark) */
+  --banyan: #34c48a;
+  --banyan-light: #0f2a1e;
+  --banyan-mid: #133626;
+
+  /* Semantic */
+  --major: #e09e4a;
+  --major-bg: #231a0c;
+  --major-border: #3d2e10;
+
+  --minor: #6d9eeb;
+  --minor-bg: #131e33;
+  --minor-border: #1c2d4d;
+
+  --ztp: #e06c6c;
+  --ztp-bg: #2a1212;
+  --ztp-border: #3d1a1a;
+
+  --yes: #34c48a;
+  --yes-bg: #0f2a1e;
+  --yes-active: #143520;
+
+  --no: #e06c6c;
+  --no-bg: #2a1212;
+  --no-active: #341818;
+
+  --na: #5c6370;
+  --na-bg: #252829;
+  --na-active: #2e3234;
+
+  /* Shadows — more subtle in dark */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.35), 0 2px 4px -1px rgba(0,0,0,0.25);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -2px rgba(0,0,0,0.3);
+}
+
+[data-theme="dark"] .top-nav {
+  background: rgba(20,23,24,0.92);
+  border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .header-legacy-bar {
+  background: linear-gradient(135deg, #1a3a7a 0%, #1e4db8 100%);
+}
+
+[data-theme="dark"] .header-banyan-bar {
+  background: linear-gradient(135deg, #0a5c40 0%, #0e7a50 100%);
+}
+
+[data-theme="dark"] .mf input,
+[data-theme="dark"] .mf select,
+[data-theme="dark"] .remarks-body input,
+[data-theme="dark"] .remarks-body select,
+[data-theme="dark"] .remarks-body textarea {
+  background: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--border);
+  color-scheme: dark;
+}
+
+[data-theme="dark"] input[type="datetime-local"],
+[data-theme="dark"] input[type="date"] {
+  color-scheme: dark;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  background: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--text-tertiary);
+}
+
+.theme-toggle-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════
    RESET & BASE
 ═══════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1310,6 +1427,11 @@ body {
 
     <div id="nav-tabs-L" style="display:flex"></div>
     <div id="nav-tabs-B" style="display:none"></div>
+
+    <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle dark/light mode">
+      <span class="theme-toggle-icon" id="theme-icon">🌙</span>
+      <span id="theme-label">Dark</span>
+    </button>
   </div>
 </nav>
 
@@ -2012,6 +2134,35 @@ body {
 <div class="toast" id="qa-toast"></div>
 
 <script>
+/* ═══════════════════════════════════════════════════════════
+   THEME TOGGLE
+═══════════════════════════════════════════════════════════ */
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const newTheme = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  document.getElementById('theme-icon').textContent = newTheme === 'dark' ? '☀️' : '🌙';
+  document.getElementById('theme-label').textContent = newTheme === 'dark' ? 'Light' : 'Dark';
+  try { localStorage.setItem('qa-theme', newTheme); } catch(e) {}
+}
+
+// Restore saved theme on load
+(function() {
+  try {
+    const saved = localStorage.getItem('qa-theme');
+    if (saved === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      // Will update button after DOM ready
+      document.addEventListener('DOMContentLoaded', function() {
+        const icon = document.getElementById('theme-icon');
+        const label = document.getElementById('theme-label');
+        if (icon) icon.textContent = '☀️';
+        if (label) label.textContent = 'Light';
+      });
+    }
+  } catch(e) {}
+})();
+
 /* ═══════════════════════════════════════════════════════════
    BRAND / TAB SWITCHING
 ═══════════════════════════════════════════════════════════ */
