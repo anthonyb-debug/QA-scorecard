@@ -1168,6 +1168,7 @@ body {
 }
 .dash-wk-cell { font-weight: 600; }
 .dash-wk-cell.wk-met { color: var(--yes); }
+.dash-wk-cell.wk-partial { color: var(--major); }
 .dash-wk-cell.wk-missing { color: var(--ztp); }
 .dash-wk-cell.wk-na { color: var(--text-tertiary); font-weight: 400; }
 .dash-status-pill {
@@ -1423,7 +1424,7 @@ body {
         </div>
       </div>
       <div class="meta-bar" id="L-metaBar">
-        <div class="mf"><label>Audit No.</label><input type="text" id="L-auditNo" placeholder="e.g. 2025-001"></div>
+        <div class="mf"><label>Audit No.</label><select id="L-auditNo"><option value="">Select…</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
         <div class="mf"><label>Agent</label><select id="L-agent"><option value="">Select Agent…</option><optgroup label="— Legacy Agents —"><option>Aban, Ma Melanie</option><option>Angel, Byron Jake</option><option>Bernardo, Sean</option><option>Buranis, Shenelyn</option><option>Dujale, John Vincent</option><option>Galong, Julia Mae</option><option>Lajo, Ella Mae</option><option>Lopez, Maria Nelia</option><option>Lumactod, Nikki</option><option>Magbanua, Rubie</option><option>Navarro, Stephanie</option><option>Padullano, Larinz</option><option>Perez, Karen</option><option>Rapis, Samuel</option><option>Regla, Ma Cecilia</option><option>Sagun, Rae</option><option>Villarta, Remington</option></optgroup></select></div>
         <div class="mf"><label>CTM Phone</label><input type="text" id="L-ctmPhone" placeholder="(555) 000-0000"></div>
         <div class="mf"><label>Call Date / Time</label><input type="datetime-local" id="L-callDateTime"></div>
@@ -1769,7 +1770,7 @@ body {
         </div>
       </div>
       <div class="meta-bar mf-banyan" id="B-metaBar">
-        <div class="mf"><label>Audit No.</label><input type="text" id="B-auditNo" placeholder="e.g. 2025-001"></div>
+        <div class="mf"><label>Audit No.</label><select id="B-auditNo"><option value="">Select…</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
         <div class="mf"><label>Agent</label><select id="B-agent"><option value="">Select Agent…</option><optgroup label="— Banyan Agents —"><option>Bartolome, Christian Byron</option><option>Bugto, Alexandra Monique</option><option>Flores, Gohhan</option><option>Guzman, Joseph Roy</option><option>Lim, Dyan</option><option>Matanguihan, Deniele</option><option>Pineda, Marc Francis</option><option>Precioso, Gerard</option><option>Respicio, Sherry-an</option></optgroup></select></div>
         <div class="mf"><label>CTM Phone</label><input type="text" id="B-ctmPhone" placeholder="(555) 000-0000"></div>
         <div class="mf"><label>Call Date / Time</label><input type="datetime-local" id="B-callDateTime"></div>
@@ -2507,6 +2508,7 @@ const dashState = {
   L: { rows: null, loaded: false, loading: false },
   B: { rows: null, loaded: false, loading: false }
 };
+const REQUIRED_PER_WEEK = 3; // QA audits required per agent per week
 
 function populateDashYearMonth(prefix) {
   const yearSel = document.getElementById(prefix + '-dash-year');
@@ -2644,14 +2646,18 @@ function renderDashboard(prefix) {
         cellClass += ' wk-na';
         display = '·';
       } else {
-        agentRequired++;
-        if (cnt >= 1) {
-          agentMet++;
+        agentRequired += REQUIRED_PER_WEEK;
+        const met = Math.min(cnt, REQUIRED_PER_WEEK);
+        agentMet += met;
+        if (cnt >= REQUIRED_PER_WEEK) {
           cellClass += ' wk-met';
-          display = '✓' + (cnt > 1 ? ` (${cnt})` : '');
+          display = `✓ ${cnt}/${REQUIRED_PER_WEEK}`;
+        } else if (cnt > 0) {
+          cellClass += ' wk-partial';
+          display = `${cnt}/${REQUIRED_PER_WEEK}`;
         } else {
           cellClass += ' wk-missing';
-          display = '✗';
+          display = `✗ 0/${REQUIRED_PER_WEEK}`;
         }
       }
       weekCellsHtml += `<td class="${cellClass}">${display}</td>`;
@@ -2663,11 +2669,12 @@ function renderDashboard(prefix) {
     if (isAgentComplete) agentsComplete++;
 
     const totalAudits = weekKeys.reduce((s, w) => s + counts[agent][w], 0);
+    const auditsShort = agentRequired - agentMet;
     const statusHtml = agentRequired === 0
       ? `<span class="dash-status-pill" style="background:var(--surface-2);color:var(--text-tertiary)">No weeks yet</span>`
       : isAgentComplete
         ? `<span class="dash-status-pill complete">On Track</span>`
-        : `<span class="dash-status-pill incomplete">${agentRequired - agentMet} Missing</span>`;
+        : `<span class="dash-status-pill incomplete">${auditsShort} Audit${auditsShort === 1 ? '' : 's'} Short</span>`;
 
     row.innerHTML = nameCell + weekCellsHtml + `<td><strong>${totalAudits}</strong></td><td>${statusHtml}</td>`;
     tbody.appendChild(row);
@@ -2683,7 +2690,7 @@ function renderDashboard(prefix) {
     </div>
     <div class="dash-summary-card">
       <div class="dash-summary-num">${totalMet} / ${totalRequired}</div>
-      <div class="dash-summary-label">Agent-Weeks Audited</div>
+      <div class="dash-summary-label">Audits Completed (of ${REQUIRED_PER_WEEK}/wk per agent)</div>
     </div>
     <div class="dash-summary-card ${agentsComplete === agents.length ? 'ok' : ''}">
       <div class="dash-summary-num">${agentsComplete} / ${agents.length}</div>
