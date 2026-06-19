@@ -2386,7 +2386,7 @@ body {
       QA Scorecard
     </div>
 
-    <div class="brand-tabs">
+    <div class="brand-tabs" id="campaign-toggle-header">
       <button class="brand-btn active-legacy" id="brand-btn-legacy" onclick="showBrand('legacy',this)">
         <span class="dot dot-legacy"></span>
         Legacy
@@ -5033,6 +5033,22 @@ function showPage(page, btn) {
   currentPage = page;
   document.querySelectorAll('.global-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.app-nav-btn').forEach(b => b.classList.remove('active'));
+
+  const campaignToggle = document.getElementById('campaign-toggle-header');
+
+  // Only show Legacy/Banyan campaign toggle on Scorecard to avoid confusion
+  if (campaignToggle) {
+    campaignToggle.style.display = page === 'scorecard' ? 'flex' : 'none';
+  }
+
+  // Only show campaign navigation on Scorecard
+  const navL = document.getElementById('nav-tabs-L');
+  const navB = document.getElementById('nav-tabs-B');
+
+  if (page !== 'scorecard') {
+    if (navL) navL.style.display = 'none';
+    if (navB) navB.style.display = 'none';
+  }
 
   if (page === 'scorecard') {
     document.getElementById('scorecard-shell').style.display = '';
