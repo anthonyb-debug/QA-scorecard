@@ -4593,15 +4593,20 @@ function renderDashboard(prefix) {
     (r[3] || '') === month
   );
 
-  // Build counts: agent -> week -> count
+  // Build counts and scores: agent -> week -> { count, scoreSum }
   const counts = {};
-  agents.forEach(a => { counts[a] = { 'Week 1':0,'Week 2':0,'Week 3':0,'Week 4':0,'Week 5':0 }; });
+  agents.forEach(a => {
+    counts[a] = {};
+    ['Week 1','Week 2','Week 3','Week 4','Week 5'].forEach(w => { counts[a][w] = { count: 0, scoreSum: 0 }; });
+  });
 
   filtered.forEach(r => {
     const agentName = (r[5] || '').trim();
     const week = (r[4] || '').trim();
+    const scoreRaw = parseFloat((r[7] || '').toString().replace('%',''));
     if (counts[agentName] && counts[agentName].hasOwnProperty(week)) {
-      counts[agentName][week]++;
+      counts[agentName][week].count++;
+      if (!isNaN(scoreRaw)) counts[agentName][week].scoreSum += scoreRaw;
     }
   });
 
@@ -4634,7 +4639,7 @@ function renderDashboard(prefix) {
   const thead = document.getElementById(prefix + '-dash-thead');
   if (thead) {
     const wkHeaders = requiredWeeks.map((w, i) => `<th>Wk ${i + 1}</th>`).join('');
-    thead.innerHTML = `<tr><th class="dash-agent-col">Agent</th>${wkHeaders}<th>Total</th><th>Status</th></tr>`;
+    thead.innerHTML = `<tr><th class="dash-agent-col">Agent</th>${wkHeaders}<th>Total / Avg</th><th>Status</th></tr>`;
   }
 
   // Render table rows
@@ -4650,25 +4655,35 @@ function renderDashboard(prefix) {
     let weekCellsHtml = '';
     let agentRequired = 0, agentMet = 0;
 
+    let agentScoreSum = 0, agentScoreCount = 0;
+
     requiredWeeks.forEach(w => {
-      const cnt = counts[agent][w];
+      const { count: cnt, scoreSum } = counts[agent][w];
       let cellClass = 'dash-wk-cell';
       let display = '—';
 
       agentRequired += REQUIRED_PER_WEEK;
       const met = Math.min(cnt, REQUIRED_PER_WEEK);
       agentMet += met;
-      if (cnt >= REQUIRED_PER_WEEK) {
-        cellClass += ' wk-met';
-        display = `✓ ${cnt}/${REQUIRED_PER_WEEK}`;
-      } else if (cnt > 0) {
-        cellClass += ' wk-partial';
-        display = `${cnt}/${REQUIRED_PER_WEEK}`;
+
+      if (cnt > 0) {
+        const avgScore = (scoreSum / cnt).toFixed(2) + '%';
+        agentScoreSum += scoreSum;
+        agentScoreCount += cnt;
+        if (cnt >= REQUIRED_PER_WEEK) {
+          cellClass += ' wk-met';
+          display = `<span style="font-size:12px;font-weight:700">${avgScore}</span><br><span style="font-size:10px;color:var(--yes);font-weight:600">✓ Completed</span>`;
+        } else {
+          const pending = REQUIRED_PER_WEEK - cnt;
+          cellClass += ' wk-partial';
+          display = `<span style="font-size:12px;font-weight:700">${avgScore}</span><br><span style="font-size:10px;color:var(--major);font-weight:600">⏳ Pending (${pending})</span>`;
+        }
       } else {
+        const pending = REQUIRED_PER_WEEK;
         cellClass += ' wk-missing';
-        display = `✗ 0/${REQUIRED_PER_WEEK}`;
+        display = `<span style="font-size:10px;color:var(--ztp);font-weight:600">⏳ Pending (${pending})</span>`;
       }
-      weekCellsHtml += `<td class="${cellClass}">${display}</td>`;
+      weekCellsHtml += `<td class="${cellClass}" style="line-height:1.4;padding:6px 8px">${display}</td>`;
     });
 
     totalRequired += agentRequired;
@@ -4676,15 +4691,16 @@ function renderDashboard(prefix) {
     const isAgentComplete = agentRequired > 0 && agentMet === agentRequired;
     if (isAgentComplete) agentsComplete++;
 
-    const totalAudits = weekKeys.reduce((s, w) => s + counts[agent][w], 0);
+    const totalAudits = weekKeys.reduce((s, w) => s + counts[agent][w].count, 0);
     const auditsShort = agentRequired - agentMet;
+    const overallAvg = agentScoreCount > 0 ? (agentScoreSum / agentScoreCount).toFixed(2) + '%' : '—';
     const statusHtml = agentRequired === 0
       ? `<span class="dash-status-pill" style="background:var(--surface-2);color:var(--text-tertiary)">No weeks yet</span>`
       : isAgentComplete
-        ? `<span class="dash-status-pill complete">On Track</span>`
-        : `<span class="dash-status-pill incomplete">${auditsShort} Audit${auditsShort === 1 ? '' : 's'} Short</span>`;
+        ? `<span class="dash-status-pill complete">✓ Completed</span>`
+        : `<span class="dash-status-pill incomplete">⏳ Pending (${auditsShort})</span>`;
 
-    row.innerHTML = nameCell + weekCellsHtml + `<td><strong>${totalAudits}</strong></td><td>${statusHtml}</td>`;
+    row.innerHTML = nameCell + weekCellsHtml + `<td style="text-align:center"><strong>${totalAudits}</strong><br><span style="font-size:10px;color:var(--text-tertiary)">${overallAvg}</span></td><td>${statusHtml}</td>`;
     tbody.appendChild(row);
   });
 
@@ -5239,10 +5255,18 @@ function refreshDashPage() {
 
   // coverage
   const counts = {};
-  agents.forEach(a => { counts[a] = {'Week 1':0,'Week 2':0,'Week 3':0,'Week 4':0,'Week 5':0}; });
+  const scoreSums = {};
+  agents.forEach(a => {
+    counts[a] = {'Week 1':0,'Week 2':0,'Week 3':0,'Week 4':0,'Week 5':0};
+    scoreSums[a] = {'Week 1':0,'Week 2':0,'Week 3':0,'Week 4':0,'Week 5':0};
+  });
   filtered.forEach(r => {
     const a = (r[5]||'').trim(), w = (r[4]||'').trim();
-    if (counts[a] && counts[a].hasOwnProperty(w)) counts[a][w]++;
+    const sc = parseScore(r[7]);
+    if (counts[a] && counts[a].hasOwnProperty(w)) {
+      counts[a][w]++;
+      if (sc !== null) scoreSums[a][w] += sc;
+    }
   });
 
   const now = new Date();
@@ -5365,27 +5389,42 @@ function refreshDashPage() {
   const coverageTheadEl = document.getElementById('dash-coverage-thead');
   const coverageTbodyEl = document.getElementById('dash-coverage-tbody');
   const wkHeaders = reqWks.map((w,i)=>`<th>Wk ${i+1}</th>`).join('');
-  coverageTheadEl.innerHTML = `<tr><th class="agent-th">Agent</th>${wkHeaders}<th>Total</th><th>Status</th></tr>`;
+  coverageTheadEl.innerHTML = `<tr><th class="agent-th">Agent</th>${wkHeaders}<th>Total / Avg</th><th>Status</th></tr>`;
 
   coverageTbodyEl.innerHTML = '';
   agents.forEach(a => {
     let cells=''; let ar=0,am=0;
+    let agentScoreSum=0, agentScoreCount=0;
     reqWks.forEach(w => {
       const cnt = counts[a][w];
+      const ss = scoreSums[a][w];
       ar+=3; am+=Math.min(cnt,3);
-      const cls = cnt>=3?'wk-met':cnt>0?'wk-partial':'wk-missing';
-      const lbl = cnt>=3?`✓ ${cnt}/3`:cnt>0?`${cnt}/3`:`✗ 0/3`;
-      cells += `<td><span class="wk-pill ${cls}">${lbl}</span></td>`;
+      let cellHtml;
+      if (cnt > 0) {
+        const avgScore = (ss / cnt).toFixed(2) + '%';
+        agentScoreSum += ss; agentScoreCount += cnt;
+        if (cnt >= 3) {
+          cellHtml = `<span style="display:block;font-weight:700;font-size:12px;color:var(--text-primary)">${avgScore}</span><span style="font-size:10px;color:var(--yes);font-weight:600">✓ Completed</span>`;
+        } else {
+          const pending = 3 - cnt;
+          cellHtml = `<span style="display:block;font-weight:700;font-size:12px;color:var(--text-primary)">${avgScore}</span><span style="font-size:10px;color:var(--major);font-weight:600">⏳ Pending (${pending})</span>`;
+        }
+      } else {
+        const pending = 3;
+        cellHtml = `<span style="font-size:10px;color:var(--ztp);font-weight:600">⏳ Pending (${pending})</span>`;
+      }
+      cells += `<td style="line-height:1.4;padding:6px 8px">${cellHtml}</td>`;
     });
     const total = allWks.reduce((s,w)=>s+counts[a][w],0);
+    const overallAvg = agentScoreCount > 0 ? (agentScoreSum / agentScoreCount).toFixed(2) + '%' : '—';
     const ok = ar>0 && am===ar;
     const short = ar-am;
     const statusHtml = ar===0
       ? `<span class="wk-pill wk-na">No weeks</span>`
-      : ok ? `<span class="wk-pill wk-met">On Track</span>`
-           : `<span class="wk-pill wk-missing">${short} Short</span>`;
+      : ok ? `<span class="wk-pill wk-met">✓ Completed</span>`
+           : `<span class="wk-pill wk-missing">⏳ Pending (${short})</span>`;
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td class="agent-td">${a}</td>${cells}<td><strong>${total}</strong></td><td>${statusHtml}</td>`;
+    tr.innerHTML = `<td class="agent-td">${a}</td>${cells}<td style="text-align:center"><strong>${total}</strong><br><span style="font-size:10px;color:var(--text-tertiary)">${overallAvg}</span></td><td>${statusHtml}</td>`;
     coverageTbodyEl.appendChild(tr);
   });
 
