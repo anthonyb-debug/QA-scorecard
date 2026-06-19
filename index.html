@@ -1673,7 +1673,7 @@ body {
           <div class="dash-summary" id="L-dash-summary"></div>
           <div class="dash-table-wrap">
             <table class="dash-table" id="L-dash-table">
-              <thead>
+              <thead id="L-dash-thead">
                 <tr>
                   <th class="dash-agent-col">Agent</th>
                   <th>Wk 1</th><th>Wk 2</th><th>Wk 3</th><th>Wk 4</th><th>Wk 5</th>
@@ -2018,7 +2018,7 @@ body {
           <div class="dash-summary" id="B-dash-summary"></div>
           <div class="dash-table-wrap">
             <table class="dash-table" id="B-dash-table">
-              <thead>
+              <thead id="B-dash-thead">
                 <tr>
                   <th class="dash-agent-col">Agent</th>
                   <th>Wk 1</th><th>Wk 2</th><th>Wk 3</th><th>Wk 4</th><th>Wk 5</th>
@@ -2623,6 +2623,13 @@ function renderDashboard(prefix) {
     return false;
   });
 
+  // Update table header to show only required weeks
+  const thead = document.getElementById(prefix + '-dash-thead');
+  if (thead) {
+    const wkHeaders = requiredWeeks.map((w, i) => `<th>Wk ${i + 1}</th>`).join('');
+    thead.innerHTML = `<tr><th class="dash-agent-col">Agent</th>${wkHeaders}<th>Total</th><th>Status</th></tr>`;
+  }
+
   // Render table rows
   const tbody = document.getElementById(prefix + '-dash-tbody');
   tbody.innerHTML = '';
@@ -2636,29 +2643,23 @@ function renderDashboard(prefix) {
     let weekCellsHtml = '';
     let agentRequired = 0, agentMet = 0;
 
-    weekKeys.forEach(w => {
+    requiredWeeks.forEach(w => {
       const cnt = counts[agent][w];
-      const isRequired = requiredWeeks.includes(w);
       let cellClass = 'dash-wk-cell';
       let display = '—';
 
-      if (!isRequired) {
-        cellClass += ' wk-na';
-        display = '·';
+      agentRequired += REQUIRED_PER_WEEK;
+      const met = Math.min(cnt, REQUIRED_PER_WEEK);
+      agentMet += met;
+      if (cnt >= REQUIRED_PER_WEEK) {
+        cellClass += ' wk-met';
+        display = `✓ ${cnt}/${REQUIRED_PER_WEEK}`;
+      } else if (cnt > 0) {
+        cellClass += ' wk-partial';
+        display = `${cnt}/${REQUIRED_PER_WEEK}`;
       } else {
-        agentRequired += REQUIRED_PER_WEEK;
-        const met = Math.min(cnt, REQUIRED_PER_WEEK);
-        agentMet += met;
-        if (cnt >= REQUIRED_PER_WEEK) {
-          cellClass += ' wk-met';
-          display = `✓ ${cnt}/${REQUIRED_PER_WEEK}`;
-        } else if (cnt > 0) {
-          cellClass += ' wk-partial';
-          display = `${cnt}/${REQUIRED_PER_WEEK}`;
-        } else {
-          cellClass += ' wk-missing';
-          display = `✗ 0/${REQUIRED_PER_WEEK}`;
-        }
+        cellClass += ' wk-missing';
+        display = `✗ 0/${REQUIRED_PER_WEEK}`;
       }
       weekCellsHtml += `<td class="${cellClass}">${display}</td>`;
     });
@@ -2717,6 +2718,8 @@ updateCompletion('L');
 updateCompletion('B');
 populateYearMonth('L');
 populateYearMonth('B');
+populateDashYearMonth('L');
+populateDashYearMonth('B');
 /* ═══════════════════════════════════════════════════════════
    SAVE TO PDF — plain 1-page form
 ═══════════════════════════════════════════════════════════ */
