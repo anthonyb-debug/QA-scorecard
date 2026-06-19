@@ -4593,23 +4593,15 @@ function renderDashboard(prefix) {
     (r[3] || '') === month
   );
 
-  // Build counts and scores: agent -> week -> { auditNums (Set of audit numbers), scoreSum }
-  // Completion is determined by whether Audit 1, Audit 2, and Audit 3 are all logged
-  const REQUIRED_AUDIT_NUMS = ['1','2','3'];
+  // Build counts: agent -> week -> count
   const counts = {};
-  agents.forEach(a => {
-    counts[a] = {};
-    ['Week 1','Week 2','Week 3','Week 4','Week 5'].forEach(w => { counts[a][w] = { auditNums: new Set(), scoreSum: 0, scoreCount: 0 }; });
-  });
+  agents.forEach(a => { counts[a] = { 'Week 1':0,'Week 2':0,'Week 3':0,'Week 4':0,'Week 5':0 }; });
 
   filtered.forEach(r => {
     const agentName = (r[5] || '').trim();
     const week = (r[4] || '').trim();
-    const auditNo = (r[6] || '').toString().trim(); // Column G = Audit No.
-    const scoreRaw = parseFloat((r[7] || '').toString().replace('%',''));
     if (counts[agentName] && counts[agentName].hasOwnProperty(week)) {
-      counts[agentName][week].auditNums.add(auditNo);
-      if (!isNaN(scoreRaw)) { counts[agentName][week].scoreSum += scoreRaw; counts[agentName][week].scoreCount++; }
+      counts[agentName][week]++;
     }
   });
 
@@ -4642,7 +4634,7 @@ function renderDashboard(prefix) {
   const thead = document.getElementById(prefix + '-dash-thead');
   if (thead) {
     const wkHeaders = requiredWeeks.map((w, i) => `<th>Wk ${i + 1}</th>`).join('');
-    thead.innerHTML = `<tr><th class="dash-agent-col">Agent</th>${wkHeaders}<th>Total / Avg</th><th>Status</th></tr>`;
+    thead.innerHTML = `<tr><th class="dash-agent-col">Agent</th>${wkHeaders}<th>Total</th><th>Status</th></tr>`;
   }
 
   // Render table rows
@@ -4658,44 +4650,25 @@ function renderDashboard(prefix) {
     let weekCellsHtml = '';
     let agentRequired = 0, agentMet = 0;
 
-    let agentScoreSum = 0, agentScoreCount = 0;
-
     requiredWeeks.forEach(w => {
-      const { auditNums, scoreSum, scoreCount } = counts[agent][w];
-      // Completed = Audit 1, 2, and 3 are all present
-      const hasA1 = auditNums.has('1'), hasA2 = auditNums.has('2'), hasA3 = auditNums.has('3');
-      const completedAudits = [hasA1, hasA2, hasA3].filter(Boolean).length;
-      const isComplete = hasA1 && hasA2 && hasA3;
+      const cnt = counts[agent][w];
       let cellClass = 'dash-wk-cell';
       let display = '—';
 
       agentRequired += REQUIRED_PER_WEEK;
-      const met = isComplete ? REQUIRED_PER_WEEK : completedAudits;
+      const met = Math.min(cnt, REQUIRED_PER_WEEK);
       agentMet += met;
-
-      if (scoreCount > 0) {
-        const avgScore = (scoreSum / scoreCount).toFixed(2) + '%';
-        agentScoreSum += scoreSum;
-        agentScoreCount += scoreCount;
-        if (isComplete) {
-          cellClass += ' wk-met';
-          display = `<span style="font-size:12px;font-weight:700">${avgScore}</span><br><span style="font-size:10px;color:var(--yes);font-weight:600">✓ Completed</span>`;
-        } else {
-          const pending = REQUIRED_PER_WEEK - completedAudits;
-          const pendingList = ['1','2','3'].filter(n => !auditNums.has(n)).map(n=>'Audit '+n).join(', ');
-          cellClass += ' wk-partial';
-          display = `<span style="font-size:12px;font-weight:700">${avgScore}</span><br><span style="font-size:10px;color:var(--major);font-weight:600">⏳ Pending (${pending})</span>`;
-        }
-      } else if (auditNums.size > 0) {
-        // audits logged but no parseable score yet
-        const pending = REQUIRED_PER_WEEK - completedAudits;
+      if (cnt >= REQUIRED_PER_WEEK) {
+        cellClass += ' wk-met';
+        display = `✓ ${cnt}/${REQUIRED_PER_WEEK}`;
+      } else if (cnt > 0) {
         cellClass += ' wk-partial';
-        display = `<span style="font-size:10px;color:var(--major);font-weight:600">⏳ Pending (${pending})</span>`;
+        display = `${cnt}/${REQUIRED_PER_WEEK}`;
       } else {
         cellClass += ' wk-missing';
-        display = `<span style="font-size:10px;color:var(--ztp);font-weight:600">⏳ Pending (3)</span>`;
+        display = `✗ 0/${REQUIRED_PER_WEEK}`;
       }
-      weekCellsHtml += `<td class="${cellClass}" style="line-height:1.4;padding:6px 8px">${display}</td>`;
+      weekCellsHtml += `<td class="${cellClass}">${display}</td>`;
     });
 
     totalRequired += agentRequired;
@@ -4703,16 +4676,15 @@ function renderDashboard(prefix) {
     const isAgentComplete = agentRequired > 0 && agentMet === agentRequired;
     if (isAgentComplete) agentsComplete++;
 
-    const totalAudits = weekKeys.reduce((s, w) => s + counts[agent][w].scoreCount, 0);
+    const totalAudits = weekKeys.reduce((s, w) => s + counts[agent][w], 0);
     const auditsShort = agentRequired - agentMet;
-    const overallAvg = agentScoreCount > 0 ? (agentScoreSum / agentScoreCount).toFixed(2) + '%' : '—';
     const statusHtml = agentRequired === 0
       ? `<span class="dash-status-pill" style="background:var(--surface-2);color:var(--text-tertiary)">No weeks yet</span>`
       : isAgentComplete
-        ? `<span class="dash-status-pill complete">✓ Completed</span>`
-        : `<span class="dash-status-pill incomplete">⏳ Pending (${auditsShort})</span>`;
+        ? `<span class="dash-status-pill complete">On Track</span>`
+        : `<span class="dash-status-pill incomplete">${auditsShort} Audit${auditsShort === 1 ? '' : 's'} Short</span>`;
 
-    row.innerHTML = nameCell + weekCellsHtml + `<td style="text-align:center"><strong>${totalAudits}</strong><br><span style="font-size:10px;color:var(--text-tertiary)">${overallAvg}</span></td><td>${statusHtml}</td>`;
+    row.innerHTML = nameCell + weekCellsHtml + `<td><strong>${totalAudits}</strong></td><td>${statusHtml}</td>`;
     tbody.appendChild(row);
   });
 
@@ -5265,20 +5237,12 @@ function refreshDashPage() {
   const passRate = scores.length ? Math.round(passes/scores.length*100) : null;
   const criticals = scores.filter(s => s <= 80).length;
 
-  // coverage — track which audit numbers (1, 2, 3) are logged per agent per week
+  // coverage
   const counts = {};
-  agents.forEach(a => {
-    counts[a] = {};
-    ['Week 1','Week 2','Week 3','Week 4','Week 5'].forEach(w => { counts[a][w] = { auditNums: new Set(), scoreSum: 0, scoreCount: 0 }; });
-  });
+  agents.forEach(a => { counts[a] = {'Week 1':0,'Week 2':0,'Week 3':0,'Week 4':0,'Week 5':0}; });
   filtered.forEach(r => {
     const a = (r[5]||'').trim(), w = (r[4]||'').trim();
-    const auditNo = (r[6]||'').toString().trim(); // Column G = Audit No.
-    const sc = parseScore(r[7]);
-    if (counts[a] && counts[a].hasOwnProperty(w)) {
-      counts[a][w].auditNums.add(auditNo);
-      if (sc !== null) { counts[a][w].scoreSum += sc; counts[a][w].scoreCount++; }
-    }
+    if (counts[a] && counts[a].hasOwnProperty(w)) counts[a][w]++;
   });
 
   const now = new Date();
@@ -5302,12 +5266,7 @@ function refreshDashPage() {
   let totalReq=0, totalMet=0, agentsOnTrack=0;
   agents.forEach(a => {
     let ar=0,am=0;
-    reqWks.forEach(w => {
-      const { auditNums } = counts[a][w];
-      const complete = auditNums.has('1') && auditNums.has('2') && auditNums.has('3');
-      const done = complete ? 3 : ['1','2','3'].filter(n => auditNums.has(n)).length;
-      ar+=3; am+=done;
-    });
+    reqWks.forEach(w => { ar+=3; am+=Math.min(counts[a][w],3); });
     totalReq+=ar; totalMet+=am;
     if (ar>0 && am===ar) agentsOnTrack++;
   });
@@ -5406,46 +5365,27 @@ function refreshDashPage() {
   const coverageTheadEl = document.getElementById('dash-coverage-thead');
   const coverageTbodyEl = document.getElementById('dash-coverage-tbody');
   const wkHeaders = reqWks.map((w,i)=>`<th>Wk ${i+1}</th>`).join('');
-  coverageTheadEl.innerHTML = `<tr><th class="agent-th">Agent</th>${wkHeaders}<th>Total / Avg</th><th>Status</th></tr>`;
+  coverageTheadEl.innerHTML = `<tr><th class="agent-th">Agent</th>${wkHeaders}<th>Total</th><th>Status</th></tr>`;
 
   coverageTbodyEl.innerHTML = '';
   agents.forEach(a => {
     let cells=''; let ar=0,am=0;
-    let agentScoreSum=0, agentScoreCount=0;
     reqWks.forEach(w => {
-      const { auditNums, scoreSum, scoreCount } = counts[a][w];
-      const hasA1 = auditNums.has('1'), hasA2 = auditNums.has('2'), hasA3 = auditNums.has('3');
-      const completedAudits = [hasA1, hasA2, hasA3].filter(Boolean).length;
-      const isComplete = hasA1 && hasA2 && hasA3;
-      ar+=3; am+=(isComplete ? 3 : completedAudits);
-      let cellHtml;
-      if (scoreCount > 0) {
-        const avgScore = (scoreSum / scoreCount).toFixed(2) + '%';
-        agentScoreSum += scoreSum; agentScoreCount += scoreCount;
-        if (isComplete) {
-          cellHtml = `<span style="display:block;font-weight:700;font-size:12px;color:var(--text-primary)">${avgScore}</span><span style="font-size:10px;color:var(--yes);font-weight:600">✓ Completed</span>`;
-        } else {
-          const pending = 3 - completedAudits;
-          cellHtml = `<span style="display:block;font-weight:700;font-size:12px;color:var(--text-primary)">${avgScore}</span><span style="font-size:10px;color:var(--major);font-weight:600">⏳ Pending (${pending})</span>`;
-        }
-      } else if (auditNums.size > 0) {
-        const pending = 3 - completedAudits;
-        cellHtml = `<span style="font-size:10px;color:var(--major);font-weight:600">⏳ Pending (${pending})</span>`;
-      } else {
-        cellHtml = `<span style="font-size:10px;color:var(--ztp);font-weight:600">⏳ Pending (3)</span>`;
-      }
-      cells += `<td style="line-height:1.4;padding:6px 8px">${cellHtml}</td>`;
+      const cnt = counts[a][w];
+      ar+=3; am+=Math.min(cnt,3);
+      const cls = cnt>=3?'wk-met':cnt>0?'wk-partial':'wk-missing';
+      const lbl = cnt>=3?`✓ ${cnt}/3`:cnt>0?`${cnt}/3`:`✗ 0/3`;
+      cells += `<td><span class="wk-pill ${cls}">${lbl}</span></td>`;
     });
-    const total = Object.values(counts[a]).reduce((s,v)=>s+v.scoreCount,0);
-    const overallAvg = agentScoreCount > 0 ? (agentScoreSum / agentScoreCount).toFixed(2) + '%' : '—';
+    const total = allWks.reduce((s,w)=>s+counts[a][w],0);
     const ok = ar>0 && am===ar;
     const short = ar-am;
     const statusHtml = ar===0
       ? `<span class="wk-pill wk-na">No weeks</span>`
-      : ok ? `<span class="wk-pill wk-met">✓ Completed</span>`
-           : `<span class="wk-pill wk-missing">⏳ Pending (${short})</span>`;
+      : ok ? `<span class="wk-pill wk-met">On Track</span>`
+           : `<span class="wk-pill wk-missing">${short} Short</span>`;
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td class="agent-td">${a}</td>${cells}<td style="text-align:center"><strong>${total}</strong><br><span style="font-size:10px;color:var(--text-tertiary)">${overallAvg}</span></td><td>${statusHtml}</td>`;
+    tr.innerHTML = `<td class="agent-td">${a}</td>${cells}<td><strong>${total}</strong></td><td>${statusHtml}</td>`;
     coverageTbodyEl.appendChild(tr);
   });
 
