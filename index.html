@@ -2454,8 +2454,8 @@ body {
       <div class="meta-bar" id="L-metaBar">
         <div class="mf"><label>Audit No.</label><select id="L-auditNo"><option value="">Select…</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
         <div class="mf"><label>Agent</label><select id="L-agent"><option value="">Select Agent…</option><optgroup label="— Legacy Agents —"><option>Aban, Ma Melanie</option><option>Angel, Byron Jake</option><option>Bernardo, Sean</option><option>Buranis, Shenelyn</option><option>Dujale, John Vincent</option><option>Galong, Julia Mae</option><option>Lajo, Ella Mae</option><option>Lopez, Maria Nelia</option><option>Lumactod, Nikki</option><option>Magbanua, Rubie</option><option>Navarro, Stephanie</option><option>Padullano, Larinz</option><option>Perez, Karen</option><option>Rapis, Samuel</option><option>Regla, Ma Cecilia</option><option>Sagun, Rae</option><option>Villarta, Remington</option></optgroup></select></div>
-        <div class="mf"><label>Chat ID</label><input type="text" id="L-chatId" placeholder="Chat ID…"></div>
-        <div class="mf"><label>Chat Date / Time</label><input type="datetime-local" id="L-chatDateTime"></div>
+        <div class="mf" id="L-field-id"><label id="L-label-id">CTM Phone</label><input type="text" id="L-chatId" placeholder="(555) 000-0000"></div>
+        <div class="mf" id="L-field-dt"><label id="L-label-dt">Call Date / Time</label><input type="datetime-local" id="L-chatDateTime"></div>
         <div class="mf"><label>Audit Date</label><input type="date" id="L-auditDate"></div>
         <div class="mf"><label>Year</label><select id="L-year"></select></div>
         <div class="mf"><label>Month</label><select id="L-month"></select></div>
@@ -4173,6 +4173,18 @@ function showTab(prefix, tab, btn) {
       if (sp.id === 'LC-score-panel') return;
       sp.style.display = (tab === 'scorecard') ? '' : 'none';
     });
+  }
+
+  // Swap Legacy meta-bar labels/fields between Call QA and Chat QA
+  if (prefix === 'L') {
+    const isCallQA = (tab === 'scorecard');
+    const labelId = document.getElementById('L-label-id');
+    const labelDt = document.getElementById('L-label-dt');
+    const inputId = document.getElementById('L-chatId');
+    const inputDt = document.getElementById('L-chatDateTime');
+    if (labelId) labelId.textContent = isCallQA ? 'CTM Phone' : 'Chat ID';
+    if (labelDt) labelDt.textContent = isCallQA ? 'Call Date / Time' : 'Chat Date / Time';
+    if (inputId) inputId.placeholder = isCallQA ? '(555) 000-0000' : 'Chat ID…';
   }
 
   // Load dashboard data the first time the tab is opened
