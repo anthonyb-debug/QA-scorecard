@@ -1308,16 +1308,8 @@ body {
 
     <div class="nav-spacer"></div>
 
-    <nav class="nav-section-tabs" id="nav-tabs-L" style="display:flex">
-      <button class="nav-tab-btn" onclick="showTab('L','scorecard',this)">Scorecard</button>
-      <button class="nav-tab-btn" onclick="showTab('L','guide',this)">QA Guide</button>
-      <button class="nav-tab-btn" onclick="showTab('L','dashboard',this)">📊 Dashboard</button>
-    </nav>
-    <nav class="nav-section-tabs" id="nav-tabs-B" style="display:none">
-      <button class="nav-tab-btn" onclick="showTab('B','scorecard',this)">Scorecard</button>
-      <button class="nav-tab-btn" onclick="showTab('B','guide',this)">QA Guide</button>
-      <button class="nav-tab-btn" onclick="showTab('B','dashboard',this)">📊 Dashboard</button>
-    </nav>
+    <div id="nav-tabs-L" style="display:flex"></div>
+    <div id="nav-tabs-B" style="display:none"></div>
   </div>
 </nav>
 
@@ -2593,8 +2585,7 @@ function renderDashboard(prefix) {
    INIT
 ═══════════════════════════════════════════════════════════ */
 // Set first nav tab active
-document.querySelectorAll('#nav-tabs-L .nav-tab-btn')[0]?.classList.add('active-legacy');
-document.querySelectorAll('#nav-tabs-B .nav-tab-btn')[0]?.classList.add('active-banyan');
+
 
 updateScore('L');
 updateScore('B');
