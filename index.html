@@ -4693,7 +4693,7 @@ function renderDashboard(prefix) {
 
   // Build counts: agent -> week -> count
   const counts = {};
-  agents.forEach(a => { counts[a] = { 'Week 1':0,'Week 2':0,'Week 3':0,'Week 4':0,'Week 5':0 }; });
+  agents.forEach(a => { counts[a] = { 'Week 1':0,'Week 2':0,'Week 3':0,'Week 4':0 }; });
 
   filtered.forEach(r => {
     const agentName = (r[5] || '').trim();
@@ -4713,9 +4713,9 @@ function renderDashboard(prefix) {
   const now = new Date();
   const isCurrentMonth = (Number(year) === now.getFullYear()) &&
     (['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()] === month);
-  const todayWeekNum = Math.min(5, Math.ceil(now.getDate() / 7));
+  const todayWeekNum = Math.min(4, Math.ceil(now.getDate() / 7));
 
-  const weekKeys = ['Week 1','Week 2','Week 3','Week 4','Week 5'];
+  const weekKeys = ['Week 1','Week 2','Week 3','Week 4'];
   const requiredWeeks = weekKeys.filter((w, idx) => {
     const wn = idx + 1;
     if (weeksWithAnyData.has(w)) return true;
@@ -5348,7 +5348,7 @@ function refreshDashPage() {
 
   // coverage
   const counts = {};
-  agents.forEach(a => { counts[a] = {'Week 1':0,'Week 2':0,'Week 3':0,'Week 4':0,'Week 5':0}; });
+  agents.forEach(a => { counts[a] = {'Week 1':0,'Week 2':0,'Week 3':0,'Week 4':0}; });
   filtered.forEach(r => {
     const a = (r[5]||'').trim();
     const raw = (r[4]||'').toString().trim();
@@ -5359,7 +5359,7 @@ function refreshDashPage() {
   const now = new Date();
   const isCurrentMonth = (Number(year) === now.getFullYear()) &&
     (['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()] === month);
-  const todayWeekNum = Math.min(5, Math.ceil(now.getDate()/7));
+  const todayWeekNum = Math.min(4, Math.ceil(now.getDate()/7));
   const weeksWithData = new Set();
   filtered.forEach(r => {
     if (r[4]) {
@@ -5368,7 +5368,7 @@ function refreshDashPage() {
       weeksWithData.add(w);
     }
   });
-  const allWks = ['Week 1','Week 2','Week 3','Week 4','Week 5'];
+  const allWks = ['Week 1','Week 2','Week 3','Week 4'];
   const reqWks = allWks.filter((w,idx) => {
     const wn = idx+1;
     if (weeksWithData.has(w)) return true;
@@ -5990,7 +5990,7 @@ function renderReportTrends(rows) {
   }
 
   // Weekly coverage trend
-  const wkCounts = {}; const wkKeys = ['Week 1','Week 2','Week 3','Week 4','Week 5'];
+  const wkCounts = {}; const wkKeys = ['Week 1','Week 2','Week 3','Week 4'];
   wkKeys.forEach(w=>wkCounts[w]=0);
   rows.forEach(r=>{ const w=(r[4]||'').trim(); if(wkCounts.hasOwnProperty(w)) wkCounts[w]++; });
   const wkEl = document.getElementById('rpt-weekly-trend');
