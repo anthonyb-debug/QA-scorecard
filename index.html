@@ -1463,6 +1463,123 @@ body {
 .toast.error { background: var(--ztp); }
 
 /* ═══════════════════════════════════════════════════════════
+   TAKAHAMI — Purple brand tokens & scorecard-specific styles
+═══════════════════════════════════════════════════════════ */
+:root {
+  --takahami:        #7c3aed;
+  --takahami-dark:   #5b21b6;
+  --takahami-light:  #f5f3ff;
+  --takahami-mid:    #ddd6fe;
+  --takahami-text:   #6d28d9;
+}
+
+/* Brand button */
+.brand-btn.active-takahami {
+  background: var(--takahami);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+.dot-takahami { background: var(--takahami); }
+.brand-btn.active-takahami .dot { background: rgba(255,255,255,0.6); }
+
+/* Header bar gradient */
+.header-takahami-bar { background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%); }
+
+/* Inner tab active state */
+.header-inner-tab.active-tab-takahami { color: var(--takahami); }
+
+/* Acc num — Takahami purple */
+.acc-num-takahami {
+  background: var(--takahami-light);
+  color: var(--takahami-text);
+  border: 1px solid var(--takahami-mid);
+}
+
+/* Score section nums */
+.section-num-takahami {
+  background: var(--takahami-light);
+  border-color: var(--takahami-mid);
+  color: var(--takahami-text);
+}
+
+/* Section jump btns */
+.section-jump-btn.takahami-jump:hover {
+  border-color: var(--takahami);
+  color: var(--takahami-text);
+  background: var(--takahami-light);
+}
+
+/* Input focus ring */
+.mf-takahami input:focus,
+.mf-takahami select:focus {
+  border-color: var(--takahami);
+  box-shadow: 0 0 0 3px var(--takahami-light);
+}
+
+/* Badge — weighted type */
+.badge-weighted {
+  background: var(--takahami-light);
+  color: var(--takahami-text);
+  border-color: var(--takahami-mid);
+}
+
+/* Weighted deduction display */
+.dv.dw-yes { color: var(--yes); }
+.dv.dw-no  { color: var(--ztp); }
+
+/* Progress bar Takahami */
+.score-progress-bar-takahami { background: var(--takahami); }
+
+/* Primary button */
+.btn-primary-takahami { background: var(--takahami); color: #fff; }
+
+/* Pill active state — yes */
+.pill-btn.ay-takahami {
+  background: var(--takahami-light);
+  color: var(--takahami-text);
+  box-shadow: inset 0 1px 3px rgba(124,58,237,0.1);
+}
+
+/* Group header rows in criteria table */
+.criteria-group-row td {
+  background: var(--takahami-light) !important;
+  color: var(--takahami-text);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-bottom: 1px solid var(--takahami-mid);
+  letter-spacing: 0.2px;
+}
+
+/* Sub-criterion indent */
+.criterion-sub-indent {
+  padding-left: 18px;
+  border-left: 2px solid var(--takahami-mid);
+  margin-left: 2px;
+}
+
+/* Nav dot Takahami */
+#nav-dot.takahami { background: var(--takahami); }
+
+/* Dark mode overrides */
+[data-theme="dark"] .acc-num-takahami {
+  background: rgba(124,58,237,0.18);
+  border-color: rgba(124,58,237,0.4);
+  color: #c4b5fd;
+}
+[data-theme="dark"] .criteria-group-row td {
+  background: rgba(124,58,237,0.12) !important;
+  color: #c4b5fd;
+  border-bottom-color: rgba(124,58,237,0.3);
+}
+[data-theme="dark"] .badge-weighted {
+  background: rgba(124,58,237,0.2);
+  border-color: rgba(124,58,237,0.35);
+  color: #c4b5fd;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
    PRINT STYLES
 ═══════════════════════════════════════════════════════════ */
 @media print {
@@ -2769,6 +2886,10 @@ body {
         <span class="dot dot-banyan"></span>
         Banyan
       </button>
+      <button class="brand-btn" id="brand-btn-takahami" onclick="showBrand('takahami',this)">
+        <span class="dot dot-takahami"></span>
+        Takahami
+      </button>
     </div>
 
     <div class="nav-spacer"></div>
@@ -3711,6 +3832,266 @@ body {
   </div>
   <!-- /BANYAN BRAND PANEL -->
 
+  <!-- ───── TAKAHAMI BRAND PANEL ───── -->
+  <div class="brand-panel" id="brand-takahami">
+
+    <!-- AUDIT HEADER + META -->
+    <div class="audit-header">
+      <div class="audit-header-bar header-takahami-bar">
+        <div class="audit-title-block">
+          <div class="audit-title">Takahami Quality Scorecard</div>
+          <div class="audit-subtitle">Contact Center QA Audit Platform</div>
+        </div>
+        <div class="header-inner-tabs">
+          <button class="header-inner-tab active-tab active-tab-takahami" onclick="showTab('T','scorecard',this)">
+            <span class="tab-icon tab-icon-call">📞</span>Call QA
+          </button>
+        </div>
+      </div>
+      <div class="meta-bar mf-takahami" id="T-metaBar">
+        <div class="mf"><label>Audit No.</label><input type="text" id="T-auditNo" placeholder="e.g. 2026-001"></div>
+        <div class="mf"><label>Agent</label><select id="T-agent"><option value="">Select Agent…</option><optgroup label="— Takahami Agents —"><option>Ado, Jaypee Dhan</option><option>Hubilla, Alvin Jhon</option><option>Mapa, Christia Marie</option><option>Patricio, Cherabyl</option><option>Regaspi, Jeffrey</option></optgroup></select></div>
+        <div class="mf"><label>Call ID</label><input type="text" id="T-callId" placeholder="Call ID…"></div>
+        <div class="mf"><label>Call Date / Time</label><input type="datetime-local" id="T-callDateTime"></div>
+        <div class="mf"><label>Audit Date</label><input type="date" id="T-auditDate"></div>
+        <div class="mf"><label>Year</label><select id="T-year"></select></div>
+        <div class="mf"><label>Month</label><select id="T-month"></select></div>
+        <div class="mf"><label>Week</label><select id="T-week"><option value="">Select…</option><option>Week 1</option><option>Week 2</option><option>Week 3</option><option>Week 4</option><option>Week 5</option></select></div>
+        <div class="mf"><label>Team Leader</label><input type="text" id="T-teamLeader" placeholder="Name"></div>
+        <div class="mf"><label>QA Auditor</label><input type="text" id="T-qaAuditor" placeholder="Name"></div>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT COL -->
+    <div class="main-col">
+      <div class="tab-panel active" id="T-tab-scorecard">
+
+        <!-- Section jump nav -->
+        <div class="section-nav" id="T-section-nav">
+          <button class="section-jump-btn takahami-jump" onclick="jumpTo('T-sc-s1')"><span class="acc-num acc-num-takahami section-jump-num">I</span>Account Review</button>
+          <button class="section-jump-btn takahami-jump" onclick="jumpTo('T-sc-s2')"><span class="acc-num acc-num-takahami section-jump-num">II</span>Negotiation</button>
+          <button class="section-jump-btn takahami-jump" onclick="jumpTo('T-sc-s3')"><span class="acc-num acc-num-takahami section-jump-num">III</span>Appeal Process</button>
+          <button class="section-jump-btn takahami-jump" onclick="jumpTo('T-sc-s4')"><span class="acc-num acc-num-takahami section-jump-num">IV</span>Appeal FFUP</button>
+          <button class="section-jump-btn takahami-jump" onclick="jumpTo('T-sc-s5')"><span class="acc-num acc-num-takahami section-jump-num">V</span>Documentation</button>
+        </div>
+
+        <!-- INFO BANNER: scoring guide -->
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--takahami-light);border:1px solid var(--takahami-mid);border-radius:var(--radius-md);margin-bottom:var(--space-3);font-size:12px;color:var(--takahami-text)">
+          <span style="font-size:14px;flex-shrink:0">ℹ️</span>
+          <span><strong>Weighted Scoring:</strong> Yes = full weight earned · No = 0 points · Score = sum of earned weights out of 100</span>
+        </div>
+
+        <!-- ─── SECTION I: Account Review (7.3) ─── -->
+        <div class="acc-section open" id="T-sc-s1">
+          <div class="acc-header" onclick="toggleAcc(this.parentElement)">
+            <span class="acc-num acc-num-takahami">I</span>
+            <span class="acc-title">Account Review <span style="color:var(--text-tertiary);font-weight:400;font-size:11px">(7.3 pts)</span></span>
+            <span class="acc-status" id="T-pts-s1">—</span>
+            <svg class="acc-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg>
+          </div>
+          <div class="acc-body">
+            <table class="criterion-table">
+              <thead><tr><th class="col-num">#</th><th>Criterion</th><th class="col-type">Weight</th><th class="col-compliance">Compliance</th><th class="col-ded">Score</th></tr></thead>
+              <tbody>
+                <tr><td class="col-num">1.1</td><td><div class="criterion-title">MID Glance</div><div class="criterion-sub">Reviews account overview and identifies key account information before taking action</div></td><td><span class="badge badge-weighted">1.1</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',1.1)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',1.1)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="1.1" data-earned="1.1">1.1</span></td></tr>
+                <tr class="criteria-group-row"><td colspan="5">1.2 Activity Screen (4.0)</td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">1.2.A</span></td><td><div class="criterion-title criterion-sub-indent">Dispositions / Status</div><div class="criterion-sub">Selects and updates the correct disposition/status based on the work completed</div></td><td><span class="badge badge-weighted">2.0</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',2.0)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',2.0)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="2.0" data-earned="2.0">2.0</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">1.2.B</span></td><td><div class="criterion-title criterion-sub-indent">Allowable Amounts</div><div class="criterion-sub">Verifies and documents allowable amounts accurately based on available claim/payment information</div></td><td><span class="badge badge-weighted">2.0</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',2.0)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',2.0)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="2.0" data-earned="2.0">2.0</span></td></tr>
+                <tr><td class="col-num">1.3</td><td><div class="criterion-title">Notes</div><div class="criterion-sub">Provides clear and complete notes explaining action taken, outcome, and next steps</div></td><td><span class="badge badge-weighted">1.1</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',1.1)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',1.1)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="1.1" data-earned="1.1">1.1</span></td></tr>
+                <tr><td class="col-num">1.4</td><td><div class="criterion-title">Portal / EOB Verification</div><div class="criterion-sub">Verifies claim information using the appropriate portal or EOB documentation</div></td><td><span class="badge badge-weighted">1.1</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',1.1)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',1.1)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="1.1" data-earned="1.1">1.1</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ─── SECTION II: Negotiation Process (11.9) ─── -->
+        <div class="acc-section" id="T-sc-s2">
+          <div class="acc-header" onclick="toggleAcc(this.parentElement)">
+            <span class="acc-num acc-num-takahami">II</span>
+            <span class="acc-title">Negotiation Process <span style="color:var(--text-tertiary);font-weight:400;font-size:11px">(11.9 pts)</span></span>
+            <span class="acc-status" id="T-pts-s2">—</span>
+            <svg class="acc-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg>
+          </div>
+          <div class="acc-body">
+            <table class="criterion-table">
+              <thead><tr><th class="col-num">#</th><th>Criterion</th><th class="col-type">Weight</th><th class="col-compliance">Compliance</th><th class="col-ded">Score</th></tr></thead>
+              <tbody>
+                <tr><td class="col-num">2.1</td><td><div class="criterion-title">Pricing Vendor Verification</div><div class="criterion-sub">Verifies pricing vendor information before proceeding with negotiation</div></td><td><span class="badge badge-weighted">1.1</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',1.1)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',1.1)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="1.1" data-earned="1.1">1.1</span></td></tr>
+                <tr><td class="col-num">2.2</td><td><div class="criterion-title">Contacted Correct Entity</div><div class="criterion-sub">Contacts the correct payer, provider, vendor, or responsible entity for negotiation activities</div></td><td><span class="badge badge-weighted">2.4</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',2.4)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',2.4)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="2.4" data-earned="2.4">2.4</span></td></tr>
+                <tr class="criteria-group-row"><td colspan="5">2.3 Inquiry Submission (8.4)</td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">2.3.A</span></td><td><div class="criterion-title criterion-sub-indent">Template / Spreadsheet Contents</div><div class="criterion-sub">Completes template/spreadsheet with accurate and complete inquiry information</div></td><td><span class="badge badge-weighted">5.2</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',5.2)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',5.2)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="5.2" data-earned="5.2">5.2</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">2.3.B</span></td><td><div class="criterion-title criterion-sub-indent">Sent to Correct Recipient Info</div><div class="criterion-sub">Inquiry submitted to correct recipient with accurate contact/routing information</div></td><td><span class="badge badge-weighted">2.1</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',2.1)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',2.1)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="2.1" data-earned="2.1">2.1</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">2.3.C</span></td><td><div class="criterion-title criterion-sub-indent">Uploaded in SP</div><div class="criterion-sub">Inquiry documentation uploaded correctly in SharePoint</div></td><td><span class="badge badge-weighted">1.1</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',1.1)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',1.1)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="1.1" data-earned="1.1">1.1</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ─── SECTION III: Appeal Process (23.5) ─── -->
+        <div class="acc-section" id="T-sc-s3">
+          <div class="acc-header" onclick="toggleAcc(this.parentElement)">
+            <span class="acc-num acc-num-takahami">III</span>
+            <span class="acc-title">Appeal Process <span style="color:var(--text-tertiary);font-weight:400;font-size:11px">(23.5 pts)</span></span>
+            <span class="acc-status" id="T-pts-s3">—</span>
+            <svg class="acc-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg>
+          </div>
+          <div class="acc-body">
+            <table class="criterion-table">
+              <thead><tr><th class="col-num">#</th><th>Criterion</th><th class="col-type">Weight</th><th class="col-compliance">Compliance</th><th class="col-ded">Score</th></tr></thead>
+              <tbody>
+                <tr><td class="col-num">3.1</td><td><div class="criterion-title">Contacted Correct Entity</div><div class="criterion-sub">Contacts correct payer/provider/responsible entity for appeal activities</div></td><td><span class="badge badge-weighted">2.4</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',2.4)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',2.4)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="2.4" data-earned="2.4">2.4</span></td></tr>
+                <tr class="criteria-group-row"><td colspan="5">3.2 Gathered All Data Required (12.7)</td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">3.2.A</span></td><td><div class="criterion-title criterion-sub-indent">Appeal TFL</div><div class="criterion-sub">Time frame for filing appeal is confirmed and documented</div></td><td><span class="badge badge-weighted">2.3</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',2.3)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',2.3)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="2.3" data-earned="2.3">2.3</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">3.2.B</span></td><td><div class="criterion-title criterion-sub-indent">Appeal TAT</div><div class="criterion-sub">Turnaround time for appeal is confirmed and documented</div></td><td><span class="badge badge-weighted">2.3</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',2.3)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',2.3)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="2.3" data-earned="2.3">2.3</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">3.2.C</span></td><td><div class="criterion-title criterion-sub-indent">Department Name</div><div class="criterion-sub">Correct department name gathered for appeal routing</div></td><td><span class="badge badge-weighted">2.3</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',2.3)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',2.3)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="2.3" data-earned="2.3">2.3</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">3.2.D</span></td><td><div class="criterion-title criterion-sub-indent">Mailing Address</div><div class="criterion-sub">Correct mailing address for appeal submission obtained</div></td><td><span class="badge badge-weighted">2.3</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',2.3)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',2.3)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="2.3" data-earned="2.3">2.3</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">3.2.E</span></td><td><div class="criterion-title criterion-sub-indent">Fax Number</div><div class="criterion-sub">Correct fax number for appeal submission obtained</div></td><td><span class="badge badge-weighted">2.3</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',2.3)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',2.3)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="2.3" data-earned="2.3">2.3</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">3.2.F</span></td><td><div class="criterion-title criterion-sub-indent">Email</div><div class="criterion-sub">Correct email address for appeal submission obtained</div></td><td><span class="badge badge-weighted">1.2</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',1.2)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',1.2)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="1.2" data-earned="1.2">1.2</span></td></tr>
+                <tr class="criteria-group-row"><td colspan="5">3.3 Appeal Submission (8.4)</td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">3.3.A</span></td><td><div class="criterion-title criterion-sub-indent">Template and/or Appeal Forms</div><div class="criterion-sub">Correct template or appeal forms used and completed accurately</div></td><td><span class="badge badge-weighted">5.2</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',5.2)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',5.2)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="5.2" data-earned="5.2">5.2</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">3.3.B</span></td><td><div class="criterion-title criterion-sub-indent">Sent to Correct Recipient Info</div><div class="criterion-sub">Appeal sent to correct recipient with accurate contact/routing information</div></td><td><span class="badge badge-weighted">2.1</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',2.1)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',2.1)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="2.1" data-earned="2.1">2.1</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">3.3.C</span></td><td><div class="criterion-title criterion-sub-indent">Uploaded in SP</div><div class="criterion-sub">Appeal documentation uploaded correctly in SharePoint</div></td><td><span class="badge badge-weighted">1.1</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',1.1)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',1.1)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="1.1" data-earned="1.1">1.1</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ─── SECTION IV: Appeal FFUP (20.6) ─── -->
+        <div class="acc-section" id="T-sc-s4">
+          <div class="acc-header" onclick="toggleAcc(this.parentElement)">
+            <span class="acc-num acc-num-takahami">IV</span>
+            <span class="acc-title">Appeal FFUP <span style="color:var(--text-tertiary);font-weight:400;font-size:11px">(20.6 pts)</span></span>
+            <span class="acc-status" id="T-pts-s4">—</span>
+            <svg class="acc-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg>
+          </div>
+          <div class="acc-body">
+            <table class="criterion-table">
+              <thead><tr><th class="col-num">#</th><th>Criterion</th><th class="col-type">Weight</th><th class="col-compliance">Compliance</th><th class="col-ded">Score</th></tr></thead>
+              <tbody>
+                <tr><td class="col-num">4.1</td><td><div class="criterion-title">Contacted Correct Entity</div><div class="criterion-sub">Contacts correct payer/provider/responsible entity for follow-up activities</div></td><td><span class="badge badge-weighted">2.4</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',2.4)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',2.4)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="2.4" data-earned="2.4">2.4</span></td></tr>
+                <tr class="criteria-group-row"><td colspan="5">4.2 Gathered All Data Required (9.6)</td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">4.2.A</span></td><td><div class="criterion-title criterion-sub-indent">Receipt Date</div><div class="criterion-sub">Receipt date of appeal confirmed and documented</div></td><td><span class="badge badge-weighted">0.9</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',0.9)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',0.9)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="0.9" data-earned="0.9">0.9</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">4.2.B</span></td><td><div class="criterion-title criterion-sub-indent">Acquired / Provided DCN</div><div class="criterion-sub">Document Control Number acquired or provided correctly</div></td><td><span class="badge badge-weighted">2.2</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',2.2)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',2.2)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="2.2" data-earned="2.2">2.2</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">4.2.C</span></td><td><div class="criterion-title criterion-sub-indent">Status</div><div class="criterion-sub">Current appeal status confirmed and accurately documented</div></td><td><span class="badge badge-weighted">1.3</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',1.3)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',1.3)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="1.3" data-earned="1.3">1.3</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">4.2.D</span></td><td><div class="criterion-title criterion-sub-indent">Requested LOD</div><div class="criterion-sub">Letter of Determination requested where applicable</div></td><td><span class="badge badge-weighted">1.9</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',1.9)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',1.9)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="1.9" data-earned="1.9">1.9</span></td></tr>
+                <tr class="criteria-group-row"><td colspan="5">4.2.E Second Level Appeal (3.5)</td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">4.2.E.a</span></td><td><div class="criterion-title criterion-sub-indent">Coordinated</div><div class="criterion-sub">Second level appeal coordination confirmed</div></td><td><span class="badge badge-weighted">0.5</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',0.5)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',0.5)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="0.5" data-earned="0.5">0.5</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">4.2.E.b</span></td><td><div class="criterion-title criterion-sub-indent">TFL</div><div class="criterion-sub">Second level appeal time frame for filing confirmed</div></td><td><span class="badge badge-weighted">0.5</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',0.5)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',0.5)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="0.5" data-earned="0.5">0.5</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">4.2.E.c</span></td><td><div class="criterion-title criterion-sub-indent">TAT</div><div class="criterion-sub">Second level appeal turnaround time confirmed</div></td><td><span class="badge badge-weighted">0.5</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',0.5)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',0.5)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="0.5" data-earned="0.5">0.5</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">4.2.E.d</span></td><td><div class="criterion-title criterion-sub-indent">Department Name</div><div class="criterion-sub">Second level appeal department name confirmed</div></td><td><span class="badge badge-weighted">0.5</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',0.5)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',0.5)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="0.5" data-earned="0.5">0.5</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">4.2.E.e</span></td><td><div class="criterion-title criterion-sub-indent">Mailing Address</div><div class="criterion-sub">Second level appeal mailing address confirmed</div></td><td><span class="badge badge-weighted">0.5</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',0.5)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',0.5)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="0.5" data-earned="0.5">0.5</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">4.2.E.f</span></td><td><div class="criterion-title criterion-sub-indent">Fax Number</div><div class="criterion-sub">Second level appeal fax number confirmed</div></td><td><span class="badge badge-weighted">0.5</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',0.5)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',0.5)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="0.5" data-earned="0.5">0.5</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">4.2.E.g</span></td><td><div class="criterion-title criterion-sub-indent">Email</div><div class="criterion-sub">Second level appeal email address confirmed</div></td><td><span class="badge badge-weighted">0.5</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',0.5)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',0.5)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="0.5" data-earned="0.5">0.5</span></td></tr>
+                <tr class="criteria-group-row"><td colspan="5">4.3 Second Level Appeal Submission (8.4)</td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">4.3.A</span></td><td><div class="criterion-title criterion-sub-indent">Template and/or Appeal Forms</div><div class="criterion-sub">Correct template or appeal forms used and completed accurately</div></td><td><span class="badge badge-weighted">5.2</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',5.2)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',5.2)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="5.2" data-earned="5.2">5.2</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">4.3.B</span></td><td><div class="criterion-title criterion-sub-indent">Sent to Correct Recipient Info</div><div class="criterion-sub">Second level appeal sent to correct recipient with accurate information</div></td><td><span class="badge badge-weighted">2.1</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',2.1)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',2.1)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="2.1" data-earned="2.1">2.1</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">4.3.C</span></td><td><div class="criterion-title criterion-sub-indent">Uploaded in SP</div><div class="criterion-sub">Second level appeal documentation uploaded in SharePoint</div></td><td><span class="badge badge-weighted">1.1</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',1.1)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',1.1)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="1.1" data-earned="1.1">1.1</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ─── SECTION V: Documentation (36.7) ─── -->
+        <div class="acc-section" id="T-sc-s5">
+          <div class="acc-header" onclick="toggleAcc(this.parentElement)">
+            <span class="acc-num acc-num-takahami">V</span>
+            <span class="acc-title">Documentation <span style="color:var(--text-tertiary);font-weight:400;font-size:11px">(36.7 pts)</span></span>
+            <span class="acc-status" id="T-pts-s5">—</span>
+            <svg class="acc-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg>
+          </div>
+          <div class="acc-body">
+            <table class="criterion-table">
+              <thead><tr><th class="col-num">#</th><th>Criterion</th><th class="col-type">Weight</th><th class="col-compliance">Compliance</th><th class="col-ded">Score</th></tr></thead>
+              <tbody>
+                <tr class="criteria-group-row"><td colspan="5">5.1 Template (36.7)</td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">5.1.A</span></td><td><div class="criterion-title criterion-sub-indent">Date</div><div class="criterion-sub">Date field completed accurately in the documentation template</div></td><td><span class="badge badge-weighted">1.6</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',1.6)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',1.6)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="1.6" data-earned="1.6">1.6</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">5.1.B</span></td><td><div class="criterion-title criterion-sub-indent">Carrier</div><div class="criterion-sub">Carrier information correctly entered in the template</div></td><td><span class="badge badge-weighted">1.6</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',1.6)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',1.6)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="1.6" data-earned="1.6">1.6</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">5.1.C</span></td><td><div class="criterion-title criterion-sub-indent">TPA</div><div class="criterion-sub">Third Party Administrator information correctly entered</div></td><td><span class="badge badge-weighted">1.6</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',1.6)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',1.6)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="1.6" data-earned="1.6">1.6</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">5.1.D</span></td><td><div class="criterion-title criterion-sub-indent">Billed Amount</div><div class="criterion-sub">Billed amount accurately entered and matches source documentation</div></td><td><span class="badge badge-weighted">7.0</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',7.0)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',7.0)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="7.0" data-earned="7.0">7.0</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">5.1.E</span></td><td><div class="criterion-title criterion-sub-indent">Original Allowed / Paid Amount</div><div class="criterion-sub">Original allowed or paid amount accurately documented</div></td><td><span class="badge badge-weighted">7.0</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',7.0)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',7.0)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="7.0" data-earned="7.0">7.0</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">5.1.F</span></td><td><div class="criterion-title criterion-sub-indent">Action</div><div class="criterion-sub">Action taken is documented clearly and accurately</div></td><td><span class="badge badge-weighted">16.3</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',16.3)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',16.3)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="16.3" data-earned="16.3">16.3</span></td></tr>
+                <tr><td class="col-num"><span class="criterion-sub-indent">5.1.G</span></td><td><div class="criterion-title criterion-sub-indent">Rep &amp; Ref #</div><div class="criterion-sub">Representative name and reference number documented accurately</div></td><td><span class="badge badge-weighted">1.6</span></td><td><div class="pill-toggle"><button onclick="scT(this,'yes',1.6)" class="pill-btn ay">Yes</button><button onclick="scT(this,'no',1.6)" class="pill-btn">No</button></div></td><td><span class="dv dw-yes" data-weight="1.6" data-earned="1.6">1.6</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Remarks -->
+        <div class="remarks-card">
+          <div class="remarks-card-header"><span class="remarks-card-title">Remarks &amp; Coaching Notes</span></div>
+          <div class="remarks-body">
+            <div class="full"><label>Call Summary</label><textarea id="T-callSummary" placeholder="Brief summary of the call…" rows="3"></textarea></div>
+            <div><label>Priority Level</label><select id="T-priority"><option>No Action Needed</option><option>Moderate – Monitor</option><option>High – Coaching Needed</option><option>Critical – Immediate Action Required</option></select></div>
+            <div><label>Auditor Signature</label><input type="text" id="T-auditorSig" placeholder="Full name"></div>
+            <div class="full"><label>Coaching Notes</label><textarea id="T-coachingNotes" placeholder="Strengths, areas for improvement, and specific feedback…" rows="3"></textarea></div>
+          </div>
+        </div>
+
+      </div>
+      <!-- /T-tab-scorecard -->
+    </div>
+    <!-- /MAIN COL -->
+
+    <!-- SIDEBAR SCORE PANEL -->
+    <div class="side-col">
+      <div class="score-panel" id="T-main-score-panel">
+        <div class="score-panel-header">
+          <div class="score-panel-label">Live Score</div>
+          <div class="score-circle-wrap">
+            <div class="score-value" id="T-displayScore">100%</div>
+            <div class="score-perf-label perf-excellent" id="T-perfLabel">Excellent</div>
+            <div class="score-progress">
+              <div class="score-progress-bar" id="T-progressBar" style="width:100%;background:var(--takahami)"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="score-panel-sections">
+          <div class="score-section-row" onclick="jumpTo('T-sc-s1')">
+            <div class="score-section-name"><span class="score-section-num section-num-takahami">I</span>Account Review</div>
+            <span class="score-section-pts" id="T-side-s1">7.3</span>
+          </div>
+          <div class="score-section-row" onclick="jumpTo('T-sc-s2')">
+            <div class="score-section-name"><span class="score-section-num section-num-takahami">II</span>Negotiation</div>
+            <span class="score-section-pts" id="T-side-s2">11.9</span>
+          </div>
+          <div class="score-section-row" onclick="jumpTo('T-sc-s3')">
+            <div class="score-section-name"><span class="score-section-num section-num-takahami">III</span>Appeal Process</div>
+            <span class="score-section-pts" id="T-side-s3">23.5</span>
+          </div>
+          <div class="score-section-row" onclick="jumpTo('T-sc-s4')">
+            <div class="score-section-name"><span class="score-section-num section-num-takahami">IV</span>Appeal FFUP</div>
+            <span class="score-section-pts" id="T-side-s4">20.6</span>
+          </div>
+          <div class="score-section-row" onclick="jumpTo('T-sc-s5')">
+            <div class="score-section-name"><span class="score-section-num section-num-takahami">V</span>Documentation</div>
+            <span class="score-section-pts" id="T-side-s5">36.7</span>
+          </div>
+        </div>
+
+        <div class="score-panel-footer">
+          <div class="completion-bar-label">
+            <span>Completion</span>
+            <span id="T-completionPct">0%</span>
+          </div>
+          <div class="completion-bar-track">
+            <div class="completion-bar-fill" id="T-completionBar" style="width:0%;background:var(--takahami)"></div>
+          </div>
+        </div>
+
+        <div class="score-actions">
+          <button class="btn btn-log" id="T-logBtn" onclick="logQAResult('T')">📤 Log QA Result</button>
+          <button class="btn btn-primary-takahami" onclick="savePDF('T')">🖨 Print / Save PDF</button>
+          <button class="btn btn-ghost" onclick="openSheet()">📊 QA Database</button>
+          <button class="btn btn-ghost" onclick="resetForm('T')">↺ Reset Form</button>
+        </div>
+      </div>
+    </div>
+    <!-- /SIDEBAR -->
+
+  </div>
+  <!-- /TAKAHAMI BRAND PANEL -->
+
 </div>
 <!-- /APP SHELL -->
 
@@ -3735,6 +4116,10 @@ body {
           <button class="campaign-tab-btn" id="dash-camp-B" onclick="switchDashCampaign('B',this)">
             <span style="width:7px;height:7px;border-radius:50%;background:var(--banyan);display:inline-block"></span>
             Banyan
+          </button>
+          <button class="campaign-tab-btn" id="dash-camp-T" onclick="switchDashCampaign('T',this)">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--takahami);display:inline-block"></span>
+            Takahami
           </button>
         </div>
         <select id="dash-year-sel" class="filter-select" onchange="refreshDashPage()" style="min-width:80px"></select>
@@ -3939,6 +4324,10 @@ body {
           <button class="campaign-tab-btn" id="prof-camp-B" onclick="switchProfileCampaign('B',this)">
             <span style="width:7px;height:7px;border-radius:50%;background:var(--banyan);display:inline-block"></span>
             Banyan
+          </button>
+          <button class="campaign-tab-btn" id="prof-camp-T" onclick="switchProfileCampaign('T',this)">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--takahami);display:inline-block"></span>
+            Takahami
           </button>
         </div>
       </div>
@@ -5517,7 +5906,8 @@ function showPage(page, btn) {
   if (page === 'scorecard') {
     document.getElementById('scorecard-shell').style.display = '';
     // Restore the correct brand's nav-tabs when returning to scorecard
-    const activeBrand = document.querySelector('.brand-btn.active-legacy') ? 'legacy' : 'banyan';
+    const activeBrand = document.querySelector('.brand-btn.active-legacy') ? 'legacy'
+                      : document.querySelector('.brand-btn.active-banyan') ? 'banyan' : 'takahami';
     const navL = document.getElementById('nav-tabs-L');
     const navB = document.getElementById('nav-tabs-B');
     if (navL) navL.style.display = activeBrand === 'legacy' ? 'flex' : 'none';
@@ -5681,7 +6071,8 @@ function switchDashCampaign(prefix, btn) {
   dashActiveCampaign = prefix;
   document.querySelectorAll('.campaign-tab-btn[id^="dash-camp"]').forEach(b => b.classList.remove('active-legacy','active-banyan'));
   btn.classList.add('active-' + (prefix === 'L' ? 'legacy' : 'banyan'));
-  document.getElementById('dash-page-title').textContent = 'QA Dashboard — ' + (prefix === 'L' ? 'Legacy' : 'Banyan');
+  const dashTitles = { L: 'Legacy', B: 'Banyan', T: 'Takahami' };
+  document.getElementById('dash-page-title').textContent = 'QA Dashboard — ' + (dashTitles[prefix] || prefix);
   refreshDashPage();
 }
 
@@ -7218,6 +7609,391 @@ function saveChatPDF() {
 updateChatScore();
 applyZTPChatGreyout();
 updateChatCompletion();
+
+
+
+/* ═══════════════════════════════════════════════════════════
+   TAKAHAMI WEIGHTED SCORING ENGINE  (prefix = 'T')
+   Scoring model: Yes = earn weight value, No = 0
+   Total possible = 100.0 (sum of all weights)
+═══════════════════════════════════════════════════════════ */
+
+// Section definitions: section ID → array of row indices in T-tab-scorecard
+// Rows are in DOM order (non-group-header rows only)
+const T_SECTIONS = [
+  // I: Account Review (7.3) — rows 0–4 (1.1, 1.2A, 1.2B, 1.3, 1.4)
+  { id: 'T-pts-s1', sideId: 'T-side-s1', maxPts: 7.3,  label: 'I' },
+  // II: Negotiation (11.9) — rows 5–10 (2.1, 2.2, 2.3A, 2.3B, 2.3C)
+  { id: 'T-pts-s2', sideId: 'T-side-s2', maxPts: 11.9, label: 'II' },
+  // III: Appeal Process (23.5) — rows 11–21 (3.1, 3.2A-F, 3.3A-C)
+  { id: 'T-pts-s3', sideId: 'T-side-s3', maxPts: 23.5, label: 'III' },
+  // IV: Appeal FFUP (20.6) — rows 22–36 (4.1, 4.2A-E.g, 4.3A-C)
+  { id: 'T-pts-s4', sideId: 'T-side-s4', maxPts: 20.6, label: 'IV' },
+  // V: Documentation (36.7) — rows 37–43 (5.1A-G)
+  { id: 'T-pts-s5', sideId: 'T-side-s5', maxPts: 36.7, label: 'V' },
+];
+
+function scT(btn, action, weight) {
+  const row = btn.closest('tr');
+  const dvEl = row.querySelector('.dv');
+  const pills = btn.closest('.pill-toggle').querySelectorAll('.pill-btn');
+
+  pills.forEach(b => b.classList.remove('ay', 'an', 'aa', 'ay-takahami'));
+
+  const earned = (action === 'yes') ? weight : 0;
+
+  if (action === 'yes') {
+    btn.classList.add('ay', 'ay-takahami');
+    dvEl.className = 'dv dw-yes';
+    dvEl.textContent = weight.toFixed(1);
+  } else {
+    btn.classList.add('an');
+    dvEl.className = 'dv dw-no';
+    dvEl.textContent = '0';
+  }
+
+  dvEl.dataset.earned = earned;
+  dvEl.dataset.weight = weight;
+
+  updateScoreT();
+  updateCompletionT();
+}
+
+function updateScoreT() {
+  const tab = document.getElementById('T-tab-scorecard');
+  if (!tab) return;
+
+  // Collect all criterion rows (skip group headers)
+  const allDvs = [...tab.querySelectorAll('tbody tr:not(.criteria-group-row) .dv')];
+
+  // Section earned/max using section index in allDvs
+  // Build per-section groups by cumulative count
+  const secBounds = [
+    [0, 4],    // I: 5 rows
+    [5, 9],    // II: 5 rows
+    [10, 20],  // III: 11 rows
+    [21, 35],  // IV: 15 rows
+    [36, 43],  // V: 8 rows (5.1A–G)
+  ];
+
+  let totalEarned = 0;
+
+  secBounds.forEach((bounds, si) => {
+    const [from, to] = bounds;
+    let secEarned = 0;
+    for (let i = from; i <= to && i < allDvs.length; i++) {
+      secEarned += parseFloat(allDvs[i]?.dataset.earned || 0);
+    }
+    totalEarned += secEarned;
+
+    const sec = T_SECTIONS[si];
+    const accEl = document.getElementById(sec.id);
+    const sideEl = document.getElementById(sec.sideId);
+    const pctSec = Math.round((secEarned / sec.maxPts) * 100);
+    const txt = secEarned.toFixed(1) + ' / ' + sec.maxPts.toFixed(1);
+
+    if (accEl) {
+      accEl.textContent = txt;
+      accEl.className = 'acc-status ' + (secEarned >= sec.maxPts ? 'ok' : secEarned > 0 ? 'warn' : 'warn');
+    }
+    if (sideEl) {
+      sideEl.textContent = secEarned.toFixed(1);
+      sideEl.className = 'score-section-pts' + (secEarned < sec.maxPts ? ' has-ded' : '');
+    }
+  });
+
+  // Overall score
+  const overallPct = Math.min(100, Math.round(totalEarned * 10) / 10);
+  const overallPctRounded = Math.round((totalEarned / 100) * 100);
+  const displayPct = totalEarned.toFixed(1);
+
+  document.getElementById('T-displayScore').textContent = displayPct + '%';
+
+  const bar = document.getElementById('T-progressBar');
+  if (bar) {
+    bar.style.width = totalEarned + '%';
+    bar.style.background = totalEarned >= 95 ? '#059669' : totalEarned >= 87 ? '#d97706' : '#dc2626';
+  }
+
+  let perf, perfClass;
+  if (totalEarned === 100)      { perf = 'Excellent';         perfClass = 'perf-excellent'; }
+  else if (totalEarned >= 95)   { perf = 'Outstanding';       perfClass = 'perf-outstanding'; }
+  else if (totalEarned >= 87)   { perf = 'Satisfactory';      perfClass = 'perf-satisfactory'; }
+  else if (totalEarned >= 81)   { perf = 'Needs Improvement'; perfClass = 'perf-needs'; }
+  else                           { perf = 'Poor Performance';  perfClass = 'perf-poor'; }
+
+  const perfEl = document.getElementById('T-perfLabel');
+  if (perfEl) { perfEl.textContent = perf; perfEl.className = 'score-perf-label ' + perfClass; }
+}
+
+function updateCompletionT() {
+  const tab = document.getElementById('T-tab-scorecard');
+  if (!tab) return;
+  const allPills = [...tab.querySelectorAll('tbody tr:not(.criteria-group-row) .pill-toggle')];
+  const answered = allPills.filter(pt => pt.querySelector('.ay, .an, .aa')).length;
+  const pct = allPills.length === 0 ? 0 : Math.round((answered / allPills.length) * 100);
+  const bar = document.getElementById('T-completionBar');
+  const label = document.getElementById('T-completionPct');
+  if (bar) bar.style.width = pct + '%';
+  if (label) label.textContent = pct + '%';
+}
+
+function resetFormT() {
+  if (!confirm('Reset all Takahami QA entries?')) return;
+  const tab = document.getElementById('T-tab-scorecard');
+  if (!tab) return;
+
+  tab.querySelectorAll('tbody tr:not(.criteria-group-row) .pill-toggle').forEach(g => {
+    const bs = g.querySelectorAll('.pill-btn');
+    bs.forEach(b => b.classList.remove('ay','an','aa','ay-takahami'));
+    if (bs[0]) bs[0].classList.add('ay', 'ay-takahami');
+  });
+
+  tab.querySelectorAll('.dv').forEach(dv => {
+    const w = parseFloat(dv.dataset.weight || 0);
+    dv.dataset.earned = w;
+    dv.textContent = w.toFixed(1);
+    dv.className = 'dv dw-yes';
+  });
+
+  tab.querySelectorAll('textarea, input[type=text]').forEach(el => el.value = '');
+  tab.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+
+  const metaBar = document.getElementById('T-metaBar');
+  if (metaBar) {
+    metaBar.querySelectorAll('input, select').forEach(el => {
+      if (el.tagName === 'SELECT') el.selectedIndex = 0;
+      else el.value = '';
+    });
+  }
+
+  sessionLogged['T'] = false;
+  loggedCTMPhones['T'] = new Set();
+  const btn = document.getElementById('T-logBtn');
+  if (btn) { btn.disabled = false; btn.textContent = '📤 Log QA Result'; btn.style.background = ''; btn.title = ''; }
+
+  updateScoreT();
+  updateCompletionT();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TAKAHAMI — showBrand extension
+═══════════════════════════════════════════════════════════ */
+
+// Patch showBrand to handle 'takahami'
+const _origShowBrand = showBrand;
+function showBrand(brand, btn) {
+  document.querySelectorAll('.brand-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active-legacy','active-banyan','active-takahami'));
+  document.getElementById('brand-' + brand).classList.add('active');
+  btn.classList.add('active-' + brand);
+
+  const dotColors = { legacy: '#1c4fa0', banyan: '#0e7c5a', takahami: '#7c3aed' };
+  document.getElementById('nav-dot').style.background = dotColors[brand] || '#1c4fa0';
+
+  // nav tabs — Takahami has no inner nav-tabs div, hide both L and B
+  document.getElementById('nav-tabs-L').style.display = brand === 'legacy' ? 'flex' : 'none';
+  document.getElementById('nav-tabs-B').style.display = brand === 'banyan' ? 'flex' : 'none';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TAKAHAMI — logQAResult / resetForm extensions
+═══════════════════════════════════════════════════════════ */
+sessionLogged['T'] = false;
+loggedCTMPhones['T'] = new Set();
+
+// Extend logQAResult to support prefix 'T'
+const _origLogQA = logQAResult;
+function logQAResult(prefix) {
+  if (prefix !== 'T') { _origLogQA(prefix); return; }
+
+  const year      = document.getElementById('T-year')?.value || '';
+  const month     = document.getElementById('T-month')?.value || '';
+  const week      = document.getElementById('T-week')?.value || '';
+  const name      = (document.getElementById('T-agent')?.value || '').trim();
+  const auditNo   = (document.getElementById('T-auditNo')?.value || '').trim();
+  const callId    = (document.getElementById('T-callId')?.value || '').trim();
+  const callDT    = (document.getElementById('T-callDateTime')?.value || '').trim();
+  const auditDate = (document.getElementById('T-auditDate')?.value || '').trim();
+  const qaScore   = document.getElementById('T-displayScore')?.textContent || '';
+
+  if (!name || !auditNo || !week) {
+    showToast('Please fill in Agent, Audit No., and Week before logging.', true); return;
+  }
+  if (!QA_LOG_SCRIPT_URL || QA_LOG_SCRIPT_URL.indexOf('PASTE_YOUR') === 0) {
+    showToast("Logging isn't configured yet — add the Web App URL.", true); return;
+  }
+  if (callId && loggedCTMPhones['T'].has(callId)) {
+    if (!confirm(`⚠ A record with Call ID "${callId}" has already been logged this session.\n\nLog it again anyway?`)) return;
+  }
+
+  const btn = document.getElementById('T-logBtn');
+  const original = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'Logging…'; }
+
+  const fd = new FormData();
+  fd.append('year', year); fd.append('month', month); fd.append('name', name);
+  fd.append('auditNo', auditNo); fd.append('week', week); fd.append('qaScore', qaScore);
+  fd.append('campaign', 'Takahami'); fd.append('ctmPhone', callId);
+  fd.append('callDateTime', callDT); fd.append('auditDate', auditDate);
+
+  fetch(QA_LOG_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: fd })
+    .then(() => {
+      if (callId) loggedCTMPhones['T'].add(callId);
+      sessionLogged['T'] = true;
+      if (btn) { btn.disabled = true; btn.textContent = '✓ Logged'; btn.style.background = '#6b7280'; btn.title = 'Already logged. Reset to log a new entry.'; }
+      showToast('✓ Takahami QA result logged to the spreadsheet.');
+    })
+    .catch(() => {
+      showToast('⚠ Could not reach the log server.', true);
+      if (btn) { btn.disabled = false; btn.textContent = original; }
+    });
+}
+
+// Extend resetForm to support prefix 'T'
+const _origResetForm = resetForm;
+function resetForm(prefix) {
+  if (prefix !== 'T') { _origResetForm(prefix); return; }
+  resetFormT();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TAKAHAMI — savePDF extension
+═══════════════════════════════════════════════════════════ */
+const _origSavePDF = savePDF;
+function savePDF(prefix) {
+  if (prefix !== 'T') { _origSavePDF(prefix); return; }
+
+  function val(id) { const el = document.getElementById(id); return el ? (el.value || '') : ''; }
+
+  const score   = document.getElementById('T-displayScore')?.textContent || '—';
+  const perf    = document.getElementById('T-perfLabel')?.textContent || '';
+  const agentName = val('T-agent') || '—';
+
+  function fmtDT(str) {
+    if (!str) return '—';
+    try { return new Date(str).toLocaleString('en-US', {month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}); } catch(e) { return str; }
+  }
+  function fmtD(str) {
+    if (!str) return '—';
+    try { return new Date(str+'T00:00:00').toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}); } catch(e) { return str; }
+  }
+
+  const metaRows = [
+    ["Audit No.",      val('T-auditNo') || '—'],
+    ["Agent",          agentName],
+    ["Call ID",        val('T-callId') || '—'],
+    ["Call Date/Time", fmtDT(val('T-callDateTime'))],
+    ["Audit Date",     fmtD(val('T-auditDate'))],
+    ["Period",         [val('T-year'), val('T-month'), val('T-week')].filter(Boolean).join(' · ') || '—'],
+    ["Team Leader",    val('T-teamLeader') || '—'],
+    ["QA Auditor",     val('T-qaAuditor') || '—'],
+  ];
+
+  const tab = document.getElementById('T-tab-scorecard');
+  let tableHTML = '';
+  tab.querySelectorAll('.acc-section').forEach(sec => {
+    const secTitle = sec.querySelector('.acc-title')?.textContent?.trim() || '';
+    tableHTML += `<tr class="sec-h"><td colspan="4">${secTitle}</td></tr>`;
+    sec.querySelectorAll('tbody tr').forEach(tr => {
+      if (tr.classList.contains('criteria-group-row')) {
+        tableHTML += `<tr class="grp-h"><td colspan="4">${tr.querySelector('td')?.textContent?.trim()||''}</td></tr>`;
+        return;
+      }
+      const num    = tr.querySelector('.col-num')?.textContent?.trim() || '';
+      const title  = tr.querySelector('.criterion-title')?.textContent?.trim() || '';
+      const weight = tr.querySelector('.badge-weighted')?.textContent?.trim() || '';
+      let result = '—';
+      tr.querySelectorAll('.pill-btn').forEach(b => {
+        if (b.classList.contains('ay') || b.classList.contains('an')) result = b.textContent.trim();
+      });
+      const earned = tr.querySelector('.dv')?.textContent?.trim() || '0';
+      const resultCls = result === 'Yes' ? 'r-yes' : result === 'No' ? 'r-no' : '';
+      tableHTML += `<tr><td class="c-num">${num}</td><td>${title}</td><td class="c-w">${weight}</td><td class="c-r ${resultCls}">${result === 'Yes' ? `${earned}` : result}</td></tr>`;
+    });
+  });
+
+  const metaHTML = metaRows.map(([k,v]) => `<div class="mrow"><span class="mk">${k}</span><span class="mv">${v}</span></div>`).join('');
+
+  const htmlDoc = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>Takahami QA Scorecard</title>
+<style>
+@page { size:A4 portrait; margin:12mm 12mm 14mm; }
+*{ box-sizing:border-box; margin:0; padding:0; }
+body{ font-family:Arial,sans-serif; font-size:9px; color:#111; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+.ph{ display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid #5b21b6; padding-bottom:5px; margin-bottom:7px; }
+.pt{ font-size:14px; font-weight:bold; color:#5b21b6; }
+.pb{ font-size:9px; color:#555; margin-top:1px; }
+.ps{ text-align:right; }
+.ps-num{ font-size:22px; font-weight:bold; color:#5b21b6; line-height:1; }
+.ps-lbl{ font-size:9px; color:#555; }
+.mg{ display:grid; grid-template-columns:repeat(4,1fr); gap:3px 8px; border:1px solid #ccc; border-radius:3px; padding:5px 7px; margin-bottom:7px; background:#faf9ff; }
+.mrow{ display:flex; flex-direction:column; }
+.mk{ font-size:7.5px; text-transform:uppercase; letter-spacing:.4px; color:#7c3aed; }
+.mv{ font-size:9px; font-weight:bold; color:#111; }
+table{ width:100%; border-collapse:collapse; margin-bottom:6px; }
+th{ font-size:8px; text-transform:uppercase; letter-spacing:.3px; background:#f0ebff; border:1px solid #ddd6fe; padding:4px 6px; text-align:left; color:#5b21b6; }
+td{ border:1px solid #e5e7eb; padding:3px 6px; vertical-align:middle; }
+tr.sec-h td{ background:#5b21b6; color:#fff; font-weight:bold; font-size:8.5px; padding:4px 6px; border-color:#5b21b6; }
+tr.grp-h td{ background:#f5f3ff; color:#7c3aed; font-weight:700; font-size:8px; padding:3px 10px; border-color:#ddd6fe; }
+.c-num{ width:36px; color:#555; font-size:8px; text-align:left; }
+.c-w{ width:36px; text-align:center; font-size:8px; font-weight:700; color:#7c3aed; }
+.c-r{ width:40px; text-align:center; font-weight:700; font-size:8.5px; }
+.r-yes{ color:#059669; }
+.r-no{ color:#dc2626; }
+.rem{ margin-top:5px; }
+.rem-title{ font-size:8px; font-weight:bold; text-transform:uppercase; letter-spacing:.4px; color:#7c3aed; border-bottom:1px solid #ddd6fe; padding-bottom:3px; margin-bottom:4px; }
+.rem-g{ display:grid; grid-template-columns:1fr 1fr; gap:5px; }
+.rf label{ display:block; font-size:7.5px; text-transform:uppercase; letter-spacing:.4px; color:#888; margin-bottom:2px; }
+.rf .rv{ border:1px solid #ccc; border-radius:2px; padding:4px 6px; min-height:28px; font-size:8.5px; white-space:pre-wrap; word-break:break-word; background:#faf9ff; }
+.rf.full{ grid-column:1/-1; }
+.sig{ display:flex; gap:20px; margin-top:7px; border-top:1px solid #ccc; padding-top:6px; }
+.sf{ flex:1; }
+.sl{ font-size:7.5px; text-transform:uppercase; letter-spacing:.4px; color:#888; margin-bottom:10px; }
+.sl-line{ border-bottom:1px solid #111; }
+</style></head><body>
+<div class="ph">
+  <div><div class="pt">Takahami Quality Scorecard</div><div class="pb">Contact Center QA Audit · ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div></div>
+  <div class="ps"><div class="ps-num">${score}</div><div class="ps-lbl">${perf}</div></div>
+</div>
+<div class="mg">${metaHTML}</div>
+<table><thead><tr><th class="c-num">#</th><th>Criterion</th><th class="c-w">Wt.</th><th class="c-r">Result</th></tr></thead><tbody>${tableHTML}</tbody></table>
+<div class="rem">
+  <div class="rem-title">Remarks &amp; Coaching Notes</div>
+  <div class="rem-g">
+    <div class="rf full"><label>Call Summary</label><div class="rv">${val('T-callSummary')||'—'}</div></div>
+    <div class="rf"><label>Priority Level</label><div class="rv">${document.getElementById('T-priority')?.value||'—'}</div></div>
+    <div class="rf"><label>Auditor Signature</label><div class="rv">${val('T-auditorSig')||'—'}</div></div>
+    <div class="rf full"><label>Coaching Notes</label><div class="rv">${val('T-coachingNotes')||'—'}</div></div>
+  </div>
+</div>
+<div class="sig">
+  <div class="sf"><div class="sl">Agent Signature</div><div class="sl-line"></div></div>
+  <div class="sf"><div class="sl">Team Leader Signature</div><div class="sl-line"></div></div>
+  <div class="sf"><div class="sl">QA Auditor Signature</div><div class="sl-line"></div></div>
+</div>
+<script>window.onload=function(){window.print();}<\/script>
+</body></html>`;
+
+  const win = window.open('','_blank','width=900,height=700');
+  if (!win) { alert('Please allow pop-ups to use Print / Save PDF.'); return; }
+  win.document.write(htmlDoc);
+  win.document.close();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TAKAHAMI — populateYearMonth
+═══════════════════════════════════════════════════════════ */
+populateYearMonth('T');
+
+/* ═══════════════════════════════════════════════════════════
+   TAKAHAMI — DASH_AGENTS extension
+═══════════════════════════════════════════════════════════ */
+DASH_AGENTS['T'] = ['Ado, Jaypee Dhan','Hubilla, Alvin Jhon','Mapa, Christia Marie','Patricio, Cherabyl','Regaspi, Jeffrey'];
+
+/* Init Takahami scoring on load */
+updateScoreT();
+updateCompletionT();
 
 </script>
 </body>
