@@ -4525,10 +4525,11 @@ body {
     <div class="filter-bar">
       <div class="filter-group">
         <span class="filter-label">Campaign</span>
-        <select class="filter-select" id="rpt-campaign" onchange="applyReportFilters()">
+        <select class="filter-select" id="rpt-campaign" onchange="onReportCampaignChange()">
           <option value="all">All Campaigns</option>
           <option value="Legacy">Legacy</option>
           <option value="Banyan">Banyan</option>
+          <option value="Takahami">Takahami</option>
         </select>
       </div>
       <div class="filter-group">
@@ -6837,17 +6838,28 @@ function loadAndRefreshReports() {
 
 function populateReportSelects() {
   const rows = getAllRows();
-  const agentSel = document.getElementById('rpt-agent');
   const auditorSel = document.getElementById('rpt-auditor');
-
-  const agents = [...new Set(rows.map(r=>(r[5]||'').trim()).filter(Boolean))].sort();
   const auditors = [...new Set(rows.map(r=>(r[12]||'').trim()).filter(Boolean))].sort();
-
-  agentSel.innerHTML = '<option value="all">All Agents</option>';
-  agents.forEach(a => { const o=document.createElement('option'); o.value=a; o.textContent=a; agentSel.appendChild(o); });
-
   auditorSel.innerHTML = '<option value="all">All Auditors</option>';
   auditors.forEach(a => { const o=document.createElement('option'); o.value=a; o.textContent=a; auditorSel.appendChild(o); });
+  populateReportAgents();
+}
+
+function populateReportAgents() {
+  const campaign = document.getElementById('rpt-campaign')?.value || 'all';
+  let rows = getAllRows();
+  if (campaign !== 'all') rows = rows.filter(r => (r[1]||'').trim() === campaign);
+  const agents = [...new Set(rows.map(r=>(r[5]||'').trim()).filter(Boolean))].sort();
+  const agentSel = document.getElementById('rpt-agent');
+  const prevVal = agentSel.value;
+  agentSel.innerHTML = '<option value="all">All Agents</option>';
+  agents.forEach(a => { const o=document.createElement('option'); o.value=a; o.textContent=a; agentSel.appendChild(o); });
+  if (agents.includes(prevVal)) agentSel.value = prevVal;
+}
+
+function onReportCampaignChange() {
+  populateReportAgents();
+  applyReportFilters();
 }
 
 function getFilteredReportRows() {
