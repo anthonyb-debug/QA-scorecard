@@ -5219,6 +5219,35 @@ function showPage(page, btn) {
   }
 
   if (btn) btn.classList.add('active');
+
+  // Auto-load Sheets data when navigating to a read-only page (if not already loaded/loading)
+  if (['dashboard','profiles','reports'].includes(page)) {
+    _autoLoadIfNeeded(page);
+  }
+}
+
+/* ── Auto-load helper: silently fetch data if stale or never loaded ── */
+const AUTO_STALE_MS = 5 * 60 * 1000; // treat cached data as stale after 5 minutes
+
+function _autoLoadIfNeeded(page) {
+  if (!SHEETS_API_KEY || SHEETS_API_KEY === 'YOUR_API_KEY_HERE') return; // not configured
+  if (sharedState.loading) return; // already in-flight
+
+  const meta = refreshMeta[page];
+  const isStale = !meta || !meta.lastUpdated || (Date.now() - meta.lastUpdated) > AUTO_STALE_MS;
+
+  if (sharedState.loaded && !isStale) return; // fresh data already in memory
+
+  // Silently load in background — mirrors what the manual Refresh button does
+  // but without the spinner/status UI manipulation the manual button triggers.
+  if (sharedState.loaded) sharedState.loaded = false; // force re-fetch if stale
+
+  loadSharedData((err) => {
+    if (err) return; // silent failure — user can still click Refresh manually
+    if (page === 'dashboard') { refreshDashPage(); markRefreshed('dashboard'); }
+    else if (page === 'profiles') { renderAgentProfile(); markRefreshed('profiles'); }
+    else if (page === 'reports') { populateReportSelects(); applyReportFilters(); markRefreshed('reports'); }
+  });
 }
 
 function switchGuideCampaign(prefix, btn) {
@@ -5349,21 +5378,15 @@ function switchDashCampaign(prefix, btn) {
 function loadAndRefreshDash() {
   const statusEl = document.getElementById('dash-page-status');
   statusEl.style.display = 'none';
-  if (!sharedState.loaded) {
-    loadSharedData((err) => {
-      if (err) { statusEl.textContent = '⚠ ' + err.error; statusEl.style.display = ''; setRefreshing('dashboard', false); return; }
-      refreshDashPage();
-      markRefreshed('dashboard');
-    });
-  } else {
-    // force reload
-    sharedState.loaded = false;
-    loadSharedData((err) => {
-      if (err) { statusEl.textContent = '⚠ ' + err.error; statusEl.style.display = ''; setRefreshing('dashboard', false); return; }
-      refreshDashPage();
-      markRefreshed('dashboard');
-    });
-  }
+  setRefreshing('dashboard', true);
+  // Always force a fresh fetch when the user manually clicks Refresh
+  sharedState.loaded = false;
+  sharedState.loading = false;
+  loadSharedData((err) => {
+    if (err) { statusEl.textContent = '⚠ ' + err.error; statusEl.style.display = ''; setRefreshing('dashboard', false); return; }
+    refreshDashPage();
+    markRefreshed('dashboard');
+  });
 }
 
 function refreshDashPage() {
@@ -5687,20 +5710,14 @@ function switchProfileCampaign(prefix, btn) {
 function loadAndRefreshProfiles() {
   const statusEl = document.getElementById('profile-status-msg');
   statusEl.style.display = 'none';
-  if (!sharedState.loaded) {
-    loadSharedData((err) => {
-      if (err) { statusEl.textContent = '⚠ ' + err.error; statusEl.style.display = ''; setRefreshing('profiles', false); return; }
-      renderAgentProfile();
-      markRefreshed('profiles');
-    });
-  } else {
-    sharedState.loaded = false;
-    loadSharedData((err) => {
-      if (err) { statusEl.textContent = '⚠ ' + err.error; statusEl.style.display = ''; setRefreshing('profiles', false); return; }
-      renderAgentProfile();
-      markRefreshed('profiles');
-    });
-  }
+  setRefreshing('profiles', true);
+  sharedState.loaded = false;
+  sharedState.loading = false;
+  loadSharedData((err) => {
+    if (err) { statusEl.textContent = '⚠ ' + err.error; statusEl.style.display = ''; setRefreshing('profiles', false); return; }
+    renderAgentProfile();
+    markRefreshed('profiles');
+  });
 }
 
 function viewAgentProfile(agentName) {
@@ -6185,6 +6202,25 @@ function initGlobalPages() {
 
 
 initGlobalPages();
+
+/* ── Silent startup pre-fetch ───────────────────────────────
+   Fetch Sheets data in the background as soon as the page
+   loads. The scorecard form is never touched. If the API key
+   isn't configured this is a no-op. When the user later
+   clicks Dashboard/Profiles/Reports the data is already
+   there — no manual Refresh needed on first visit.
+─────────────────────────────────────────────────────────── */
+(function prefetchOnStartup() {
+  if (!SHEETS_API_KEY || SHEETS_API_KEY === 'YOUR_API_KEY_HERE') return;
+  if (sharedState.loading || sharedState.loaded) return;
+  loadSharedData((err) => {
+    if (err) return; // silent — user will see the Refresh button if needed
+    // Pre-render dashboard in memory so it's instant on first visit
+    try { refreshDashPage(); markRefreshed('dashboard'); } catch(e) {}
+    try { markRefreshed('profiles'); } catch(e) {}
+    try { populateReportSelects(); markRefreshed('reports'); } catch(e) {}
+  });
+})();
 
 /* ═══════════════════════════════════════════════════════════
    SILENT BACKGROUND AUTO-REFRESH (every 60s)
