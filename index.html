@@ -4233,7 +4233,7 @@ body {
       <div class="panel-header">
         <div>
           <div class="panel-title">Weekly Audit Coverage</div>
-          <div class="panel-subtitle">3 audits required per agent per week</div>
+          <div class="panel-subtitle">2 audits required per agent per week</div>
         </div>
         <div id="dash-coverage-status" style="font-size:11px;color:var(--text-tertiary)"></div>
       </div>
@@ -5435,7 +5435,7 @@ const dashState = {
   B: { rows: null, loaded: false, loading: false },
   T: { rows: null, loaded: false, loading: false }
 };
-const REQUIRED_PER_WEEK = 3; // QA audits required per agent per week
+const REQUIRED_PER_WEEK = 2; // QA audits required per agent per week
 
 function populateDashYearMonth(prefix) {
   const yearSel = document.getElementById(prefix + '-dash-year');
