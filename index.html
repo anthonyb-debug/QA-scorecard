@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QA Scorecard — Legacy &amp; Banyan</title>
+<title>Quality Management Portal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -1947,6 +1947,8 @@ body {
   font-weight: 700;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+  cursor: default;
+  position: relative;
 }
 .qa-excellent { background: var(--yes-bg); color: var(--yes); }
 .qa-outstanding { background: var(--minor-bg); color: var(--minor); }
@@ -1955,6 +1957,101 @@ body {
 .qa-poor { background: var(--ztp-bg); color: var(--ztp); }
 .qa-none { background: var(--bg); color: var(--text-tertiary); font-weight: 400; }
 .qa-avg-cell { font-weight: 700; font-size: 12px; }
+
+/* ── Score breakdown tooltip ── */
+.qa-cell-wrap {
+  position: relative;
+  display: inline-block;
+}
+.qa-cell-wrap:hover .qa-breakdown-tip {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+.qa-breakdown-tip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 10px 14px;
+  min-width: 170px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  white-space: nowrap;
+}
+.qa-breakdown-tip::after {
+  content: '';
+  position: absolute;
+  top: 100%; left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #334155;
+}
+.qa-tip-header {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  margin-bottom: 7px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #334155;
+}
+.qa-tip-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 3px 0;
+}
+.qa-tip-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #94a3b8;
+}
+.qa-tip-score {
+  font-size: 11.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: 1px 7px;
+  border-radius: 20px;
+}
+.qa-tip-divider {
+  height: 1px;
+  background: #334155;
+  margin: 6px 0;
+}
+.qa-tip-avg-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.qa-tip-avg-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+.qa-tip-avg-score {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #f1f5f9;
+  padding: 1px 7px;
+  border-radius: 20px;
+}
+[data-theme="dark"] .qa-breakdown-tip {
+  background: #0f172a;
+  border-color: #1e293b;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+[data-theme="dark"] .qa-breakdown-tip::after { border-top-color: #1e293b; }
 
 /* ═══════════════════════════════════════════════════════════
    CATEGORY PERFORMANCE BARS
@@ -2265,6 +2362,109 @@ body {
 .improvement-score { color: var(--ztp); }
 
 /* Audit history table */
+/* ── Weekly Score Breakdown Cards ── */
+.weekly-breakdown-strip {
+  display: flex;
+  gap: 12px;
+  padding: 14px 18px 16px;
+  min-width: max-content;
+}
+.week-breakdown-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  min-width: 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex-shrink: 0;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.week-breakdown-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+.wbc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.wbc-week-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.wbc-count {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 1px 6px;
+}
+.wbc-audit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  gap: 10px;
+}
+.wbc-audit-label {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.wbc-audit-score {
+  font-size: 11.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.wbc-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 6px 0;
+}
+.wbc-avg-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 2px;
+}
+.wbc-avg-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.wbc-avg-score {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 9px;
+  border-radius: 20px;
+}
+.wbc-empty {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  text-align: center;
+  padding: 8px 0;
+  font-style: italic;
+}
+[data-theme="dark"] .week-breakdown-card { background: var(--surface); }
+
 .audit-history-table {
   width: 100%;
   border-collapse: collapse;
@@ -2490,7 +2690,7 @@ body {
   <div class="top-nav-inner">
     <div class="nav-brand">
       <span class="nav-brand-dot" id="nav-dot"></span>
-      QA Scorecard
+      Quality Management Portal
     </div>
 
     <div class="brand-tabs" id="campaign-toggle-header">
@@ -3767,6 +3967,24 @@ body {
           </div>
         </div>
 
+      </div>
+
+      <!-- Weekly Score Breakdown — inserted before audit history -->
+      <div class="panel" style="margin-bottom:16px">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Score Breakdown by Week</div>
+            <div class="panel-subtitle">Individual audit scores grouped by week · horizontal scroll</div>
+          </div>
+          <span class="panel-badge" id="profile-weekly-badge">—</span>
+        </div>
+        <div id="profile-weekly-breakdown" style="overflow-x:auto;padding:4px 0">
+          <div class="empty-state" style="padding:32px 24px">
+            <div class="empty-state-icon">📅</div>
+            <div class="empty-state-text">No weekly data</div>
+            <div class="empty-state-sub">Load data to see score breakdown by week</div>
+          </div>
+        </div>
       </div>
 
       <!-- Audit history -->
@@ -5633,7 +5851,31 @@ function refreshDashPage() {
 
         const cls = qaScoreCls(wkAvg);
         const lbl = wkAvg !== null ? wkAvg.toFixed(2)+'%' : '—';
-        cells += `<td><span class="qa-score-pill ${cls}">${lbl}</span></td>`;
+
+        // Build per-audit breakdown for tooltip
+        let tipHtml = '';
+        if (wkScores.length > 0) {
+          const wkNum = w.replace('Week ','Wk ');
+          const auditRows = wkScores.map((s, i) => {
+            const aCls = qaScoreCls(s);
+            return `<div class="qa-tip-row">
+              <span class="qa-tip-label">Audit ${i + 1}</span>
+              <span class="qa-tip-score qa-score-pill ${aCls}" style="font-size:10.5px;padding:1px 7px">${s}%</span>
+            </div>`;
+          }).join('');
+          const avgCls = qaScoreCls(wkAvg);
+          tipHtml = `<div class="qa-breakdown-tip">
+            <div class="qa-tip-header">${wkNum} · ${wkScores.length} Audit${wkScores.length !== 1 ? 's' : ''}</div>
+            ${auditRows}
+            <div class="qa-tip-divider"></div>
+            <div class="qa-tip-avg-row">
+              <span class="qa-tip-avg-label">Average</span>
+              <span class="qa-tip-avg-score qa-score-pill ${avgCls}" style="font-size:11px">${wkAvg.toFixed(2)}%</span>
+            </div>
+          </div>`;
+        }
+
+        cells += `<td><span class="qa-cell-wrap"><span class="qa-score-pill ${cls}">${lbl}</span>${tipHtml}</span></td>`;
       });
 
       grandTotalScore += agentTotalScore;
@@ -5848,6 +6090,88 @@ function renderAgentProfile() {
   } else {
     improvEl.innerHTML = '<div class="empty-state" style="padding:8px"><span class="empty-state-sub">No significant improvement areas identified for this period</span></div>';
   }
+
+  // ── Weekly Score Breakdown ──
+  (function renderWeeklyBreakdown() {
+    const breakdownEl = document.getElementById('profile-weekly-breakdown');
+    const badgeEl = document.getElementById('profile-weekly-badge');
+    if (!breakdownEl) return;
+
+    // Collect all distinct weeks present in this agent's rows (normalised)
+    function normWeek(raw) {
+      const s = (raw||'').toString().trim();
+      if (/^\d$/.test(s)) return 'Week ' + s;
+      if (/^Week\s*\d$/i.test(s)) return 'Week ' + s.replace(/\D/g,'');
+      return s;
+    }
+
+    // Group rows by normalised week, preserving order
+    const weekMap = new Map();
+    const weekOrder = ['Week 1','Week 2','Week 3','Week 4','Week 5'];
+    weekOrder.forEach(w => weekMap.set(w, []));
+
+    rows.forEach(r => {
+      const w = normWeek(r[4]);
+      if (!weekMap.has(w)) weekMap.set(w, []);
+      const s = parseScore(r[7]);
+      if (s !== null) weekMap.get(w).push({ score: s, auditNo: r[6]||'' });
+    });
+
+    // Remove empty weeks that have no data
+    const activeWeeks = [...weekMap.entries()].filter(([,audits]) => audits.length > 0);
+
+    if (activeWeeks.length === 0) {
+      breakdownEl.innerHTML = `<div class="empty-state" style="padding:32px 24px">
+        <div class="empty-state-icon">📅</div>
+        <div class="empty-state-text">No weekly data</div>
+        <div class="empty-state-sub">No scored audits found for this agent in the selected period</div>
+      </div>`;
+      if (badgeEl) badgeEl.textContent = '—';
+      return;
+    }
+
+    // Score tier helper (reuse existing function if available, else inline)
+    function wbcCls(s) {
+      if (s === null) return 'qa-none';
+      if (s === 100) return 'qa-excellent';
+      if (s >= 95)   return 'qa-outstanding';
+      if (s >= 87)   return 'qa-satisfactory';
+      if (s >= 81)   return 'qa-needs';
+      return 'qa-poor';
+    }
+
+    const totalAudits = activeWeeks.reduce((sum,[,a])=>sum+a.length,0);
+    if (badgeEl) badgeEl.textContent = activeWeeks.length + ' week' + (activeWeeks.length!==1?'s':'') + ' · ' + totalAudits + ' audit' + (totalAudits!==1?'s':'');
+
+    const cards = activeWeeks.map(([week, audits]) => {
+      const sum = audits.reduce((s,a)=>s+a.score,0);
+      const avg = sum / audits.length;
+      const avgCls = wbcCls(avg);
+
+      const auditRowsHtml = audits.map((a, i) => {
+        const aCls = wbcCls(a.score);
+        return `<div class="wbc-audit-row">
+          <span class="wbc-audit-label">Audit ${i+1}</span>
+          <span class="wbc-audit-score qa-score-pill ${aCls}">${a.score}%</span>
+        </div>`;
+      }).join('');
+
+      return `<div class="week-breakdown-card">
+        <div class="wbc-header">
+          <span class="wbc-week-label">${week}</span>
+          <span class="wbc-count">${audits.length}/${REQUIRED_PER_WEEK}</span>
+        </div>
+        ${auditRowsHtml}
+        <div class="wbc-divider"></div>
+        <div class="wbc-avg-row">
+          <span class="wbc-avg-label">Avg</span>
+          <span class="wbc-avg-score qa-score-pill ${avgCls}">${avg.toFixed(2)}%</span>
+        </div>
+      </div>`;
+    }).join('');
+
+    breakdownEl.innerHTML = `<div class="weekly-breakdown-strip">${cards}</div>`;
+  })();
 
   // ── Audit history table ──
   document.getElementById('profile-history-badge').textContent = rows.length + ' audit' + (rows.length!==1?'s':'');
