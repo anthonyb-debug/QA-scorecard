@@ -1936,6 +1936,26 @@ body {
 .wk-na { background: var(--bg); color: var(--text-tertiary); font-weight: 400; }
 .wk-over { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; font-weight: 700; }
 
+/* QA score cells */
+.qa-score-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.qa-excellent { background: var(--yes-bg); color: var(--yes); }
+.qa-outstanding { background: var(--minor-bg); color: var(--minor); }
+.qa-satisfactory { background: #fffbeb; color: #92400e; }
+.qa-needs { background: #fff7ed; color: #c2410c; }
+.qa-poor { background: var(--ztp-bg); color: var(--ztp); }
+.qa-none { background: var(--bg); color: var(--text-tertiary); font-weight: 400; }
+.qa-avg-cell { font-weight: 700; font-size: 12px; }
+
 /* ═══════════════════════════════════════════════════════════
    CATEGORY PERFORMANCE BARS
 ═══════════════════════════════════════════════════════════ */
@@ -3577,6 +3597,27 @@ body {
           </thead>
           <tbody id="dash-coverage-tbody">
             <tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text-tertiary);font-size:12px">Click Refresh to load audit data</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Row 5: QA Scores per Agent per Week -->
+    <div class="panel" style="margin-bottom:16px">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">QA Scores per Agent per Week</div>
+          <div class="panel-subtitle">Average QA score per week · Monthly average = total scores ÷ total audits</div>
+        </div>
+        <div id="dash-qa-scores-status" style="font-size:11px;color:var(--text-tertiary)"></div>
+      </div>
+      <div class="coverage-wrap">
+        <table class="coverage-table" id="dash-qa-scores-table">
+          <thead id="dash-qa-scores-thead">
+            <tr><th class="agent-th">Agent</th><th>Wk 1</th><th>Wk 2</th><th>Wk 3</th><th>Wk 4</th><th>Monthly Avg</th></tr>
+          </thead>
+          <tbody id="dash-qa-scores-tbody">
+            <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-tertiary);font-size:12px">Click Refresh to load QA score data</td></tr>
           </tbody>
         </table>
       </div>
@@ -5526,6 +5567,78 @@ function refreshDashPage() {
 
   const pct = totalReq>0 ? Math.round(totalMet/totalReq*100) : 0;
   document.getElementById('dash-coverage-status').textContent = `${pct}% overall coverage`;
+
+  // ── QA Scores per Agent per Week ──
+  const qaScoresTheadEl = document.getElementById('dash-qa-scores-thead');
+  const qaScoresTbodyEl = document.getElementById('dash-qa-scores-tbody');
+
+  if (qaScoresTheadEl && qaScoresTbodyEl) {
+    // Build header with only required weeks
+    const qaWkHeaders = reqWks.map((w,i) => `<th>Wk ${i+1}</th>`).join('');
+    qaScoresTheadEl.innerHTML = `<tr><th class="agent-th">Agent</th>${qaWkHeaders}<th>Monthly Avg</th></tr>`;
+
+    qaScoresTbodyEl.innerHTML = '';
+
+    function qaScoreCls(pctVal) {
+      if (pctVal === null) return 'qa-none';
+      if (pctVal === 100) return 'qa-excellent';
+      if (pctVal >= 95) return 'qa-outstanding';
+      if (pctVal >= 87) return 'qa-satisfactory';
+      if (pctVal >= 81) return 'qa-needs';
+      return 'qa-poor';
+    }
+
+    let grandTotalScore = 0, grandTotalCount = 0;
+
+    agents.forEach(a => {
+      let cells = '';
+      let agentTotalScore = 0, agentTotalCount = 0;
+
+      reqWks.forEach(w => {
+        // Get all QA scores for this agent in this week
+        const wkRows = filtered.filter(r => {
+          const name = (r[5]||'').trim();
+          const raw = (r[4]||'').toString().trim();
+          const normW = /^\d$/.test(raw) ? 'Week '+raw : (/^Week\s*\d$/i.test(raw) ? 'Week '+raw.replace(/\D/g,'') : raw);
+          return name === a && normW === w;
+        });
+        const wkScores = wkRows.map(r => parseScore(r[7])).filter(s => s !== null);
+        const wkAvg = wkScores.length ? wkScores.reduce((x,y)=>x+y,0)/wkScores.length : null;
+
+        agentTotalScore += wkScores.reduce((x,y)=>x+y,0);
+        agentTotalCount += wkScores.length;
+
+        const cls = qaScoreCls(wkAvg);
+        const lbl = wkAvg !== null ? wkAvg.toFixed(2)+'%' : '—';
+        cells += `<td><span class="qa-score-pill ${cls}">${lbl}</span></td>`;
+      });
+
+      grandTotalScore += agentTotalScore;
+      grandTotalCount += agentTotalCount;
+
+      // Monthly average = total score / total audits (not average of averages)
+      const monthlyAvg = agentTotalCount > 0 ? agentTotalScore / agentTotalCount : null;
+      const avgCls = qaScoreCls(monthlyAvg);
+      const avgLbl = monthlyAvg !== null ? monthlyAvg.toFixed(2)+'%' : '—';
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td class="agent-td">${a}</td>${cells}<td class="qa-avg-cell"><span class="qa-score-pill ${avgCls}">${avgLbl}</span></td>`;
+      qaScoresTbodyEl.appendChild(tr);
+    });
+
+    // Grand average row
+    const grandAvg = grandTotalCount > 0 ? grandTotalScore / grandTotalCount : null;
+    const grandCls = qaScoreCls(grandAvg);
+    const grandLbl = grandAvg !== null ? grandAvg.toFixed(2)+'%' : '—';
+    const colSpan = reqWks.length;
+    const summaryTr = document.createElement('tr');
+    summaryTr.style.cssText = 'background:var(--surface-2);font-weight:700;border-top:2px solid var(--border)';
+    summaryTr.innerHTML = `<td class="agent-td" style="color:var(--text-tertiary);font-size:11px;text-transform:uppercase;letter-spacing:0.4px">Team Average</td>${reqWks.map(() => '<td></td>').join('')}<td class="qa-avg-cell"><span class="qa-score-pill ${grandCls}">${grandLbl}</span></td>`;
+    qaScoresTbodyEl.appendChild(summaryTr);
+
+    const grandPct = grandAvg !== null ? grandAvg.toFixed(2)+'%' : '—';
+    document.getElementById('dash-qa-scores-status').textContent = `Team avg: ${grandPct}`;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
