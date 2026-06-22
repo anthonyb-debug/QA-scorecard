@@ -4543,6 +4543,12 @@ body {
         </select>
       </div>
       <div class="filter-group">
+        <span class="filter-label">Week</span>
+        <select class="filter-select" id="rpt-week" onchange="applyReportFilters()">
+          <option value="all">All Weeks</option>
+        </select>
+      </div>
+      <div class="filter-group">
         <span class="filter-label">Agent</span>
         <select class="filter-select" id="rpt-agent" onchange="applyReportFilters()">
           <option value="all">All Agents</option>
@@ -4735,6 +4741,10 @@ body {
             <span style="width:7px;height:7px;border-radius:50%;background:var(--banyan);display:inline-block"></span>
             Banyan
           </button>
+          <button class="campaign-tab-btn" id="guide-camp-T" onclick="switchGuideCampaign('T',this)">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--takahami);display:inline-block"></span>
+            Takahami
+          </button>
         </div>
       </div>
     </div>
@@ -4888,6 +4898,89 @@ body {
             <tr><td class="guide-num">25</td><td class="guide-crit">Misrepresented Timeline <span class="badge badge-ztp">ZTP</span></td><td class="guide-def">Gave inaccurate timelines to caller (e.g., wrong "24–48 hours").</td><td class="guide-meet"><span class="gm-empty">No specific criteria listed</span></td><td class="guide-miss"><span class="gm-empty">No specific criteria listed</span></td></tr>
           </tbody></table>
         </div>
+      </div>
+    </div>
+
+    <div id="guide-panel-T" style="display:none">
+      <div class="legend-card" style="margin-bottom:16px">
+        <span class="legend-label">Scoring</span>
+        <div class="legend-items">
+          <div class="legend-item"><div class="legend-dot" style="background:#059669"></div><span class="legend-range">100%</span><span class="legend-perf" style="color:#059669">Excellent</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#1d4ed8"></div><span class="legend-range">95–99%</span><span class="legend-perf" style="color:#1d4ed8">Outstanding</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#b45309"></div><span class="legend-range">87–94%</span><span class="legend-perf" style="color:#b45309">Satisfactory</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#c2410c"></div><span class="legend-range">81–86%</span><span class="legend-perf" style="color:#c2410c">Needs Improvement</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div><span class="legend-range">≤80%</span><span class="legend-perf" style="color:#dc2626">Poor</span></div>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--text-tertiary)">Weighted scoring — each criterion carries a point value. Score = total earned ÷ 100.</div>
+      </div>
+
+      <div class="guide-sec">
+        <div class="guide-sec-header"><span class="acc-num acc-num-takahami">I</span><span style="font-size:13px;font-weight:600">Account Review <span style="font-weight:400;color:var(--text-tertiary)">(7.3 pts)</span></span></div>
+        <table class="guide-table"><thead><tr><th style="width:40px">#</th><th class="guide-crit">Criterion</th><th class="guide-def">Definition</th><th class="guide-meet">Meets Expectation</th><th class="guide-miss">Does Not Meet</th></tr></thead><tbody>
+          <tr><td class="guide-num">1.1</td><td class="guide-crit">MID Glance <span class="badge badge-weighted">1.1</span></td><td class="guide-def">Reviews account overview and identifies key account information before taking action.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Reviews account prior to action</li><li>Identifies relevant account details</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Proceeds without reviewing account</li><li>Misses key account information</li></ul></td></tr>
+          <tr><td class="guide-num">1.2.A</td><td class="guide-crit">Dispositions / Status <span class="badge badge-weighted">2.0</span></td><td class="guide-def">Selects and updates the correct disposition/status based on the work completed.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Correct disposition selected</li><li>Status updated accurately</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Wrong disposition selected</li><li>Status not updated or incorrect</li></ul></td></tr>
+          <tr><td class="guide-num">1.2.B</td><td class="guide-crit">Allowable Amounts <span class="badge badge-weighted">2.0</span></td><td class="guide-def">Verifies and documents allowable amounts accurately based on available claim/payment information.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Allowable amounts verified from correct source</li><li>Documented accurately</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Incorrect amounts documented</li><li>Source not verified</li></ul></td></tr>
+          <tr><td class="guide-num">1.3</td><td class="guide-crit">Notes <span class="badge badge-weighted">1.1</span></td><td class="guide-def">Provides clear and complete notes explaining action taken, outcome, and next steps.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Notes are clear and complete</li><li>Action, outcome, and next steps documented</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Notes missing or incomplete</li><li>No next steps documented</li></ul></td></tr>
+          <tr><td class="guide-num">1.4</td><td class="guide-crit">Portal / EOB Verification <span class="badge badge-weighted">1.1</span></td><td class="guide-def">Verifies claim information using the appropriate portal or EOB documentation.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Correct portal or EOB used</li><li>Claim info verified before proceeding</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Wrong source used</li><li>Verification skipped</li></ul></td></tr>
+        </tbody></table>
+      </div>
+
+      <div class="guide-sec">
+        <div class="guide-sec-header"><span class="acc-num acc-num-takahami">II</span><span style="font-size:13px;font-weight:600">Negotiation Process <span style="font-weight:400;color:var(--text-tertiary)">(11.9 pts)</span></span></div>
+        <table class="guide-table"><thead><tr><th style="width:40px">#</th><th class="guide-crit">Criterion</th><th class="guide-def">Definition</th><th class="guide-meet">Meets Expectation</th><th class="guide-miss">Does Not Meet</th></tr></thead><tbody>
+          <tr><td class="guide-num">2.1</td><td class="guide-crit">Pricing Vendor Verification <span class="badge badge-weighted">1.1</span></td><td class="guide-def">Verifies pricing vendor information before proceeding with negotiation.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Correct vendor verified prior to action</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Vendor not verified or incorrect</li></ul></td></tr>
+          <tr><td class="guide-num">2.2</td><td class="guide-crit">Contacted Correct Entity <span class="badge badge-weighted">2.4</span></td><td class="guide-def">Contacts the correct payer, provider, vendor, or responsible entity for negotiation activities.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Correct entity contacted</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Wrong entity contacted</li></ul></td></tr>
+          <tr><td class="guide-num">2.3.A</td><td class="guide-crit">Template / Spreadsheet Contents <span class="badge badge-weighted">5.2</span></td><td class="guide-def">Completes template/spreadsheet with accurate and complete inquiry information.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Template complete and accurate</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Template incomplete or contains errors</li></ul></td></tr>
+          <tr><td class="guide-num">2.3.B</td><td class="guide-crit">Sent to Correct Recipient Info <span class="badge badge-weighted">2.1</span></td><td class="guide-def">Inquiry submitted to correct recipient with accurate contact/routing information.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Sent to correct recipient</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Wrong recipient or incorrect routing info</li></ul></td></tr>
+          <tr><td class="guide-num">2.3.C</td><td class="guide-crit">Uploaded in SP <span class="badge badge-weighted">1.1</span></td><td class="guide-def">Inquiry documentation uploaded correctly in SharePoint.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Uploaded in correct SP location</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Not uploaded or wrong location</li></ul></td></tr>
+        </tbody></table>
+      </div>
+
+      <div class="guide-sec">
+        <div class="guide-sec-header"><span class="acc-num acc-num-takahami">III</span><span style="font-size:13px;font-weight:600">Appeal Process <span style="font-weight:400;color:var(--text-tertiary)">(23.5 pts)</span></span></div>
+        <table class="guide-table"><thead><tr><th style="width:40px">#</th><th class="guide-crit">Criterion</th><th class="guide-def">Definition</th><th class="guide-meet">Meets Expectation</th><th class="guide-miss">Does Not Meet</th></tr></thead><tbody>
+          <tr><td class="guide-num">3.1</td><td class="guide-crit">Contacted Correct Entity <span class="badge badge-weighted">2.4</span></td><td class="guide-def">Contacts correct payer/provider/responsible entity for appeal activities.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Correct entity contacted</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Wrong entity contacted</li></ul></td></tr>
+          <tr><td class="guide-num">3.2.A</td><td class="guide-crit">Appeal TFL <span class="badge badge-weighted">2.3</span></td><td class="guide-def">Time frame for filing appeal is confirmed and documented.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>TFL confirmed and documented</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>TFL not confirmed or missing</li></ul></td></tr>
+          <tr><td class="guide-num">3.2.B</td><td class="guide-crit">Appeal TAT <span class="badge badge-weighted">2.3</span></td><td class="guide-def">Turnaround time for appeal is confirmed and documented.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>TAT confirmed and documented</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>TAT not confirmed or missing</li></ul></td></tr>
+          <tr><td class="guide-num">3.2.C</td><td class="guide-crit">Department Name <span class="badge badge-weighted">2.3</span></td><td class="guide-def">Correct department name gathered for appeal routing.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Correct dept name obtained</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Wrong or missing dept name</li></ul></td></tr>
+          <tr><td class="guide-num">3.2.D</td><td class="guide-crit">Mailing Address <span class="badge badge-weighted">2.3</span></td><td class="guide-def">Correct mailing address for appeal submission obtained.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Correct address documented</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Address missing or incorrect</li></ul></td></tr>
+          <tr><td class="guide-num">3.2.E</td><td class="guide-crit">Fax Number <span class="badge badge-weighted">2.3</span></td><td class="guide-def">Correct fax number for appeal submission obtained.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Correct fax number documented</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Fax number missing or incorrect</li></ul></td></tr>
+          <tr><td class="guide-num">3.2.F</td><td class="guide-crit">Email <span class="badge badge-weighted">1.2</span></td><td class="guide-def">Correct email address for appeal submission obtained.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Correct email documented</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Email missing or incorrect</li></ul></td></tr>
+          <tr><td class="guide-num">3.3.A</td><td class="guide-crit">Template and/or Appeal Forms <span class="badge badge-weighted">5.2</span></td><td class="guide-def">Correct template or appeal forms used and completed accurately.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Correct forms used and complete</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Wrong forms or incomplete</li></ul></td></tr>
+          <tr><td class="guide-num">3.3.B</td><td class="guide-crit">Sent to Correct Recipient Info <span class="badge badge-weighted">2.1</span></td><td class="guide-def">Appeal sent to correct recipient with accurate contact/routing information.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Sent to correct recipient</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Wrong recipient or routing info</li></ul></td></tr>
+          <tr><td class="guide-num">3.3.C</td><td class="guide-crit">Uploaded in SP <span class="badge badge-weighted">1.1</span></td><td class="guide-def">Appeal documentation uploaded correctly in SharePoint.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Uploaded in correct SP location</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Not uploaded or wrong location</li></ul></td></tr>
+        </tbody></table>
+      </div>
+
+      <div class="guide-sec">
+        <div class="guide-sec-header"><span class="acc-num acc-num-takahami">IV</span><span style="font-size:13px;font-weight:600">Appeal FFUP <span style="font-weight:400;color:var(--text-tertiary)">(20.6 pts)</span></span></div>
+        <table class="guide-table"><thead><tr><th style="width:40px">#</th><th class="guide-crit">Criterion</th><th class="guide-def">Definition</th><th class="guide-meet">Meets Expectation</th><th class="guide-miss">Does Not Meet</th></tr></thead><tbody>
+          <tr><td class="guide-num">4.1</td><td class="guide-crit">Contacted Correct Entity <span class="badge badge-weighted">2.4</span></td><td class="guide-def">Contacts correct payer/provider/responsible entity for follow-up activities.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Correct entity contacted</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Wrong entity contacted</li></ul></td></tr>
+          <tr><td class="guide-num">4.2.A</td><td class="guide-crit">Receipt Date <span class="badge badge-weighted">0.9</span></td><td class="guide-def">Receipt date of appeal confirmed and documented.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Receipt date confirmed and noted</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Receipt date missing</li></ul></td></tr>
+          <tr><td class="guide-num">4.2.B</td><td class="guide-crit">Acquired / Provided DCN <span class="badge badge-weighted">2.2</span></td><td class="guide-def">Document Control Number acquired or provided correctly.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>DCN documented accurately</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>DCN missing or incorrect</li></ul></td></tr>
+          <tr><td class="guide-num">4.2.C</td><td class="guide-crit">Status <span class="badge badge-weighted">1.3</span></td><td class="guide-def">Current appeal status confirmed and accurately documented.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Status confirmed and accurate</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Status not confirmed or wrong</li></ul></td></tr>
+          <tr><td class="guide-num">4.2.D</td><td class="guide-crit">Requested LOD <span class="badge badge-weighted">1.9</span></td><td class="guide-def">Letter of Determination requested where applicable.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>LOD requested when applicable</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>LOD not requested when required</li></ul></td></tr>
+          <tr><td class="guide-num">4.2.E.a</td><td class="guide-crit">Coordinated <span class="badge badge-weighted">0.5</span></td><td class="guide-def">Second level appeal coordination confirmed.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>2nd level coordination confirmed</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Not coordinated</li></ul></td></tr>
+          <tr><td class="guide-num">4.2.E.b</td><td class="guide-crit">TFL <span class="badge badge-weighted">0.5</span></td><td class="guide-def">Second level appeal time frame for filing confirmed.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>TFL confirmed</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>TFL missing</li></ul></td></tr>
+          <tr><td class="guide-num">4.2.E.c</td><td class="guide-crit">TAT <span class="badge badge-weighted">0.5</span></td><td class="guide-def">Second level appeal turnaround time confirmed.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>TAT confirmed</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>TAT missing</li></ul></td></tr>
+          <tr><td class="guide-num">4.2.E.d</td><td class="guide-crit">Department Name <span class="badge badge-weighted">0.5</span></td><td class="guide-def">Second level appeal department name confirmed.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Dept name confirmed</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Dept name missing</li></ul></td></tr>
+          <tr><td class="guide-num">4.2.E.e</td><td class="guide-crit">Mailing Address <span class="badge badge-weighted">0.5</span></td><td class="guide-def">Second level appeal mailing address confirmed.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Address confirmed</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Address missing</li></ul></td></tr>
+          <tr><td class="guide-num">4.2.E.f</td><td class="guide-crit">Fax Number <span class="badge badge-weighted">0.5</span></td><td class="guide-def">Second level appeal fax number confirmed.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Fax number confirmed</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Fax number missing</li></ul></td></tr>
+          <tr><td class="guide-num">4.2.E.g</td><td class="guide-crit">Email <span class="badge badge-weighted">0.5</span></td><td class="guide-def">Second level appeal email address confirmed.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Email confirmed</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Email missing</li></ul></td></tr>
+          <tr><td class="guide-num">4.3.A</td><td class="guide-crit">Template and/or Appeal Forms <span class="badge badge-weighted">5.2</span></td><td class="guide-def">Correct template or appeal forms used and completed accurately for second level.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Correct forms used and complete</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Wrong forms or incomplete</li></ul></td></tr>
+          <tr><td class="guide-num">4.3.B</td><td class="guide-crit">Sent to Correct Recipient Info <span class="badge badge-weighted">2.1</span></td><td class="guide-def">Second level appeal sent to correct recipient with accurate information.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Sent to correct recipient</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Wrong recipient</li></ul></td></tr>
+          <tr><td class="guide-num">4.3.C</td><td class="guide-crit">Uploaded in SP <span class="badge badge-weighted">1.1</span></td><td class="guide-def">Second level appeal documentation uploaded in SharePoint.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Uploaded correctly</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Not uploaded or wrong location</li></ul></td></tr>
+        </tbody></table>
+      </div>
+
+      <div class="guide-sec">
+        <div class="guide-sec-header"><span class="acc-num acc-num-takahami">V</span><span style="font-size:13px;font-weight:600">Documentation <span style="font-weight:400;color:var(--text-tertiary)">(36.7 pts)</span></span></div>
+        <table class="guide-table"><thead><tr><th style="width:40px">#</th><th class="guide-crit">Criterion</th><th class="guide-def">Definition</th><th class="guide-meet">Meets Expectation</th><th class="guide-miss">Does Not Meet</th></tr></thead><tbody>
+          <tr><td class="guide-num">5.1</td><td class="guide-crit">Notes <span class="badge badge-weighted">11.0</span></td><td class="guide-def">Provides clear and complete notes explaining all actions taken, outcomes, and next steps.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Notes are thorough and accurate</li><li>All actions documented</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Notes incomplete or missing</li></ul></td></tr>
+          <tr><td class="guide-num">5.2</td><td class="guide-crit">Dispositions / Status <span class="badge badge-weighted">11.0</span></td><td class="guide-def">Updates disposition and status to accurately reflect the current state of the account.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Correct disposition and status applied</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Disposition or status incorrect</li></ul></td></tr>
+          <tr><td class="guide-num">5.3</td><td class="guide-crit">Follow Up Date <span class="badge badge-weighted">7.2</span></td><td class="guide-def">Sets accurate and appropriate follow-up date based on the action taken.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>Follow-up date set and appropriate</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Follow-up date missing or wrong</li></ul></td></tr>
+          <tr><td class="guide-num">5.4</td><td class="guide-crit">Uploaded Docs in SP <span class="badge badge-weighted">7.5</span></td><td class="guide-def">All relevant documents uploaded correctly in SharePoint.</td><td class="guide-meet"><span class="gm-yes">Meets</span><ul><li>All docs uploaded in correct location</li></ul></td><td class="guide-miss"><span class="gm-no">Does Not Meet</span><ul><li>Docs missing or in wrong location</li></ul></td></tr>
+        </tbody></table>
       </div>
     </div>
 
@@ -5952,6 +6045,7 @@ function switchGuideCampaign(prefix, btn) {
   btn.classList.add('active-' + (guideBrandMap[prefix] || 'legacy'));
   document.getElementById('guide-panel-L').style.display = prefix === 'L' ? '' : 'none';
   document.getElementById('guide-panel-B').style.display = prefix === 'B' ? '' : 'none';
+  document.getElementById('guide-panel-T').style.display = prefix === 'T' ? '' : 'none';
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -6091,7 +6185,7 @@ function loadAndRefreshDash() {
 function refreshDashPage() {
   if (!sharedState.loaded) return;
   const prefix = dashActiveCampaign;
-  const brand = prefix === 'L' ? 'Legacy' : 'Banyan';
+  const brand = prefix === 'L' ? 'Legacy' : prefix === 'B' ? 'Banyan' : 'Takahami';
   const year = document.getElementById('dash-year-sel')?.value || '';
   const month = document.getElementById('dash-month-sel')?.value || '';
   const agents = DASH_AGENTS[prefix];
@@ -6591,7 +6685,9 @@ function renderAgentProfile() {
   const heroBar = document.getElementById('profile-hero-bar');
   heroBar.style.background = profileActiveCampaign === 'L'
     ? 'linear-gradient(135deg,#1c4fa0,#2563eb)'
-    : 'linear-gradient(135deg,#0e7c5a,#059669)';
+    : profileActiveCampaign === 'B'
+    ? 'linear-gradient(135deg,#0e7c5a,#059669)'
+    : 'linear-gradient(135deg,#5b21b6,#7c3aed)';
 
   document.getElementById('profile-avatar').textContent = initials(agentName);
   document.getElementById('profile-avatar').style.background = avatarColor(agentName);
@@ -6842,6 +6938,18 @@ function populateReportSelects() {
   const auditors = [...new Set(rows.map(r=>(r[12]||'').trim()).filter(Boolean))].sort();
   auditorSel.innerHTML = '<option value="all">All Auditors</option>';
   auditors.forEach(a => { const o=document.createElement('option'); o.value=a; o.textContent=a; auditorSel.appendChild(o); });
+
+  const weekSel = document.getElementById('rpt-week');
+  const weekOrder = ['Week 1','Week 2','Week 3','Week 4','Week 5'];
+  const weeks = [...new Set(rows.map(r=>(r[4]||'').trim()).filter(Boolean))].sort((a,b)=>{
+    const ai = weekOrder.indexOf(a), bi = weekOrder.indexOf(b);
+    return (ai===-1?99:ai)-(bi===-1?99:bi);
+  });
+  const prevWeek = weekSel.value;
+  weekSel.innerHTML = '<option value="all">All Weeks</option>';
+  weeks.forEach(w => { const o=document.createElement('option'); o.value=w; o.textContent=w; weekSel.appendChild(o); });
+  if (weeks.includes(prevWeek)) weekSel.value = prevWeek;
+
   populateReportAgents();
 }
 
@@ -6870,9 +6978,11 @@ function getFilteredReportRows() {
   const agent = document.getElementById('rpt-agent')?.value || 'all';
   const auditor = document.getElementById('rpt-auditor')?.value || 'all';
 
+  const week = document.getElementById('rpt-week')?.value || 'all';
   if (campaign !== 'all') rows = rows.filter(r => (r[1]||'') === campaign);
   if (year !== 'all') rows = rows.filter(r => String(r[2]||'') === String(year));
   if (month !== 'all') rows = rows.filter(r => (r[3]||'') === month);
+  if (week !== 'all') rows = rows.filter(r => (r[4]||'').trim() === week);
   if (agent !== 'all') rows = rows.filter(r => (r[5]||'').trim() === agent);
   if (auditor !== 'all') rows = rows.filter(r => (r[12]||'').trim() === auditor);
 
@@ -6986,27 +7096,26 @@ function renderReportTeam(rows) {
 
   // By campaign
   const campaignEl = document.getElementById('rpt-by-campaign');
-  ['Legacy','Banyan'].forEach(brand => {
-    const bRows = rows.filter(r=>(r[1]||'')===brand);
-    const bScores = bRows.map(r=>parseScore(r[7])).filter(s=>s!==null);
-    const bAvg = bScores.length ? bScores.reduce((a,b)=>a+b,0)/bScores.length : null;
-    if (bRows.length>0) {
-      campaignEl.innerHTML = ['Legacy','Banyan'].map(b => {
-        const bR = rows.filter(r=>(r[1]||'')===b);
-        const bS = bR.map(r=>parseScore(r[7])).filter(s=>s!==null);
-        const bA = bS.length ? bS.reduce((a,b)=>a+b,0)/bS.length : null;
-        const bc = b==='Legacy'?'var(--legacy)':'var(--banyan)';
-        return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-subtle)">
-          <div style="width:12px;height:12px;border-radius:3px;background:${bc};flex-shrink:0"></div>
-          <div style="flex:1;font-size:12.5px;font-weight:600">${b}</div>
-          <div style="font-size:12px;color:var(--text-tertiary)">${bR.length} audits</div>
-          <div style="font-size:13px;font-weight:700;color:${bc}">${bA!==null?bA.toFixed(1)+'%':'—'}</div>
-        </div>`;
-      }).join('');
-    } else {
-      campaignEl.innerHTML = '<div class="empty-state" style="padding:14px"><span class="empty-state-sub">No data</span></div>';
-    }
-  });
+  const allCampaigns = ['Legacy','Banyan','Takahami'];
+  const campColor = { Legacy:'var(--legacy)', Banyan:'var(--banyan)', Takahami:'var(--takahami)' };
+  const anyData = allCampaigns.some(b => rows.filter(r=>(r[1]||'')===b).length > 0);
+  if (anyData) {
+    campaignEl.innerHTML = allCampaigns.map(b => {
+      const bR = rows.filter(r=>(r[1]||'')===b);
+      if (!bR.length) return '';
+      const bS = bR.map(r=>parseScore(r[7])).filter(s=>s!==null);
+      const bA = bS.length ? bS.reduce((a,b)=>a+b,0)/bS.length : null;
+      const bc = campColor[b] || 'var(--legacy)';
+      return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-subtle)">
+        <div style="width:12px;height:12px;border-radius:3px;background:${bc};flex-shrink:0"></div>
+        <div style="flex:1;font-size:12.5px;font-weight:600">${b}</div>
+        <div style="font-size:12px;color:var(--text-tertiary)">${bR.length} audits</div>
+        <div style="font-size:13px;font-weight:700;color:${bc}">${bA!==null?bA.toFixed(1)+'%':'—'}</div>
+      </div>`;
+    }).join('');
+  } else {
+    campaignEl.innerHTML = '<div class="empty-state" style="padding:14px"><span class="empty-state-sub">No data</span></div>';
+  }
 }
 
 function renderReportTrends(rows) {
