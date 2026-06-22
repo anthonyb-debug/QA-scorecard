@@ -7857,8 +7857,8 @@ function resetForm(prefix) {
 /* ═══════════════════════════════════════════════════════════
    TAKAHAMI — savePDF extension
 ═══════════════════════════════════════════════════════════ */
-const _origSavePDF = savePDF;
-function savePDF(prefix) {
+const savePDF = (function(_origSavePDF) {
+  return function savePDF(prefix) {
   if (prefix !== 'T') { _origSavePDF(prefix); return; }
 
   function val(id) { const el = document.getElementById(id); return el ? (el.value || '') : ''; }
@@ -7975,7 +7975,8 @@ tr.grp-h td{ background:#f3f4f6; color:#374151; font-weight:700; font-size:8px; 
   if (!win) { alert('Please allow pop-ups to use Print / Save PDF.'); return; }
   win.document.write(htmlDoc);
   win.document.close();
-}
+  };
+})(savePDF);
 
 /* ═══════════════════════════════════════════════════════════
    TAKAHAMI — populateYearMonth
