@@ -5432,7 +5432,8 @@ const DASH_AGENTS = {
 
 const dashState = {
   L: { rows: null, loaded: false, loading: false },
-  B: { rows: null, loaded: false, loading: false }
+  B: { rows: null, loaded: false, loading: false },
+  T: { rows: null, loaded: false, loading: false }
 };
 const REQUIRED_PER_WEEK = 3; // QA audits required per agent per week
 
@@ -6081,6 +6082,8 @@ function loadSharedData(callback) {
       dashState.L.loaded = true;
       dashState.B.rows = sharedState.allRows;
       dashState.B.loaded = true;
+      dashState.T.rows = sharedState.allRows;
+      dashState.T.loaded = true;
       if (callback) callback(null);
     })
     .catch(err => {
