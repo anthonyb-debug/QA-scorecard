@@ -4233,7 +4233,7 @@ body {
       <div class="panel-header">
         <div>
           <div class="panel-title">Weekly Audit Coverage</div>
-          <div class="panel-subtitle">3 audits required per agent per week</div>
+          <div class="panel-subtitle" id="dash-coverage-subtitle">2 audits required per agent per week</div>
         </div>
         <div id="dash-coverage-status" style="font-size:11px;color:var(--text-tertiary)"></div>
       </div>
@@ -5435,7 +5435,8 @@ const dashState = {
   B: { rows: null, loaded: false, loading: false },
   T: { rows: null, loaded: false, loading: false }
 };
-const REQUIRED_PER_WEEK = 3; // QA audits required per agent per week
+const REQUIRED_PER_WEEK = 3;   // QA audits required per agent per week (Legacy & Banyan)
+const REQUIRED_PER_WEEK_T = 2; // QA audits required per agent per week (Takahami)
 
 function populateDashYearMonth(prefix) {
   const yearSel = document.getElementById(prefix + '-dash-year');
@@ -6189,6 +6190,9 @@ function refreshDashPage() {
   if (!sharedState.loaded) return;
   const prefix = dashActiveCampaign;
   const brand = prefix === 'L' ? 'Legacy' : prefix === 'B' ? 'Banyan' : 'Takahami';
+  const RPW = prefix === 'T' ? REQUIRED_PER_WEEK_T : REQUIRED_PER_WEEK;
+  const subtitleEl = document.getElementById('dash-coverage-subtitle');
+  if (subtitleEl) subtitleEl.textContent = `${RPW} audits required per agent per week`;
   const year = document.getElementById('dash-year-sel')?.value || '';
   const month = document.getElementById('dash-month-sel')?.value || '';
   const agents = DASH_AGENTS[prefix];
@@ -6350,20 +6354,20 @@ function refreshDashPage() {
     let cells=''; let ar=0,am=0;
     reqWks.forEach(w => {
       const cnt = counts[a][w];
-      ar+=3; am+=Math.min(cnt,3);
+      ar+=RPW; am+=Math.min(cnt,RPW);
       let cls, lbl;
-      if (cnt > 3) {
+      if (cnt > RPW) {
         // Over-audit warning
-        const overCount = cnt - 3;
+        const overCount = cnt - RPW;
         const warnSvg = `<svg width="10" height="10" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><path d="M8 1.5L1 14.5h14L8 1.5z" fill="#7c3aed" opacity=".15"/><path d="M8 1.5L1 14.5h14L8 1.5z" stroke="#7c3aed" stroke-width="1.5" fill="none"/><line x1="8" y1="6" x2="8" y2="10" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="12.5" r=".75" fill="#7c3aed"/></svg>`;
         cls = 'wk-over';
-        lbl = `<span class="over-tip-wrap" style="gap:3px">${warnSvg}${cnt}/3<span class="over-tip">⚠ Over Target — ${overCount} extra audit${overCount > 1 ? 's' : ''} logged</span></span>`;
-      } else if (cnt === 3) {
-        cls = 'wk-met'; lbl = `${cnt}/3`;
+        lbl = `<span class="over-tip-wrap" style="gap:3px">${warnSvg}${cnt}/${RPW}<span class="over-tip">⚠ Over Target — ${overCount} extra audit${overCount > 1 ? 's' : ''} logged</span></span>`;
+      } else if (cnt === RPW) {
+        cls = 'wk-met'; lbl = `${cnt}/${RPW}`;
       } else if (cnt > 0) {
-        cls = 'wk-partial'; lbl = `${cnt}/3`;
+        cls = 'wk-partial'; lbl = `${cnt}/${RPW}`;
       } else {
-        cls = 'wk-missing'; lbl = `0/3`;
+        cls = 'wk-missing'; lbl = `0/${RPW}`;
       }
       cells += `<td><span class="wk-pill ${cls}">${lbl}</span></td>`;
     });
@@ -6371,7 +6375,7 @@ function refreshDashPage() {
     const ok = ar>0 && am===ar;
     const short = ar-am;
     // Check if any week is over target for this agent
-    const hasOverAudit = reqWks.some(w => counts[a][w] > 3);
+    const hasOverAudit = reqWks.some(w => counts[a][w] > RPW);
     const statusHtml = ar===0
       ? `<span class="wk-pill wk-na">No weeks</span>`
       : hasOverAudit && ok
@@ -6847,7 +6851,7 @@ function renderAgentProfile() {
             <span class="wbc-week-label">${mainLabel}</span>
             ${subLabel}
           </div>
-          <span class="wbc-count">${audits.length}/${REQUIRED_PER_WEEK}</span>
+          <span class="wbc-count">${audits.length}/${profileActiveCampaign === 'T' ? REQUIRED_PER_WEEK_T : REQUIRED_PER_WEEK}</span>
         </div>
         ${auditRowsHtml}
         <div class="wbc-divider"></div>
