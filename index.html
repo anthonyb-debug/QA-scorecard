@@ -5149,12 +5149,13 @@ function toggleTheme() {
 ═══════════════════════════════════════════════════════════ */
 function showBrand(brand, btn) {
   document.querySelectorAll('.brand-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active-legacy','active-banyan'));
+  document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active-legacy','active-banyan','active-takahami'));
   document.getElementById('brand-' + brand).classList.add('active');
   btn.classList.add('active-' + brand);
 
   // nav dot color
-  document.getElementById('nav-dot').style.background = brand === 'legacy' ? '#1c4fa0' : '#0e7c5a';
+  const dotColors = { legacy: '#1c4fa0', banyan: '#0e7c5a', takahami: '#7c3aed' };
+  document.getElementById('nav-dot').style.background = dotColors[brand] || '#1c4fa0';
 
   // show correct nav tabs
   document.getElementById('nav-tabs-L').style.display = brand === 'legacy' ? 'flex' : 'none';
@@ -5162,8 +5163,9 @@ function showBrand(brand, btn) {
 }
 
 function showTab(prefix, tab, btn) {
-  const panels = document.getElementById('brand-' + (prefix === 'L' ? 'legacy' : 'banyan'));
-  const brandStr = prefix === 'L' ? 'legacy' : 'banyan';
+  const brandMap = { L: 'legacy', B: 'banyan', T: 'takahami' };
+  const panels = document.getElementById('brand-' + (brandMap[prefix] || 'legacy'));
+  const brandStr = brandMap[prefix] || 'legacy';
 
   // Hide all tab-panels
   panels.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -5510,7 +5512,14 @@ function handleNoAudit(prefix) {
       _setAllSidePtsNA(pfx, 'N/A');
 
     } else {
-      // Restore normal computation
+      // Restore normal computation — clear any N/A state first
+      const _dispScoreEl = document.getElementById(pfx + '-displayScore');
+      const _progressBar = document.getElementById(pfx + '-progressBar');
+      const _compBar     = document.getElementById(pfx + '-completionBar');
+      if (_dispScoreEl && _dispScoreEl.textContent === 'N/A') _dispScoreEl.textContent = '—';
+      if (_progressBar) { _progressBar.style.width = '0%'; _progressBar.style.background = ''; }
+      if (_compBar) { _compBar.style.width = '0%'; _compBar.style.background = ''; }
+
       if (pfx === 'T') {
         updateScoreT();
         updateCompletionT();
@@ -5691,7 +5700,13 @@ function resetForm(prefix) {
   const metaBar = document.getElementById(prefix + '-metaBar');
   if (metaBar) {
     metaBar.querySelectorAll('input[type=text], input[type=datetime-local], input[type=date]').forEach(el => el.value = '');
-    metaBar.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+    // Reset all selects EXCEPT year/month (they are dynamically populated and should keep current values)
+    metaBar.querySelectorAll('select').forEach(s => {
+      if (s.id === prefix + '-year' || s.id === prefix + '-month') return;
+      s.selectedIndex = 0;
+    });
+    // Re-populate year/month to ensure correct selection is preserved
+    populateYearMonth(prefix);
   }
 
   sessionLogged[prefix] = false;
@@ -6294,7 +6309,8 @@ function showPage(page, btn) {
     document.getElementById('scorecard-shell').style.display = '';
     // Restore the correct brand's nav-tabs when returning to scorecard
     const activeBrand = document.querySelector('.brand-btn.active-legacy') ? 'legacy'
-                      : document.querySelector('.brand-btn.active-banyan') ? 'banyan' : 'takahami';
+                      : document.querySelector('.brand-btn.active-banyan') ? 'banyan'
+                      : document.querySelector('.brand-btn.active-takahami') ? 'takahami' : 'legacy';
     const navL = document.getElementById('nav-tabs-L');
     const navB = document.getElementById('nav-tabs-B');
     if (navL) navL.style.display = activeBrand === 'legacy' ? 'flex' : 'none';
@@ -8231,9 +8247,16 @@ function resetFormT() {
   const metaBar = document.getElementById('T-metaBar');
   if (metaBar) {
     metaBar.querySelectorAll('input, select').forEach(el => {
-      if (el.tagName === 'SELECT') el.selectedIndex = 0;
-      else el.value = '';
+      if (el.tagName === 'SELECT') {
+        // Skip year/month — they are dynamically populated; re-populate below
+        if (el.id === 'T-year' || el.id === 'T-month') return;
+        el.selectedIndex = 0;
+      } else {
+        el.value = '';
+      }
     });
+    // Re-populate year/month to preserve correct current selection
+    populateYearMonth('T');
   }
 
   sessionLogged['T'] = false;
@@ -8339,7 +8362,7 @@ function resetForm(prefix) {
 /* ═══════════════════════════════════════════════════════════
    TAKAHAMI — savePDF extension
 ═══════════════════════════════════════════════════════════ */
-;(function() { var _origSavePDF = savePDF; savePDF = function savePDF(prefix) {
+;(function() { var _origSavePDF = savePDF; savePDF = function(prefix) {
   if (prefix !== 'T') { _origSavePDF(prefix); return; }
 
   function val(id) { const el = document.getElementById(id); return el ? (el.value || '') : ''; }
