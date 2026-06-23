@@ -733,6 +733,89 @@ body {
 
 .ztp-banner.visible { display: flex; }
 
+/* ── NO AUDIT BANNER ── */
+.no-audit-banner {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-3);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #374151;
+  box-shadow: var(--shadow-xs);
+}
+.no-audit-banner.visible { display: flex; }
+.no-audit-banner-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* ── NO AUDIT CHECKBOX ROW (in meta-bar) ── */
+.no-audit-row {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px 4px;
+  border-top: 1px dashed var(--border);
+  margin-top: 2px;
+}
+.no-audit-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+.no-audit-checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #6b7280;
+  flex-shrink: 0;
+}
+.no-audit-warning-msg {
+  display: none;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #92400e;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+}
+.no-audit-warning-msg.visible { display: inline-block; }
+
+/* ── NA score display ── */
+.score-na-state .score-value { color: var(--text-tertiary); letter-spacing: -1px; font-size: 38px; }
+.score-na-state .score-progress-bar { background: var(--border) !important; width: 0% !important; }
+
+/* ── Scoring sections locked by No Audit ── */
+.no-audit-locked {
+  opacity: 0.35;
+  pointer-events: none;
+  user-select: none;
+}
+.no-audit-locked .pill-btn { cursor: not-allowed; }
+
+[data-theme="dark"] .no-audit-banner {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+[data-theme="dark"] .no-audit-warning-msg {
+  background: #231a0c;
+  border-color: #3d2e10;
+  color: #e09e4a;
+}
+
 .ztp-banner-icon {
   width: 18px;
   height: 18px;
@@ -2958,6 +3041,13 @@ body {
         <div class="mf"><label>Week</label><select id="L-week"><option value="">Select…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
         <div class="mf"><label>Team Leader</label><select id="L-teamLeader"><option value="">Select…</option><option>Pineda, John Tristan</option></select></div>
         <div class="mf"><label>QA Auditor</label><select id="L-qaAuditor"><option value="">Select…</option><option>Bucatcat, Raphael Zaldy</option></select></div>
+        <div class="no-audit-row">
+          <label class="no-audit-checkbox-label">
+            <input type="checkbox" id="L-noAudit" onchange="handleNoAudit('L')">
+            ☐ No Audit for this Week
+          </label>
+          <span class="no-audit-warning-msg" id="L-noAuditMsg">⚠ No Audit selected. QA score will be recorded as N/A.</span>
+        </div>
       </div>
     </div>
 
@@ -2979,6 +3069,11 @@ body {
         <div class="ztp-banner" id="L-ztp-banner">
           <span class="ztp-banner-icon">!</span>
           Zero Tolerance Policy violated — Sections I–IV are automatically graded as failed.
+        </div>
+
+        <div class="no-audit-banner" id="L-noAudit-banner">
+          <span class="no-audit-banner-icon">📋</span>
+          No Audit for this Week — QA Score recorded as <strong>N/A</strong>. Scoring sections are disabled.
         </div>
 
         <!-- Section I -->
@@ -3121,6 +3216,11 @@ body {
         <div class="ztp-banner" id="LC-ztp-banner">
           <span class="ztp-banner-icon">!</span>
           Zero Tolerance Policy violated — Chat QA score is automatically set to 0%.
+        </div>
+
+        <div class="no-audit-banner" id="LC-noAudit-banner">
+          <span class="no-audit-banner-icon">📋</span>
+          No Audit for this Week — QA Score recorded as <strong>N/A</strong>. Scoring sections are disabled.
         </div>
 
         <!-- Section I: Greeting and Introduction -->
@@ -3518,6 +3618,13 @@ body {
         <div class="mf"><label>Week</label><select id="B-week"><option value="">Select…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
         <div class="mf"><label>Team Leader</label><select id="B-teamLeader"><option value="">Select…</option><option>Pineda, John Tristan</option></select></div>
         <div class="mf"><label>QA Auditor</label><select id="B-qaAuditor"><option value="">Select…</option><option>Bucatcat, Raphael Zaldy</option></select></div>
+        <div class="no-audit-row">
+          <label class="no-audit-checkbox-label">
+            <input type="checkbox" id="B-noAudit" onchange="handleNoAudit('B')">
+            ☐ No Audit for this Week
+          </label>
+          <span class="no-audit-warning-msg" id="B-noAuditMsg">⚠ No Audit selected. QA score will be recorded as N/A.</span>
+        </div>
       </div>
     </div>
 
@@ -3538,6 +3645,11 @@ body {
         <div class="ztp-banner" id="B-ztp-banner">
           <span class="ztp-banner-icon">!</span>
           Zero Tolerance Policy violated — Sections I–IV are automatically graded as failed.
+        </div>
+
+        <div class="no-audit-banner" id="B-noAudit-banner">
+          <span class="no-audit-banner-icon">📋</span>
+          No Audit for this Week — QA Score recorded as <strong>N/A</strong>. Scoring sections are disabled.
         </div>
 
         <!-- Section I -->
@@ -3860,6 +3972,13 @@ body {
         <div class="mf"><label>Week</label><select id="T-week"><option value="">Select…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
         <div class="mf"><label>Team Leader</label><select id="T-teamLeader"><option value="">Select…</option><option>Pineda, John Tristan</option></select></div>
         <div class="mf"><label>QA Auditor</label><select id="T-qaAuditor"><option value="">Select…</option><option>Bucatcat, Raphael Zaldy</option></select></div>
+        <div class="no-audit-row">
+          <label class="no-audit-checkbox-label">
+            <input type="checkbox" id="T-noAudit" onchange="handleNoAudit('T')">
+            ☐ No Audit for this Week
+          </label>
+          <span class="no-audit-warning-msg" id="T-noAuditMsg">⚠ No Audit selected. QA score will be recorded as N/A.</span>
+        </div>
       </div>
     </div>
 
@@ -3876,6 +3995,10 @@ body {
           <button class="section-jump-btn takahami-jump" onclick="jumpTo('T-sc-s5')"><span class="acc-num acc-num-takahami section-jump-num">V</span>Documentation</button>
         </div>
 
+        <div class="no-audit-banner" id="T-noAudit-banner">
+          <span class="no-audit-banner-icon">📋</span>
+          No Audit for this Week — QA Score recorded as <strong>N/A</strong>. Scoring sections are disabled.
+        </div>
 
         <!-- ─── SECTION I: Account Review (7.3) ─── -->
         <div class="acc-section open" id="T-sc-s1">
@@ -4597,6 +4720,8 @@ body {
         </div>
       </div>
 
+      <div id="rpt-na-note" style="display:none;background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius-sm);padding:7px 12px;margin-bottom:12px;font-size:11.5px;font-weight:600;color:#92400e;"></div>
+
       <div class="dash-grid">
         <!-- Score dist overview -->
         <div class="panel">
@@ -5308,6 +5433,165 @@ function populateYearMonth(prefix) {
   });
 }
 
+/* ═══════════════════════════════════════════════════════════
+   NO AUDIT FOR THIS WEEK — core handler
+═══════════════════════════════════════════════════════════ */
+
+/**
+ * Returns true if the No Audit checkbox is checked for a given prefix.
+ * Handles prefixes: L (Legacy Call), B (Banyan), T (Takahami).
+ * Chat QA (LC) shares L-noAudit checkbox since it uses same meta fields.
+ */
+function isNoAudit(prefix) {
+  const id = (prefix === 'LC') ? 'L-noAudit' : prefix + '-noAudit';
+  const el = document.getElementById(id);
+  return el ? el.checked : false;
+}
+
+/**
+ * Called when the No Audit checkbox changes for a scorecard (prefix = L, B, T).
+ * Also propagates to LC (Chat QA) when prefix is 'L'.
+ */
+function handleNoAudit(prefix) {
+  const checked = isNoAudit(prefix);
+
+  // Show/hide warning message
+  const msgEl = document.getElementById(prefix + '-noAuditMsg');
+  if (msgEl) msgEl.classList.toggle('visible', checked);
+
+  // Prefixes to update: if Legacy (L), also update Chat QA (LC)
+  const targets = [prefix];
+  if (prefix === 'L') targets.push('LC');
+
+  targets.forEach(pfx => {
+    // Show/hide the No Audit info banner on the scorecard
+    const banner = document.getElementById(pfx + '-noAudit-banner');
+    if (banner) banner.classList.toggle('visible', checked);
+
+    // Lock / unlock scoring sections
+    const scoreTab = pfx === 'LC'
+      ? document.getElementById('L-tab-chat')
+      : document.getElementById(pfx + '-tab-scorecard');
+    if (scoreTab) {
+      scoreTab.querySelectorAll('.acc-section').forEach(sec => {
+        sec.classList.toggle('no-audit-locked', checked);
+      });
+    }
+
+    // Update score display to N/A or restore
+    if (pfx === 'T') {
+      updateScoreT();
+    } else if (pfx === 'LC') {
+      updateChatScore();
+    } else {
+      updateScore(pfx);
+    }
+
+    // Update score panel visual state
+    const scorePanel = pfx === 'LC'
+      ? document.getElementById('LC-score-panel')
+      : document.querySelector('#brand-' + _prefixToBrand(pfx) + ' .score-panel');
+
+    if (checked) {
+      // Force N/A display
+      const dispScoreEl = document.getElementById(pfx + '-displayScore');
+      const perfEl      = document.getElementById(pfx + '-perfLabel');
+      const progressBar = document.getElementById(pfx + '-progressBar');
+      const compBar     = document.getElementById(pfx + '-completionBar');
+      const compPct     = document.getElementById(pfx + '-completionPct');
+
+      if (dispScoreEl) dispScoreEl.textContent = 'N/A';
+      if (perfEl) { perfEl.textContent = 'No Audit'; perfEl.className = 'score-perf-label perf-na'; }
+      if (progressBar) { progressBar.style.width = '0%'; progressBar.style.background = 'var(--border)'; }
+      if (compBar)  { compBar.style.width  = '100%'; compBar.style.background = '#9ca3af'; }
+      if (compPct)  compPct.textContent = 'N/A';
+
+      // Hide section pts labels in sidebar
+      _setAllSidePtsNA(pfx, 'N/A');
+
+    } else {
+      // Restore normal computation
+      if (pfx === 'T') {
+        updateScoreT();
+        updateCompletionT();
+      } else if (pfx === 'LC') {
+        updateChatScore();
+        updateChatCompletion();
+      } else {
+        updateScore(pfx);
+        applyZTPGreyout(pfx);
+        updateCompletion(pfx);
+      }
+    }
+  });
+}
+
+/** Helper: map prefix to brand name for querySelector */
+function _prefixToBrand(prefix) {
+  if (prefix === 'L' || prefix === 'LC') return 'legacy';
+  if (prefix === 'B') return 'banyan';
+  if (prefix === 'T') return 'takahami';
+  return prefix.toLowerCase();
+}
+
+/** Helper: Set all side section pts labels to a string */
+function _setAllSidePtsNA(prefix, txt) {
+  const sideIds = {
+    L:  ['L-side-s1','L-side-s2','L-side-s3','L-side-s4','L-side-s5'],
+    B:  ['B-side-s1','B-side-s2','B-side-s3','B-side-s4','B-side-s5'],
+    T:  ['T-side-s1','T-side-s2','T-side-s3','T-side-s4','T-side-s5'],
+    LC: ['LC-side-s1','LC-side-s2','LC-side-s3','LC-side-s4','LC-side-s5','LC-side-s6'],
+  };
+  (sideIds[prefix] || []).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = txt; el.className = 'score-section-pts'; }
+  });
+}
+
+/* ── perf-na style ── */
+(function() {
+  const s = document.createElement('style');
+  s.textContent = '.perf-na { background: var(--na-bg); color: var(--na); }';
+  document.head.appendChild(s);
+})();
+
+/* ── Patch updateScore / updateScoreT / updateChatScore to respect No Audit ── */
+const _origUpdateScore = updateScore;
+function updateScore(prefix) {
+  if (isNoAudit(prefix)) return; // No Audit active – don't recalculate
+  _origUpdateScore(prefix);
+}
+
+/* updateScoreT is patched after it's declared at the bottom of the file */
+/* updateChatScore patched similarly */
+
+
+/* ═══════════════════════════════════════════════════════════
+   DASHBOARD RENDERING — N/A aware score calculations
+   Patch renderDashboard and renderAgentProfile to skip N/A scores from averages
+═══════════════════════════════════════════════════════════ */
+
+/**
+ * Parse a QA score string that may be "N/A", "95%", "95", etc.
+ * Returns null for N/A, otherwise a numeric value 0-100.
+ */
+function parseQAScore(scoreStr) {
+  const s = (scoreStr || '').toString().trim();
+  if (!s || s === 'N/A' || s === 'n/a' || s === '—') return null;
+  const n = parseFloat(s.replace('%', ''));
+  return isNaN(n) ? null : n;
+}
+
+/**
+ * Compute average from an array of score strings, ignoring N/A entries.
+ * Returns null if no valid scores.
+ */
+function calcQAAverage(scoreStrings) {
+  const nums = scoreStrings.map(parseQAScore).filter(v => v !== null);
+  if (nums.length === 0) return null;
+  return nums.reduce((a, b) => a + b, 0) / nums.length;
+}
+
 function showToast(msg, isError) {
   let t = document.getElementById('qa-toast');
   t.textContent = msg;
@@ -5335,6 +5619,10 @@ function logQAResult(prefix) {
 
   if (!name || !auditNo || !week) {
     showToast('Please fill in Agent, Audit No., and Week before logging.', true);
+    return;
+  }
+  if (!year || !month) {
+    showToast('Please select Year and Month before logging.', true);
     return;
   }
   if (!QA_LOG_SCRIPT_URL || QA_LOG_SCRIPT_URL.indexOf('PASTE_YOUR') === 0) {
@@ -5409,6 +5697,13 @@ function resetForm(prefix) {
   sessionLogged[prefix] = false;
   const btn = document.getElementById(prefix + '-logBtn');
   if (btn) { btn.disabled = false; btn.textContent = '📤 Log QA Result'; btn.style.background = ''; btn.title = ''; }
+
+  // Clear No Audit checkbox
+  const noAuditCb = document.getElementById(prefix + '-noAudit');
+  if (noAuditCb && noAuditCb.checked) {
+    noAuditCb.checked = false;
+    handleNoAudit(prefix);
+  }
 
   updateScore(prefix);
   applyZTPGreyout(prefix);
@@ -5778,6 +6073,7 @@ function savePDF(prefix) {
     ['Period', [meta.year, meta.month, meta.week].filter(Boolean).join(' · ') || '—'],
     ['Team Leader', meta.teamLeader || '—'],
     ['QA Auditor', meta.qaAuditor || '—'],
+    ...(isNoAudit(prefix) ? [['Status', 'NO AUDIT — N/A']] : []),
   ];
 
   const metaHTML = metaRows.map(([k,v]) =>
@@ -6425,14 +6721,16 @@ function refreshDashPage() {
           const normW = /^\d$/.test(raw) ? 'Week '+raw : (/^Week\s*\d$/i.test(raw) ? 'Week '+raw.replace(/\D/g,'') : raw);
           return name === a && normW === w;
         });
+        // Separate N/A entries from numeric scores
+        const wkNACount = wkRows.filter(r => { const s = (r[7]||'').toString().trim(); return s === 'N/A' || s === 'n/a'; }).length;
         const wkScores = wkRows.map(r => parseScore(r[7])).filter(s => s !== null);
         const wkAvg = wkScores.length ? wkScores.reduce((x,y)=>x+y,0)/wkScores.length : null;
 
         agentTotalScore += wkScores.reduce((x,y)=>x+y,0);
         agentTotalCount += wkScores.length;
 
-        const cls = qaScoreCls(wkAvg);
-        const lbl = wkAvg !== null ? wkAvg.toFixed(2)+'%' : '—';
+        const cls = wkScores.length > 0 ? qaScoreCls(wkAvg) : (wkNACount > 0 ? 'qa-none' : 'qa-none');
+        const lbl = wkAvg !== null ? wkAvg.toFixed(2)+'%' : (wkNACount > 0 ? 'N/A' : '—');
 
         // Build per-audit breakdown for tooltip
         let tipHtml = '';
@@ -6799,11 +7097,18 @@ function renderAgentProfile() {
     rows.forEach(r => {
       const month = (r[3]||'').trim();
       const week  = normWeek(r[4]);
-      const s     = parseScore(r[7]);
-      if (s === null || !week) return;
+      const rawScore = (r[7]||'').toString().trim();
+      const s     = parseScore(rawScore);
+      const isNA  = (rawScore === 'N/A' || rawScore === 'n/a');
+      if (s === null && !isNA) return; // skip blank/missing
+      if (!week) return;
       const key = isAllMonths ? `${month} · ${week}` : week;
-      if (!groupMap.has(key)) groupMap.set(key, { month, week, audits: [] });
-      groupMap.get(key).audits.push({ score: s, auditNo: r[6]||'' });
+      if (!groupMap.has(key)) groupMap.set(key, { month, week, audits: [], naCount: 0 });
+      if (isNA) {
+        groupMap.get(key).naCount++;
+      } else {
+        groupMap.get(key).audits.push({ score: s, auditNo: r[6]||'' });
+      }
     });
 
     // Sort keys: by month order then week order
@@ -6824,13 +7129,13 @@ function renderAgentProfile() {
       return;
     }
 
-    const totalAudits = sortedKeys.reduce((sum, k) => sum + groupMap.get(k).audits.length, 0);
+    const totalAudits = sortedKeys.reduce((sum, k) => sum + groupMap.get(k).audits.length + groupMap.get(k).naCount, 0);
     if (badgeEl) badgeEl.textContent = sortedKeys.length + ' group' + (sortedKeys.length!==1?'s':'') + ' · ' + totalAudits + ' audit' + (totalAudits!==1?'s':'');
 
     const cards = sortedKeys.map(key => {
-      const { month, week, audits } = groupMap.get(key);
+      const { month, week, audits, naCount } = groupMap.get(key);
       const sum = audits.reduce((s,a)=>s+a.score,0);
-      const avg = sum / audits.length;
+      const avg = audits.length > 0 ? sum / audits.length : null;
       const avgCls = wbcCls(avg);
 
       // Header label: show month when all-months view
@@ -6845,19 +7150,30 @@ function renderAgentProfile() {
         </div>`;
       }).join('');
 
+      // N/A rows
+      const naRowsHtml = Array.from({length: naCount}, (_, i) => `<div class="wbc-audit-row">
+        <span class="wbc-audit-label">Audit ${audits.length + i + 1}</span>
+        <span class="wbc-audit-score qa-score-pill qa-none">N/A</span>
+      </div>`).join('');
+
+      const totalCount = audits.length + naCount;
+      const avgDisplay = avg !== null
+        ? `<span class="wbc-avg-score qa-score-pill ${avgCls}">${avg.toFixed(2)}%</span>`
+        : `<span class="wbc-avg-score qa-score-pill qa-none">N/A</span>`;
+
       return `<div class="week-breakdown-card">
         <div class="wbc-header">
           <div style="display:flex;flex-direction:column;gap:1px">
             <span class="wbc-week-label">${mainLabel}</span>
             ${subLabel}
           </div>
-          <span class="wbc-count">${audits.length}/${profileActiveCampaign === 'T' ? REQUIRED_PER_WEEK_T : REQUIRED_PER_WEEK}</span>
+          <span class="wbc-count">${totalCount}/${profileActiveCampaign === 'T' ? REQUIRED_PER_WEEK_T : REQUIRED_PER_WEEK}</span>
         </div>
-        ${auditRowsHtml}
+        ${auditRowsHtml}${naRowsHtml}
         <div class="wbc-divider"></div>
         <div class="wbc-avg-row">
           <span class="wbc-avg-label">Avg</span>
-          <span class="wbc-avg-score qa-score-pill ${avgCls}">${avg.toFixed(2)}%</span>
+          ${avgDisplay}
         </div>
       </div>`;
     }).join('');
@@ -6870,17 +7186,23 @@ function renderAgentProfile() {
   const histTbody = document.getElementById('profile-history-tbody');
   if (rows.length > 0) {
     histTbody.innerHTML = [...rows].reverse().map(r => {
-      const s = parseScore(r[7]);
+      const rawScore = (r[7]||'').toString().trim();
+      const s = parseScore(rawScore);
+      const isNA = (rawScore === 'N/A' || rawScore === 'n/a');
       const t = scoreTier(s);
       const scoreHtml = s !== null
         ? `<span class="inline-score-badge" style="background:${tierColor(t)}22;color:${tierColor(t)}">${s}%</span>`
-        : '<span style="color:var(--text-tertiary)">—</span>';
+        : isNA
+          ? `<span class="inline-score-badge" style="background:var(--na-bg);color:var(--na)">N/A</span>`
+          : '<span style="color:var(--text-tertiary)">—</span>';
+      const perfLabel = isNA ? 'No Audit' : tierLabel(t);
+      const perfColor = isNA ? 'var(--na)' : tierColor(t);
       return `<tr>
         <td>${r[10]||r[0]||'—'}</td>
         <td>${r[6]||'—'}</td>
         <td>${r[4]||'—'}</td>
         <td>${scoreHtml}</td>
-        <td><span style="font-size:11px;font-weight:600;color:${tierColor(t)}">${tierLabel(t)}</span></td>
+        <td><span style="font-size:11px;font-weight:600;color:${perfColor}">${perfLabel}</span></td>
         <td>${r[12]||'—'}</td>
         <td style="font-size:11px;color:var(--text-tertiary)">${r[8]||'—'}</td>
       </tr>`;
@@ -7012,6 +7334,7 @@ function applyReportFilters() {
 }
 
 function renderReportOverview(rows) {
+  const naCount = rows.filter(r => { const s=(r[7]||'').toString().trim(); return s==='N/A'||s==='n/a'; }).length;
   const scores = rows.map(r=>parseScore(r[7])).filter(s=>s!==null);
   const avg = scores.length ? scores.reduce((a,b)=>a+b,0)/scores.length : null;
   const passes = scores.filter(s=>s>=87).length;
@@ -7022,6 +7345,17 @@ function renderReportOverview(rows) {
   document.getElementById('rpt-kpi-avg').textContent = avg!==null ? avg.toFixed(1)+'%' : '—';
   document.getElementById('rpt-kpi-pass').textContent = passRate!==null ? passRate+'%' : '—';
   document.getElementById('rpt-kpi-fail').textContent = fails;
+
+  // Show N/A count note
+  const naNote = document.getElementById('rpt-na-note');
+  if (naNote) {
+    if (naCount > 0) {
+      naNote.style.display = 'block';
+      naNote.textContent = `ℹ ${naCount} "No Audit" record${naCount!==1?'s':''} excluded from score averages`;
+    } else {
+      naNote.style.display = 'none';
+    }
+  }
 
   // Score distribution
   const tierOrder = ['excellent','outstanding','satisfactory','needs','poor'];
@@ -7384,6 +7718,9 @@ function scChat(pfx, btn, action) {
 function updateChatScore() {
   const chatTab = document.getElementById('L-tab-chat');
   if (!chatTab) return;
+
+  // No Audit override (LC shares L's no-audit checkbox)
+  if (isNoAudit('L')) return;
   const all = [...chatTab.querySelectorAll('.dv')];
   const secs = getChatSections();
   let totalDed = 0;
@@ -7520,6 +7857,10 @@ function logChatQAResult() {
 
   if (!name || !auditNo || !week) {
     showToast('Please fill in Agent, Audit No., and Week before logging.', true);
+    return;
+  }
+  if (!year || !month) {
+    showToast('Please select Year and Month before logging.', true);
     return;
   }
   if (!QA_LOG_SCRIPT_URL || QA_LOG_SCRIPT_URL.indexOf('PASTE_YOUR') === 0) {
@@ -7790,6 +8131,9 @@ function updateScoreT() {
   const tab = document.getElementById('T-tab-scorecard');
   if (!tab) return;
 
+  // No Audit override
+  if (isNoAudit('T')) return;
+
   // Collect all criterion rows (skip group headers)
   const allDvs = [...tab.querySelectorAll('tbody tr:not(.criteria-group-row) .dv')];
 
@@ -7897,6 +8241,13 @@ function resetFormT() {
   const btn = document.getElementById('T-logBtn');
   if (btn) { btn.disabled = false; btn.textContent = '📤 Log QA Result'; btn.style.background = ''; btn.title = ''; }
 
+  // Clear No Audit checkbox
+  const noAuditCb = document.getElementById('T-noAudit');
+  if (noAuditCb && noAuditCb.checked) {
+    noAuditCb.checked = false;
+    handleNoAudit('T');
+  }
+
   updateScoreT();
   updateCompletionT();
 }
@@ -7944,6 +8295,9 @@ function logQAResult(prefix) {
 
   if (!name || !auditNo || !week) {
     showToast('Please fill in Agent, Audit No., and Week before logging.', true); return;
+  }
+  if (!year || !month) {
+    showToast('Please select Year and Month before logging.', true); return;
   }
   if (!QA_LOG_SCRIPT_URL || QA_LOG_SCRIPT_URL.indexOf('PASTE_YOUR') === 0) {
     showToast("Logging isn't configured yet — add the Web App URL.", true); return;
