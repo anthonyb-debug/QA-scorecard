@@ -5160,14 +5160,15 @@ function toggleTheme() {
 ═══════════════════════════════════════════════════════════ */
 function showBrand(brand, btn) {
   document.querySelectorAll('.brand-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active-legacy','active-banyan'));
+  document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active-legacy','active-banyan','active-takahami'));
   document.getElementById('brand-' + brand).classList.add('active');
   btn.classList.add('active-' + brand);
 
   // nav dot color
-  document.getElementById('nav-dot').style.background = brand === 'legacy' ? '#1c4fa0' : '#0e7c5a';
+  var dotColors = { legacy: '#1c4fa0', banyan: '#0e7c5a', takahami: '#7c3aed' };
+  document.getElementById('nav-dot').style.background = dotColors[brand] || '#1c4fa0';
 
-  // show correct nav tabs
+  // nav tabs — Takahami has no inner nav-tabs div, hide both L and B
   document.getElementById('nav-tabs-L').style.display = brand === 'legacy' ? 'flex' : 'none';
   document.getElementById('nav-tabs-B').style.display = brand === 'banyan' ? 'flex' : 'none';
 }
@@ -8137,23 +8138,8 @@ function resetFormT() {
 
 /* ═══════════════════════════════════════════════════════════
    TAKAHAMI — showBrand extension
+   (handled by unified showBrand above — no override needed)
 ═══════════════════════════════════════════════════════════ */
-
-// Patch showBrand to handle 'takahami'
-const _origShowBrand = showBrand;
-function showBrand(brand, btn) {
-  document.querySelectorAll('.brand-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active-legacy','active-banyan','active-takahami'));
-  document.getElementById('brand-' + brand).classList.add('active');
-  btn.classList.add('active-' + brand);
-
-  const dotColors = { legacy: '#1c4fa0', banyan: '#0e7c5a', takahami: '#7c3aed' };
-  document.getElementById('nav-dot').style.background = dotColors[brand] || '#1c4fa0';
-
-  // nav tabs — Takahami has no inner nav-tabs div, hide both L and B
-  document.getElementById('nav-tabs-L').style.display = brand === 'legacy' ? 'flex' : 'none';
-  document.getElementById('nav-tabs-B').style.display = brand === 'banyan' ? 'flex' : 'none';
-}
 
 /* ═══════════════════════════════════════════════════════════
    TAKAHAMI — logQAResult / resetForm extensions
