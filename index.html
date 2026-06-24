@@ -748,6 +748,112 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   NO AUDIT CHECKBOX & BANNER
+═══════════════════════════════════════════════════════════ */
+.no-audit-row {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0 2px;
+}
+
+.no-audit-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  user-select: none;
+  transition: color 0.15s;
+}
+
+.no-audit-checkbox-label:hover { color: var(--text-primary); }
+
+.no-audit-checkbox-label input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: #b45309;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.no-audit-checkbox-label input[type="checkbox"]:checked + .no-audit-label-text {
+  color: #b45309;
+}
+
+.no-audit-warning {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: var(--radius-md);
+  margin: 0 var(--space-6) 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #92400e;
+  box-shadow: var(--shadow-xs);
+}
+
+.no-audit-warning.visible { display: flex; }
+
+[data-theme="dark"] .no-audit-warning {
+  background: #231a0c;
+  border-color: #3d2e10;
+  color: #e09e4a;
+}
+
+.no-audit-warning-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* When no-audit is active, dim the scoring sections */
+.no-audit-active .acc-section {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.no-audit-active .section-nav {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.no-audit-active .ztp-banner {
+  display: none !important;
+}
+
+/* Score panel N/A state */
+.score-value.na-score {
+  font-size: 36px;
+  color: var(--text-tertiary);
+  letter-spacing: -1px;
+}
+
+.score-perf-label.perf-na {
+  background: var(--na-bg);
+  color: var(--na);
+}
+
+/* Dashboard N/A pill */
+.score-na-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  background: var(--na-bg);
+  color: var(--na);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid var(--border);
+}
+
+/* ═══════════════════════════════════════════════════════════
    SECTION JUMP NAV (sticky)
 ═══════════════════════════════════════════════════════════ */
 .section-nav {
@@ -2958,6 +3064,16 @@ body {
         <div class="mf"><label>Week</label><select id="L-week"><option value="">Select…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
         <div class="mf"><label>Team Leader</label><select id="L-teamLeader"><option value="">Select…</option><option>Pineda, John Tristan</option></select></div>
         <div class="mf"><label>QA Auditor</label><select id="L-qaAuditor"><option value="">Select…</option><option>Bucatcat, Raphael Zaldy</option></select></div>
+        <div class="no-audit-row">
+          <label class="no-audit-checkbox-label">
+            <input type="checkbox" id="L-noAudit" onchange="toggleNoAudit('L')">
+            <span class="no-audit-label-text">No Audit for this Week</span>
+          </label>
+        </div>
+      </div>
+      <div class="no-audit-warning" id="L-noAuditWarning">
+        <span class="no-audit-warning-icon">⚠️</span>
+        <span>No Audit selected. QA score will be recorded as <strong style="margin:0 4px">N/A</strong> for this week. Scoring sections are disabled.</span>
       </div>
     </div>
 
@@ -3518,6 +3634,16 @@ body {
         <div class="mf"><label>Week</label><select id="B-week"><option value="">Select…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
         <div class="mf"><label>Team Leader</label><select id="B-teamLeader"><option value="">Select…</option><option>Pineda, John Tristan</option></select></div>
         <div class="mf"><label>QA Auditor</label><select id="B-qaAuditor"><option value="">Select…</option><option>Bucatcat, Raphael Zaldy</option></select></div>
+        <div class="no-audit-row">
+          <label class="no-audit-checkbox-label">
+            <input type="checkbox" id="B-noAudit" onchange="toggleNoAudit('B')">
+            <span class="no-audit-label-text">No Audit for this Week</span>
+          </label>
+        </div>
+      </div>
+      <div class="no-audit-warning" id="B-noAuditWarning">
+        <span class="no-audit-warning-icon">⚠️</span>
+        <span>No Audit selected. QA score will be recorded as <strong style="margin:0 4px">N/A</strong> for this week. Scoring sections are disabled.</span>
       </div>
     </div>
 
@@ -3860,6 +3986,16 @@ body {
         <div class="mf"><label>Week</label><select id="T-week"><option value="">Select…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
         <div class="mf"><label>Team Leader</label><select id="T-teamLeader"><option value="">Select…</option><option>Pineda, John Tristan</option></select></div>
         <div class="mf"><label>QA Auditor</label><select id="T-qaAuditor"><option value="">Select…</option><option>Bucatcat, Raphael Zaldy</option></select></div>
+        <div class="no-audit-row">
+          <label class="no-audit-checkbox-label">
+            <input type="checkbox" id="T-noAudit" onchange="toggleNoAudit('T')">
+            <span class="no-audit-label-text">No Audit for this Week</span>
+          </label>
+        </div>
+      </div>
+      <div class="no-audit-warning" id="T-noAuditWarning">
+        <span class="no-audit-warning-icon">⚠️</span>
+        <span>No Audit selected. QA score will be recorded as <strong style="margin:0 4px">N/A</strong> for this week. Scoring sections are disabled.</span>
       </div>
     </div>
 
@@ -5323,7 +5459,8 @@ function logQAResult(prefix) {
   const week = document.getElementById(prefix + '-week')?.value || '';
   const name = (document.getElementById(prefix + '-agent')?.value || '').trim();
   const auditNo = (document.getElementById(prefix + '-auditNo')?.value || '').trim();
-  const qaScore = document.getElementById(prefix + '-displayScore')?.textContent || '';
+  const noAudit = document.getElementById(prefix + '-noAudit')?.checked || false;
+  const qaScore = noAudit ? 'N/A' : (document.getElementById(prefix + '-displayScore')?.textContent || '');
   // Legacy uses Chat ID + Chat Date/Time; Banyan keeps CTM Phone + Call Date/Time
   const ctmPhone = prefix === 'L'
     ? (document.getElementById('L-chatId')?.value || '').trim()
@@ -5333,8 +5470,14 @@ function logQAResult(prefix) {
     : (document.getElementById(prefix + '-callDateTime')?.value || '').trim();
   const auditDate = (document.getElementById(prefix + '-auditDate')?.value || '').trim();
 
-  if (!name || !auditNo || !week) {
-    showToast('Please fill in Agent, Audit No., and Week before logging.', true);
+  if (!name || !auditNo || !year || !month || !week) {
+    const missing = [];
+    if (!name) missing.push('Agent Name');
+    if (!auditNo) missing.push('Audit No.');
+    if (!year) missing.push('Year');
+    if (!month) missing.push('Month');
+    if (!week) missing.push('Week');
+    showToast('Required fields missing: ' + missing.join(', '), true);
     return;
   }
   if (!QA_LOG_SCRIPT_URL || QA_LOG_SCRIPT_URL.indexOf('PASTE_YOUR') === 0) {
@@ -5362,6 +5505,7 @@ function logQAResult(prefix) {
   fd.append('ctmPhone', ctmPhone);
   fd.append('callDateTime', callDateTime);
   fd.append('auditDate', auditDate);
+  fd.append('noAudit', noAudit ? 'Yes' : 'No');
 
   fetch(QA_LOG_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: fd })
     .then(() => {
@@ -5410,9 +5554,65 @@ function resetForm(prefix) {
   const btn = document.getElementById(prefix + '-logBtn');
   if (btn) { btn.disabled = false; btn.textContent = '📤 Log QA Result'; btn.style.background = ''; btn.title = ''; }
 
+  // Reset No Audit checkbox
+  const noAuditCb = document.getElementById(prefix + '-noAudit');
+  if (noAuditCb) { noAuditCb.checked = false; }
+  applyNoAuditState(prefix, false);
+
   updateScore(prefix);
   applyZTPGreyout(prefix);
   updateCompletion(prefix);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NO AUDIT TOGGLE
+═══════════════════════════════════════════════════════════ */
+function toggleNoAudit(prefix) {
+  const cb = document.getElementById(prefix + '-noAudit');
+  const isChecked = cb ? cb.checked : false;
+  applyNoAuditState(prefix, isChecked);
+}
+
+function applyNoAuditState(prefix, isActive) {
+  const scoreTab = document.getElementById(prefix + '-tab-scorecard');
+  const warning = document.getElementById(prefix + '-noAuditWarning');
+  const scoreEl = document.getElementById(prefix + '-displayScore');
+  const perfEl  = document.getElementById(prefix + '-perfLabel');
+  const bar     = document.getElementById(prefix + '-progressBar');
+  const compBar = document.getElementById(prefix + '-completionBar');
+  const compPct = document.getElementById(prefix + '-completionPct');
+
+  if (isActive) {
+    // Apply N/A state
+    if (scoreTab) scoreTab.classList.add('no-audit-active');
+    if (warning)  warning.classList.add('visible');
+    if (scoreEl)  { scoreEl.textContent = 'N/A'; scoreEl.classList.add('na-score'); }
+    if (perfEl)   { perfEl.textContent = 'No Audit'; perfEl.className = 'score-perf-label perf-na'; }
+    if (bar)      { bar.style.width = '0%'; bar.style.background = 'var(--na)'; }
+    if (compBar)  { compBar.style.width = '100%'; compBar.style.background = 'var(--na)'; }
+    if (compPct)  compPct.textContent = 'N/A';
+    // Update section status indicators
+    ['s1','s2','s3','s4','s5','s6'].forEach(sid => {
+      const accEl  = document.getElementById(prefix + '-pts-' + sid);
+      const sideEl = document.getElementById(prefix + '-side-' + sid);
+      if (accEl)  { accEl.textContent = 'N/A'; accEl.className = 'acc-status'; }
+      if (sideEl) { sideEl.textContent = 'N/A'; sideEl.className = 'score-section-pts'; }
+    });
+  } else {
+    // Remove N/A state and restore normal scoring
+    if (scoreTab) scoreTab.classList.remove('no-audit-active');
+    if (warning)  warning.classList.remove('visible');
+    if (scoreEl)  scoreEl.classList.remove('na-score');
+    // Re-run scoring to restore accurate values
+    if (prefix === 'T') {
+      updateScoreT();
+      updateCompletionT();
+    } else {
+      updateScore(prefix);
+      applyZTPGreyout(prefix);
+      updateCompletion(prefix);
+    }
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -5734,10 +5934,11 @@ function savePDF(prefix) {
   const auditorSig    = inputs[0]?.value || '';
 
   // ── live score ───────────────────────────────────────────
+  const noAuditPdf = document.getElementById(prefix + '-noAudit')?.checked || false;
   const scoreEl = document.getElementById(prefix + '-displayScore');
-  const score   = scoreEl ? scoreEl.textContent : '—';
+  const score   = noAuditPdf ? 'N/A' : (scoreEl ? scoreEl.textContent : '—');
   const perfEl  = document.getElementById(prefix + '-perfLabel');
-  const perf    = perfEl ? perfEl.textContent : '';
+  const perf    = noAuditPdf ? 'No Audit — N/A' : (perfEl ? perfEl.textContent : '');
 
   // ── build table rows HTML ────────────────────────────────
   let tableHTML = '';
@@ -6425,14 +6626,16 @@ function refreshDashPage() {
           const normW = /^\d$/.test(raw) ? 'Week '+raw : (/^Week\s*\d$/i.test(raw) ? 'Week '+raw.replace(/\D/g,'') : raw);
           return name === a && normW === w;
         });
+        const wkAllRawScores = wkRows.map(r => (r[7]||'').toString().trim().toUpperCase());
+        const allNA = wkRows.length > 0 && wkAllRawScores.every(s => s === 'N/A');
         const wkScores = wkRows.map(r => parseScore(r[7])).filter(s => s !== null);
         const wkAvg = wkScores.length ? wkScores.reduce((x,y)=>x+y,0)/wkScores.length : null;
 
         agentTotalScore += wkScores.reduce((x,y)=>x+y,0);
         agentTotalCount += wkScores.length;
 
-        const cls = qaScoreCls(wkAvg);
-        const lbl = wkAvg !== null ? wkAvg.toFixed(2)+'%' : '—';
+        const cls = allNA ? 'qa-none' : qaScoreCls(wkAvg);
+        const lbl = allNA ? '<span class="score-na-pill" style="font-size:10px">N/A</span>' : (wkAvg !== null ? wkAvg.toFixed(2)+'%' : '—');
 
         // Build per-audit breakdown for tooltip
         let tipHtml = '';
@@ -6455,6 +6658,8 @@ function refreshDashPage() {
               <span class="qa-tip-avg-score ${avgCls}">${wkAvg.toFixed(2)}%</span>
             </div>
           </div>`;
+        } else if (allNA) {
+          tipHtml = `<div class="qa-breakdown-tip"><div class="qa-tip-header">No Audit logged for this week</div><div style="padding:4px 0;font-size:11px;color:var(--text-tertiary)">Score recorded as N/A — not included in averages.</div></div>`;
         }
 
         cells += `<td><span class="qa-cell-wrap"><span class="qa-score-pill ${cls}">${lbl}</span>${tipHtml}</span></td>`;
@@ -6800,10 +7005,13 @@ function renderAgentProfile() {
       const month = (r[3]||'').trim();
       const week  = normWeek(r[4]);
       const s     = parseScore(r[7]);
-      if (s === null || !week) return;
+      const rawScore = (r[7]||'').toString().trim();
+      const isNA  = rawScore.toUpperCase() === 'N/A';
+      if (s === null && !isNA) return;
+      if (!week) return;
       const key = isAllMonths ? `${month} · ${week}` : week;
       if (!groupMap.has(key)) groupMap.set(key, { month, week, audits: [] });
-      groupMap.get(key).audits.push({ score: s, auditNo: r[6]||'' });
+      groupMap.get(key).audits.push({ score: s, auditNo: r[6]||'', isNA });
     });
 
     // Sort keys: by month order then week order
@@ -6829,8 +7037,9 @@ function renderAgentProfile() {
 
     const cards = sortedKeys.map(key => {
       const { month, week, audits } = groupMap.get(key);
-      const sum = audits.reduce((s,a)=>s+a.score,0);
-      const avg = sum / audits.length;
+      const scoredAudits = audits.filter(a => !a.isNA && a.score !== null);
+      const sum = scoredAudits.reduce((s,a)=>s+a.score,0);
+      const avg = scoredAudits.length > 0 ? sum / scoredAudits.length : null;
       const avgCls = wbcCls(avg);
 
       // Header label: show month when all-months view
@@ -6838,10 +7047,11 @@ function renderAgentProfile() {
       const subLabel   = isAllMonths ? `<span class="wbc-month-tag">${month}</span>` : '';
 
       const auditRowsHtml = audits.map((a, i) => {
-        const aCls = wbcCls(a.score);
+        const aCls = a.isNA ? 'qa-none' : wbcCls(a.score);
+        const scoreDisplay = a.isNA ? '<span class="score-na-pill">N/A</span>' : `<span class="wbc-audit-score qa-score-pill ${aCls}">${a.score}%</span>`;
         return `<div class="wbc-audit-row">
           <span class="wbc-audit-label">Audit ${i+1}</span>
-          <span class="wbc-audit-score qa-score-pill ${aCls}">${a.score}%</span>
+          ${scoreDisplay}
         </div>`;
       }).join('');
 
@@ -6857,7 +7067,7 @@ function renderAgentProfile() {
         <div class="wbc-divider"></div>
         <div class="wbc-avg-row">
           <span class="wbc-avg-label">Avg</span>
-          <span class="wbc-avg-score qa-score-pill ${avgCls}">${avg.toFixed(2)}%</span>
+          <span class="wbc-avg-score qa-score-pill ${avgCls}">${avg !== null ? avg.toFixed(2)+'%' : 'N/A'}</span>
         </div>
       </div>`;
     }).join('');
@@ -6872,15 +7082,22 @@ function renderAgentProfile() {
     histTbody.innerHTML = [...rows].reverse().map(r => {
       const s = parseScore(r[7]);
       const t = scoreTier(s);
-      const scoreHtml = s !== null
-        ? `<span class="inline-score-badge" style="background:${tierColor(t)}22;color:${tierColor(t)}">${s}%</span>`
-        : '<span style="color:var(--text-tertiary)">—</span>';
+      const rawScore = (r[7]||'').toString().trim();
+      const isNoAuditRow = rawScore.toUpperCase() === 'N/A';
+      const scoreHtml = isNoAuditRow
+        ? '<span class="score-na-pill">N/A</span>'
+        : s !== null
+          ? `<span class="inline-score-badge" style="background:${tierColor(t)}22;color:${tierColor(t)}">${s}%</span>`
+          : '<span style="color:var(--text-tertiary)">—</span>';
+      const tierDisplay = isNoAuditRow
+        ? '<span style="font-size:11px;font-weight:600;color:var(--na)">No Audit</span>'
+        : `<span style="font-size:11px;font-weight:600;color:${tierColor(t)}">${tierLabel(t)}</span>`;
       return `<tr>
         <td>${r[10]||r[0]||'—'}</td>
         <td>${r[6]||'—'}</td>
         <td>${r[4]||'—'}</td>
         <td>${scoreHtml}</td>
-        <td><span style="font-size:11px;font-weight:600;color:${tierColor(t)}">${tierLabel(t)}</span></td>
+        <td>${tierDisplay}</td>
         <td>${r[12]||'—'}</td>
         <td style="font-size:11px;color:var(--text-tertiary)">${r[8]||'—'}</td>
       </tr>`;
@@ -6999,7 +7216,12 @@ function getFilteredReportRows() {
 function applyReportFilters() {
   if (!sharedState.loaded) return;
   const rows = getFilteredReportRows();
-  document.getElementById('rpt-record-count').textContent = rows.length + ' record' + (rows.length!==1?'s':'');
+  const naTotal = rows.filter(r => (r[7]||'').toString().trim().toUpperCase() === 'N/A').length;
+  const scored = rows.length - naTotal;
+  const countText = naTotal > 0
+    ? rows.length + ' record' + (rows.length!==1?'s':'') + ' (' + naTotal + ' N/A, not included in averages)'
+    : rows.length + ' record' + (rows.length!==1?'s':'');
+  document.getElementById('rpt-record-count').textContent = countText;
 
   const activePanel = document.querySelector('.report-panel.active');
   if (!activePanel) return;
@@ -7012,6 +7234,7 @@ function applyReportFilters() {
 }
 
 function renderReportOverview(rows) {
+  const naCount = rows.filter(r => (r[7]||'').toString().trim().toUpperCase() === 'N/A').length;
   const scores = rows.map(r=>parseScore(r[7])).filter(s=>s!==null);
   const avg = scores.length ? scores.reduce((a,b)=>a+b,0)/scores.length : null;
   const passes = scores.filter(s=>s>=87).length;
@@ -7518,8 +7741,14 @@ function logChatQAResult() {
   const auditDate = (document.getElementById('L-auditDate')?.value || '').trim();
   const qaScore = document.getElementById('LC-displayScore')?.textContent || '';
 
-  if (!name || !auditNo || !week) {
-    showToast('Please fill in Agent, Audit No., and Week before logging.', true);
+  if (!name || !auditNo || !year || !month || !week) {
+    const missing = [];
+    if (!name) missing.push('Agent Name');
+    if (!auditNo) missing.push('Audit No.');
+    if (!year) missing.push('Year');
+    if (!month) missing.push('Month');
+    if (!week) missing.push('Week');
+    showToast('Required fields missing: ' + missing.join(', '), true);
     return;
   }
   if (!QA_LOG_SCRIPT_URL || QA_LOG_SCRIPT_URL.indexOf('PASTE_YOUR') === 0) {
@@ -7897,6 +8126,11 @@ function resetFormT() {
   const btn = document.getElementById('T-logBtn');
   if (btn) { btn.disabled = false; btn.textContent = '📤 Log QA Result'; btn.style.background = ''; btn.title = ''; }
 
+  // Reset No Audit checkbox
+  const noAuditCbT = document.getElementById('T-noAudit');
+  if (noAuditCbT) { noAuditCbT.checked = false; }
+  applyNoAuditState('T', false);
+
   updateScoreT();
   updateCompletionT();
 }
@@ -7940,10 +8174,17 @@ function logQAResult(prefix) {
   const callId    = (document.getElementById('T-callId')?.value || '').trim();
   const callDT    = (document.getElementById('T-callDateTime')?.value || '').trim();
   const auditDate = (document.getElementById('T-auditDate')?.value || '').trim();
-  const qaScore   = document.getElementById('T-displayScore')?.textContent || '';
+  const noAuditT  = document.getElementById('T-noAudit')?.checked || false;
+  const qaScore   = noAuditT ? 'N/A' : (document.getElementById('T-displayScore')?.textContent || '');
 
-  if (!name || !auditNo || !week) {
-    showToast('Please fill in Agent, Audit No., and Week before logging.', true); return;
+  if (!name || !auditNo || !year || !month || !week) {
+    const missing = [];
+    if (!name) missing.push('Agent Name');
+    if (!auditNo) missing.push('Audit No.');
+    if (!year) missing.push('Year');
+    if (!month) missing.push('Month');
+    if (!week) missing.push('Week');
+    showToast('Required fields missing: ' + missing.join(', '), true); return;
   }
   if (!QA_LOG_SCRIPT_URL || QA_LOG_SCRIPT_URL.indexOf('PASTE_YOUR') === 0) {
     showToast("Logging isn't configured yet — add the Web App URL.", true); return;
@@ -7961,6 +8202,7 @@ function logQAResult(prefix) {
   fd.append('auditNo', auditNo); fd.append('week', week); fd.append('qaScore', qaScore);
   fd.append('campaign', 'Takahami'); fd.append('ctmPhone', callId);
   fd.append('callDateTime', callDT); fd.append('auditDate', auditDate);
+  fd.append('noAudit', noAuditT ? 'Yes' : 'No');
 
   fetch(QA_LOG_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: fd })
     .then(() => {
@@ -7990,8 +8232,9 @@ function resetForm(prefix) {
 
   function val(id) { const el = document.getElementById(id); return el ? (el.value || '') : ''; }
 
-  const score   = document.getElementById('T-displayScore')?.textContent || '—';
-  const perf    = document.getElementById('T-perfLabel')?.textContent || '';
+  const noAuditPdfT = document.getElementById('T-noAudit')?.checked || false;
+  const score   = noAuditPdfT ? 'N/A' : (document.getElementById('T-displayScore')?.textContent || '—');
+  const perf    = noAuditPdfT ? 'No Audit — N/A' : (document.getElementById('T-perfLabel')?.textContent || '');
   const agentName = val('T-agent') || '—';
 
   function fmtDT(str) {
