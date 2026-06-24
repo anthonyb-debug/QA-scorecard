@@ -8162,67 +8162,72 @@ sessionLogged['T'] = false;
 loggedCTMPhones['T'] = new Set();
 
 // Extend logQAResult to support prefix 'T'
-const _origLogQA = logQAResult;
-function logQAResult(prefix) {
-  if (prefix !== 'T') { _origLogQA(prefix); return; }
+// Use IIFE to capture the original at the correct time (avoids hoisting issue)
+;(function() {
+  var _origLogQA = logQAResult;
+  logQAResult = function logQAResult(prefix) {
+    if (prefix !== 'T') { _origLogQA(prefix); return; }
 
-  const year      = document.getElementById('T-year')?.value || '';
-  const month     = document.getElementById('T-month')?.value || '';
-  const week      = document.getElementById('T-week')?.value || '';
-  const name      = (document.getElementById('T-agent')?.value || '').trim();
-  const auditNo   = (document.getElementById('T-auditNo')?.value || '').trim();
-  const callId    = (document.getElementById('T-callId')?.value || '').trim();
-  const callDT    = (document.getElementById('T-callDateTime')?.value || '').trim();
-  const auditDate = (document.getElementById('T-auditDate')?.value || '').trim();
-  const noAuditT  = document.getElementById('T-noAudit')?.checked || false;
-  const qaScore   = noAuditT ? 'N/A' : (document.getElementById('T-displayScore')?.textContent || '');
+    var year      = document.getElementById('T-year')?.value || '';
+    var month     = document.getElementById('T-month')?.value || '';
+    var week      = document.getElementById('T-week')?.value || '';
+    var name      = (document.getElementById('T-agent')?.value || '').trim();
+    var auditNo   = (document.getElementById('T-auditNo')?.value || '').trim();
+    var callId    = (document.getElementById('T-callId')?.value || '').trim();
+    var callDT    = (document.getElementById('T-callDateTime')?.value || '').trim();
+    var auditDate = (document.getElementById('T-auditDate')?.value || '').trim();
+    var noAuditT  = document.getElementById('T-noAudit')?.checked || false;
+    var qaScore   = noAuditT ? 'N/A' : (document.getElementById('T-displayScore')?.textContent || '');
 
-  if (!name || !auditNo || !year || !month || !week) {
-    const missing = [];
-    if (!name) missing.push('Agent Name');
-    if (!auditNo) missing.push('Audit No.');
-    if (!year) missing.push('Year');
-    if (!month) missing.push('Month');
-    if (!week) missing.push('Week');
-    showToast('Required fields missing: ' + missing.join(', '), true); return;
-  }
-  if (!QA_LOG_SCRIPT_URL || QA_LOG_SCRIPT_URL.indexOf('PASTE_YOUR') === 0) {
-    showToast("Logging isn't configured yet — add the Web App URL.", true); return;
-  }
-  if (callId && loggedCTMPhones['T'].has(callId)) {
-    if (!confirm(`⚠ A record with Call ID "${callId}" has already been logged this session.\n\nLog it again anyway?`)) return;
-  }
+    if (!name || !auditNo || !year || !month || !week) {
+      var missing = [];
+      if (!name) missing.push('Agent Name');
+      if (!auditNo) missing.push('Audit No.');
+      if (!year) missing.push('Year');
+      if (!month) missing.push('Month');
+      if (!week) missing.push('Week');
+      showToast('Required fields missing: ' + missing.join(', '), true); return;
+    }
+    if (!QA_LOG_SCRIPT_URL || QA_LOG_SCRIPT_URL.indexOf('PASTE_YOUR') === 0) {
+      showToast("Logging isn't configured yet — add the Web App URL.", true); return;
+    }
+    if (callId && loggedCTMPhones['T'].has(callId)) {
+      if (!confirm('⚠ A record with Call ID "' + callId + '" has already been logged this session.\n\nLog it again anyway?')) return;
+    }
 
-  const btn = document.getElementById('T-logBtn');
-  const original = btn ? btn.textContent : '';
-  if (btn) { btn.disabled = true; btn.textContent = 'Logging…'; }
+    var btn = document.getElementById('T-logBtn');
+    var original = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = 'Logging…'; }
 
-  const fd = new FormData();
-  fd.append('year', year); fd.append('month', month); fd.append('name', name);
-  fd.append('auditNo', auditNo); fd.append('week', week); fd.append('qaScore', qaScore);
-  fd.append('campaign', 'Takahami'); fd.append('ctmPhone', callId);
-  fd.append('callDateTime', callDT); fd.append('auditDate', auditDate);
-  fd.append('noAudit', noAuditT ? 'Yes' : 'No');
+    var fd = new FormData();
+    fd.append('year', year); fd.append('month', month); fd.append('name', name);
+    fd.append('auditNo', auditNo); fd.append('week', week); fd.append('qaScore', qaScore);
+    fd.append('campaign', 'Takahami'); fd.append('ctmPhone', callId);
+    fd.append('callDateTime', callDT); fd.append('auditDate', auditDate);
+    fd.append('noAudit', noAuditT ? 'Yes' : 'No');
 
-  fetch(QA_LOG_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: fd })
-    .then(() => {
-      if (callId) loggedCTMPhones['T'].add(callId);
-      sessionLogged['T'] = true;
-      if (btn) { btn.disabled = true; btn.textContent = '✓ Logged'; btn.style.background = '#6b7280'; btn.title = 'Already logged. Reset to log a new entry.'; }
-      showToast('✓ Takahami QA result logged to the spreadsheet.');
-    })
-    .catch(() => {
-      showToast('⚠ Could not reach the log server.', true);
-      if (btn) { btn.disabled = false; btn.textContent = original; }
-    });
-}
+    fetch(QA_LOG_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: fd })
+      .then(function() {
+        if (callId) loggedCTMPhones['T'].add(callId);
+        sessionLogged['T'] = true;
+        if (btn) { btn.disabled = true; btn.textContent = '✓ Logged'; btn.style.background = '#6b7280'; btn.title = 'Already logged. Reset to log a new entry.'; }
+        showToast('✓ Takahami QA result logged to the spreadsheet.');
+      })
+      .catch(function() {
+        showToast('⚠ Could not reach the log server.', true);
+        if (btn) { btn.disabled = false; btn.textContent = original; }
+      });
+  };
+})();
 
 // Extend resetForm to support prefix 'T'
-const _origResetForm = resetForm;
-function resetForm(prefix) {
-  if (prefix !== 'T') { _origResetForm(prefix); return; }
-  resetFormT();
-}
+;(function() {
+  var _origResetForm = resetForm;
+  resetForm = function resetForm(prefix) {
+    if (prefix !== 'T') { _origResetForm(prefix); return; }
+    resetFormT();
+  };
+})();
 
 /* ═══════════════════════════════════════════════════════════
    TAKAHAMI — savePDF extension
