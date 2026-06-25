@@ -2495,6 +2495,23 @@ body {
 .report-panel { display: none; }
 .report-panel.active { display: block; }
 
+/* ── Export week toggle buttons ── */
+.exp-week-btn {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.13s;
+  user-select: none;
+}
+.exp-week-btn:hover { background: var(--surface); color: var(--text-primary); border-color: var(--text-tertiary); }
+.exp-week-btn.active { background: var(--legacy); color: #fff; border-color: var(--legacy); }
+
 /* ═══════════════════════════════════════════════════════════
    AGENT PROFILE PAGE
 ═══════════════════════════════════════════════════════════ */
@@ -3130,8 +3147,6 @@ body {
               <thead><tr><th class="col-num">#</th><th>Criterion</th><th class="col-type">Type</th><th class="col-compliance">Compliance</th><th class="col-ded">Ded.</th></tr></thead>
               <tbody>
                 <tr><td class="col-num">04</td><td><div class="criterion-title">Used Correct Decisioning Logic</div><div class="criterion-sub">Eligibility &amp; routing rules followed; no premature transfer</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
-                <tr><td class="col-num">05</td><td><div class="criterion-title">Delivered HIPAA Spiel Perfectly <em style="font-size:10px;color:var(--text-tertiary)">(if applicable)</em></div><div class="criterion-sub">Verbatim script; consent obtained</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
-                <tr><td class="col-num">06</td><td><div class="criterion-title">Provided Correct Facility Number per SF <em style="font-size:10px;color:var(--text-tertiary)">(if applicable)</em></div><div class="criterion-sub">Matches SF; no outdated contacts</div></td><td><span class="badge badge-minor">Minor</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Minor" data-val="0">0</span></td></tr>
                 <tr><td class="col-num">07</td><td><div class="criterion-title">Followed Correct Routing Based on Eligibility Logic</div><div class="criterion-sub">Transfer only when criteria met; non-qualified routed correctly</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
                 <tr><td class="col-num">08</td><td><div class="criterion-title">Offered Callback When Admissions Unavailable</div><div class="criterion-sub">Process explained; best number &amp; time confirmed</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
               </tbody>
@@ -3151,6 +3166,8 @@ body {
             <table class="criterion-table">
               <thead><tr><th class="col-num">#</th><th>Criterion</th><th class="col-type">Type</th><th class="col-compliance">Compliance</th><th class="col-ded">Ded.</th></tr></thead>
               <tbody>
+                <tr><td class="col-num">05</td><td><div class="criterion-title">Delivered HIPAA Spiel Perfectly <em style="font-size:10px;color:var(--text-tertiary)">(if applicable)</em></div><div class="criterion-sub">Verbatim script; consent obtained</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">06</td><td><div class="criterion-title">Provided Correct Facility Number per SF <em style="font-size:10px;color:var(--text-tertiary)">(if applicable)</em></div><div class="criterion-sub">Matches SF; no outdated contacts</div></td><td><span class="badge badge-minor">Minor</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Minor" data-val="0">0</span></td></tr>
                 <tr><td class="col-num">09</td><td><div class="criterion-title">Followed Protocols for Sensitive / Restricted Lookups</div><div class="criterion-sub">All follow-up questions asked; authority verified</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
                 <tr><td class="col-num">10</td><td><div class="criterion-title">Strict Compliance with Risk-Control Scripts</div><div class="criterion-sub">SI, overdose, abuse &amp; competitor/AA calls per script</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
                 <tr><td class="col-num">11</td><td><div class="criterion-title">Documentation Accuracy in Salesforce</div><div class="criterion-sub">Accurate summaries, correct dispositions</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('L',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('L',this,'no')" class="pill-btn">No</button><button onclick="sc('L',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
@@ -3211,10 +3228,10 @@ body {
         <div class="remarks-card">
           <div class="remarks-card-header"><span class="remarks-card-title">Remarks &amp; Coaching Notes</span></div>
           <div class="remarks-body">
-            <div class="full"><label>Call Summary</label><textarea placeholder="Brief summary of the call…" rows="3"></textarea></div>
-            <div><label>Priority Level</label><select><option>No Action Needed</option><option>Moderate – Monitor</option><option>High – Coaching Needed</option><option>Critical – Immediate Action Required</option></select></div>
-            <div><label>Auditor Signature</label><input type="text" placeholder="Full name"></div>
-            <div class="full"><label>Coaching Notes</label><textarea placeholder="Strengths, areas for improvement, and specific feedback…" rows="3"></textarea></div>
+            <div class="full"><label>Call Summary</label><textarea id="L-callSummary" placeholder="Brief summary of the call…" rows="3"></textarea></div>
+            <div><label>Priority Level</label><select id="L-priority"><option>No Action Needed</option><option>Moderate – Monitor</option><option>High – Coaching Needed</option><option>Critical – Immediate Action Required</option></select></div>
+            <div><label>Auditor Signature</label><input type="text" id="L-auditorSig" placeholder="Full name"></div>
+            <div class="full"><label>Coaching Notes</label><textarea id="L-coachingNotes" placeholder="Strengths, areas for improvement, and specific feedback…" rows="3"></textarea></div>
           </div>
         </div>
 
@@ -3531,7 +3548,7 @@ body {
         </div>
 
         <div class="score-actions">
-          <button class="btn btn-log" id="L-logBtn" onclick="logQAResult('L')">📤 Log QA Result</button>
+          <button class="btn btn-log" id="L-logBtn" disabled title="Fill in Agent, Audit No., Year, Month and Week first" onclick="logQAResult('L')">📤 Log QA Result</button>
           <button class="btn btn-primary-legacy" onclick="savePDF('L')">🖨 Print / Save PDF</button>
           <button class="btn btn-ghost" onclick="openSheet()">📊 QA Database</button>
           <button class="btn btn-ghost" onclick="resetForm('L')">↺ Reset Form</button>
@@ -3591,7 +3608,7 @@ body {
         </div>
 
         <div class="score-actions">
-          <button class="btn btn-log" id="LC-logBtn" onclick="logChatQAResult()">📤 Log Chat QA</button>
+          <button class="btn btn-log" id="LC-logBtn" disabled title="Fill in Agent, Audit No., Year, Month and Week first" onclick="logChatQAResult()">📤 Log Chat QA</button>
           <button class="btn btn-primary-legacy" onclick="saveChatPDF()">🖨 Print / Save PDF</button>
           <button class="btn btn-ghost" onclick="openSheet()">📊 QA Database</button>
           <button class="btn btn-ghost" onclick="resetChatForm()">↺ Reset Form</button>
@@ -3699,8 +3716,6 @@ body {
               <thead><tr><th class="col-num">#</th><th>Criterion</th><th class="col-type">Type</th><th class="col-compliance">Compliance</th><th class="col-ded">Ded.</th></tr></thead>
               <tbody>
                 <tr><td class="col-num">04</td><td><div class="criterion-title">Used Correct Decisioning Logic</div><div class="criterion-sub">Eligibility &amp; routing rules followed; no premature transfer</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
-                <tr><td class="col-num">05</td><td><div class="criterion-title">Delivered HIPAA Spiel Perfectly <em style="font-size:10px;color:var(--text-tertiary)">(if applicable)</em></div><div class="criterion-sub">Verbatim script; consent obtained</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
-                <tr><td class="col-num">06</td><td><div class="criterion-title">Provided Correct Facility Number per SF <em style="font-size:10px;color:var(--text-tertiary)">(if applicable)</em></div><div class="criterion-sub">Matches SF; no outdated contacts</div></td><td><span class="badge badge-minor">Minor</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Minor" data-val="0">0</span></td></tr>
                 <tr><td class="col-num">07</td><td><div class="criterion-title">Collected Required Hospital Referral Details <em style="font-size:10px;color:var(--text-tertiary)">(if applicable)</em></div><div class="criterion-sub">All applicable hospital referral info accurately gathered</div></td><td><span class="badge badge-minor">Minor</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Minor" data-val="0">0</span></td></tr>
                 <tr><td class="col-num">08</td><td><div class="criterion-title">Followed Correct Routing Based on Eligibility Logic</div><div class="criterion-sub">Transfer only when criteria met; non-qualified routed correctly</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
                 <tr><td class="col-num">09</td><td><div class="criterion-title">Offered Callback When Admissions Unavailable</div><div class="criterion-sub">Process explained; best number &amp; time confirmed</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
@@ -3721,6 +3736,8 @@ body {
             <table class="criterion-table">
               <thead><tr><th class="col-num">#</th><th>Criterion</th><th class="col-type">Type</th><th class="col-compliance">Compliance</th><th class="col-ded">Ded.</th></tr></thead>
               <tbody>
+                <tr><td class="col-num">05</td><td><div class="criterion-title">Delivered HIPAA Spiel Perfectly <em style="font-size:10px;color:var(--text-tertiary)">(if applicable)</em></div><div class="criterion-sub">Verbatim script; consent obtained</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
+                <tr><td class="col-num">06</td><td><div class="criterion-title">Provided Correct Facility Number per SF <em style="font-size:10px;color:var(--text-tertiary)">(if applicable)</em></div><div class="criterion-sub">Matches SF; no outdated contacts</div></td><td><span class="badge badge-minor">Minor</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Minor" data-val="0">0</span></td></tr>
                 <tr><td class="col-num">10</td><td><div class="criterion-title">Provided Correct Instructions for Sensitive Lookups</div><div class="criterion-sub">All follow-up questions asked; authority verified</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
                 <tr><td class="col-num">11</td><td><div class="criterion-title">Followed Required Scripts for Risk-Control Points</div><div class="criterion-sub">SI, overdose, abuse; competitor/AA calls per script</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
                 <tr><td class="col-num">12</td><td><div class="criterion-title">Documentation Accuracy in Salesforce</div><div class="criterion-sub">Accurate summaries, correct dispositions, no missing info</div></td><td><span class="badge badge-major">Major</span></td><td><div class="pill-toggle"><button onclick="sc('B',this,'yes')" class="pill-btn ay">Yes</button><button onclick="sc('B',this,'no')" class="pill-btn">No</button><button onclick="sc('B',this,'na')" class="pill-btn">N/A</button></div></td><td><span class="dv d0" data-type="Major" data-val="0">0</span></td></tr>
@@ -3780,10 +3797,10 @@ body {
         <div class="remarks-card focus-banyan">
           <div class="remarks-card-header"><span class="remarks-card-title">Remarks &amp; Coaching Notes</span></div>
           <div class="remarks-body">
-            <div class="full"><label>Call Summary</label><textarea placeholder="Brief summary of the call…" rows="3"></textarea></div>
-            <div><label>Priority Level</label><select><option>No Action Needed</option><option>Moderate – Monitor</option><option>High – Coaching Needed</option><option>Critical – Immediate Action Required</option></select></div>
-            <div><label>Auditor Signature</label><input type="text" placeholder="Full name"></div>
-            <div class="full"><label>Coaching Notes</label><textarea placeholder="Strengths, areas for improvement, and specific feedback…" rows="3"></textarea></div>
+            <div class="full"><label>Call Summary</label><textarea id="B-callSummary" placeholder="Brief summary of the call…" rows="3"></textarea></div>
+            <div><label>Priority Level</label><select id="B-priority"><option>No Action Needed</option><option>Moderate – Monitor</option><option>High – Coaching Needed</option><option>Critical – Immediate Action Required</option></select></div>
+            <div><label>Auditor Signature</label><input type="text" id="B-auditorSig" placeholder="Full name"></div>
+            <div class="full"><label>Coaching Notes</label><textarea id="B-coachingNotes" placeholder="Strengths, areas for improvement, and specific feedback…" rows="3"></textarea></div>
           </div>
         </div>
 
@@ -3947,7 +3964,7 @@ body {
         </div>
 
         <div class="score-actions">
-          <button class="btn btn-log" id="B-logBtn" onclick="logQAResult('B')">📤 Log QA Result</button>
+          <button class="btn btn-log" id="B-logBtn" disabled title="Fill in Agent, Audit No., Year, Month and Week first" onclick="logQAResult('B')">📤 Log QA Result</button>
           <button class="btn btn-primary-banyan" onclick="savePDF('B')">🖨 Print / Save PDF</button>
           <button class="btn btn-ghost" onclick="openSheet()">📊 QA Database</button>
           <button class="btn btn-ghost" onclick="resetForm('B')">↺ Reset Form</button>
@@ -4180,23 +4197,23 @@ body {
         <div class="score-panel-sections">
           <div class="score-section-row" onclick="jumpTo('T-sc-s1')">
             <div class="score-section-name"><span class="score-section-num section-num-takahami">I</span>Account Review</div>
-            <span class="score-section-pts" id="T-side-s1">7.3</span>
+            <span class="score-section-pts" id="T-side-s1">7.3 / 7.3</span>
           </div>
           <div class="score-section-row" onclick="jumpTo('T-sc-s2')">
             <div class="score-section-name"><span class="score-section-num section-num-takahami">II</span>Negotiation</div>
-            <span class="score-section-pts" id="T-side-s2">11.9</span>
+            <span class="score-section-pts" id="T-side-s2">11.9 / 11.9</span>
           </div>
           <div class="score-section-row" onclick="jumpTo('T-sc-s3')">
             <div class="score-section-name"><span class="score-section-num section-num-takahami">III</span>Appeal Process</div>
-            <span class="score-section-pts" id="T-side-s3">23.5</span>
+            <span class="score-section-pts" id="T-side-s3">23.5 / 23.5</span>
           </div>
           <div class="score-section-row" onclick="jumpTo('T-sc-s4')">
             <div class="score-section-name"><span class="score-section-num section-num-takahami">IV</span>Appeal FFUP</div>
-            <span class="score-section-pts" id="T-side-s4">20.6</span>
+            <span class="score-section-pts" id="T-side-s4">20.6 / 20.6</span>
           </div>
           <div class="score-section-row" onclick="jumpTo('T-sc-s5')">
             <div class="score-section-name"><span class="score-section-num section-num-takahami">V</span>Documentation</div>
-            <span class="score-section-pts" id="T-side-s5">36.7</span>
+            <span class="score-section-pts" id="T-side-s5">36.7 / 36.7</span>
           </div>
         </div>
 
@@ -4211,7 +4228,7 @@ body {
         </div>
 
         <div class="score-actions">
-          <button class="btn btn-log" id="T-logBtn" onclick="logQAResult('T')">📤 Log QA Result</button>
+          <button class="btn btn-log" id="T-logBtn" disabled title="Fill in Agent, Audit No., Year, Month and Week first" onclick="logQAResult('T')">📤 Log QA Result</button>
           <button class="btn btn-primary-takahami" onclick="savePDF('T')">🖨 Print / Save PDF</button>
           <button class="btn btn-ghost" onclick="openSheet()">📊 QA Database</button>
           <button class="btn btn-ghost" onclick="resetForm('T')">↺ Reset Form</button>
@@ -4685,6 +4702,7 @@ body {
       <button class="report-tab-btn" onclick="showReportTab('team',this)">👥 Team Performance</button>
       <button class="report-tab-btn" onclick="showReportTab('trends',this)">📈 QA Trends</button>
       <button class="report-tab-btn" onclick="showReportTab('auditor',this)">🔍 Auditor Activity</button>
+      <button class="report-tab-btn" onclick="showReportTab('export',this)" style="margin-left:auto">↓ Export CSV</button>
     </div>
 
     <!-- OVERVIEW TAB -->
@@ -4828,6 +4846,91 @@ body {
         </div>
       </div>
     </div>
+
+    <!-- EXPORT CSV TAB -->
+    <div class="report-panel" id="rpt-panel-export">
+
+      <!-- Intro banner -->
+      <div style="background:var(--legacy-light);border:1px solid var(--legacy-mid);border-radius:var(--radius-md);padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <div style="font-size:18px">📥</div>
+        <div>
+          <div style="font-size:12.5px;font-weight:700;color:var(--legacy)">Export Agent QA Data to CSV</div>
+          <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">Uses the same active filters (Campaign, Year, Month, Week, Agent) from the bar above. Pick your week selection below, then download.</div>
+        </div>
+      </div>
+
+      <!-- Week picker -->
+      <div class="panel" style="margin-bottom:16px">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Week Selection</div>
+            <div class="panel-subtitle">Toggle which weeks to include in the export</div>
+          </div>
+          <button onclick="exportToggleAllWeeks()" style="font-size:11px;font-weight:600;padding:5px 11px;border-radius:var(--radius-sm);border:1.5px dashed var(--border);background:transparent;color:var(--text-tertiary);cursor:pointer" onmouseover="this.style.color='var(--text-secondary)'" onmouseout="this.style.color='var(--text-tertiary)'">Toggle All</button>
+        </div>
+        <div style="padding:14px 20px;display:flex;gap:6px;flex-wrap:wrap" id="export-week-toggles">
+          <button class="exp-week-btn active" data-week="Week 1" onclick="exportToggleWeek(this)">Week 1</button>
+          <button class="exp-week-btn active" data-week="Week 2" onclick="exportToggleWeek(this)">Week 2</button>
+          <button class="exp-week-btn active" data-week="Week 3" onclick="exportToggleWeek(this)">Week 3</button>
+          <button class="exp-week-btn active" data-week="Week 4" onclick="exportToggleWeek(this)">Week 4</button>
+        </div>
+      </div>
+
+      <!-- Export actions -->
+      <div class="panel" style="margin-bottom:16px">
+        <div class="panel-header">
+          <div class="panel-title">Download</div>
+        </div>
+        <div style="padding:14px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <button onclick="runExportCSV(false)" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);border:none;background:var(--yes);color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+            ↓ Export Current Filters
+          </button>
+          <button onclick="runExportCSV(true)" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);border:none;background:#374151;color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+            ↓ Export All Campaigns (separate files)
+          </button>
+          <span id="export-record-count" style="font-size:11.5px;color:var(--text-tertiary);margin-left:auto"></span>
+        </div>
+        <div id="export-status" style="display:none;margin:0 20px 14px;padding:10px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:500"></div>
+      </div>
+
+      <!-- Preview table -->
+      <div class="panel" id="export-preview-card" style="display:none">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Preview</div>
+            <div class="panel-subtitle">First 100 rows shown · CSV includes all matching records</div>
+          </div>
+          <span id="export-preview-badge" style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--legacy-light);color:var(--legacy);border:1px solid var(--legacy-mid)">0 records</span>
+        </div>
+        <!-- Summary chips -->
+        <div style="padding:14px 20px 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px" id="export-summary-grid"></div>
+        <!-- Table -->
+        <div style="overflow-x:auto;padding:12px 20px 4px;max-height:440px;overflow-y:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead>
+              <tr id="export-preview-thead" style="position:sticky;top:0">
+                <th style="background:var(--surface-2);border-bottom:1.5px solid var(--border);padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary);white-space:nowrap">#</th>
+                <th style="background:var(--surface-2);border-bottom:1.5px solid var(--border);padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary);white-space:nowrap">Campaign</th>
+                <th style="background:var(--surface-2);border-bottom:1.5px solid var(--border);padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary);white-space:nowrap">Agent</th>
+                <th style="background:var(--surface-2);border-bottom:1.5px solid var(--border);padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary);white-space:nowrap">Year</th>
+                <th style="background:var(--surface-2);border-bottom:1.5px solid var(--border);padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary);white-space:nowrap">Month</th>
+                <th style="background:var(--surface-2);border-bottom:1.5px solid var(--border);padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary);white-space:nowrap">Week</th>
+                <th style="background:var(--surface-2);border-bottom:1.5px solid var(--border);padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary);white-space:nowrap">Audit No.</th>
+                <th style="background:var(--surface-2);border-bottom:1.5px solid var(--border);padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary);white-space:nowrap">QA Score</th>
+                <th style="background:var(--surface-2);border-bottom:1.5px solid var(--border);padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary);white-space:nowrap">Performance</th>
+                <th style="background:var(--surface-2);border-bottom:1.5px solid var(--border);padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary);white-space:nowrap">Audit Date</th>
+                <th style="background:var(--surface-2);border-bottom:1.5px solid var(--border);padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary);white-space:nowrap">Call Date/Time</th>
+                <th style="background:var(--surface-2);border-bottom:1.5px solid var(--border);padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary);white-space:nowrap">CTM Phone</th>
+                <th style="background:var(--surface-2);border-bottom:1.5px solid var(--border);padding:7px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-tertiary);white-space:nowrap">QA Auditor</th>
+              </tr>
+            </thead>
+            <tbody id="export-preview-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+    <!-- /rpt-panel-export -->
 
     <div class="dash-status error" id="rpt-status-msg" style="display:none;margin-top:12px"></div>
 
@@ -5394,8 +5497,8 @@ function applyZTPGreyout(prefix) {
 const QA_LOG_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw30tFD3QKzu6fz4rbUzqVOpWpFVqPJjgqDSl2QREQbidlr4N9hWaHYIZjMkIhouNr4/exec';
 const QA_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1GdFTdlaSgrE2y0ZSCGb_3VgUUsEoQeYIeHUDqP75anc/edit?usp=sharing';
 
-const loggedCTMPhones = { L: new Set(), B: new Set() };
-const sessionLogged = { L: false, B: false };
+const loggedCTMPhones = { L: new Set(), B: new Set(), LC: new Set(), T: new Set() };
+const sessionLogged = { L: false, B: false, LC: false, T: false };
 
 function openSheet() {
   window.open(QA_SHEET_URL, '_blank');
@@ -5486,6 +5589,8 @@ function logQAResult(prefix) {
   fd.append('callDateTime', callDateTime);
   fd.append('auditDate', auditDate);
   fd.append('noAudit', noAudit ? 'Yes' : 'No');
+  fd.append('teamLeader', (document.getElementById(prefix + '-teamLeader')?.value || '').trim());
+  fd.append('qaAuditor',  (document.getElementById(prefix + '-qaAuditor')?.value  || '').trim());
 
   fetch(QA_LOG_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: fd })
     .then(() => {
@@ -5603,7 +5708,7 @@ const QA_SPREADSHEET_ID = '1GdFTdlaSgrE2y0ZSCGb_3VgUUsEoQeYIeHUDqP75anc';
 const QA_LOG_SHEET_NAME = 'QA Log';
 // Columns in "QA Log": A Timestamp | B Campaign | C Year | D Month | E Week
 //                       F Agent Name | G Audit No. | H QA Score | I CTM Phone
-//                       J Call Date/Time | K Audit Date
+//                       J Call Date/Time | K Audit Date | L Team Leader | M QA Auditor
 
 const DASH_AGENTS = {
   L: ['Aban, Ma Melanie','Angel, Byron Jake','Bernardo, Sean','Buranis, Shenelyn','Dujale, John Vincent','Galong, Julia Mae','Lajo, Ella Mae','Lopez, Maria Nelia','Lumactod, Nikki','Magbanua, Rubie','Navarro, Stephanie','Padullano, Larinz','Perez, Karen','Rapis, Samuel','Regla, Ma Cecilia','Sagun, Rae','Villarta, Remington'],
@@ -5655,7 +5760,7 @@ function loadDashboardData(prefix) {
   statusEl.textContent = 'Loading audit data…';
   statusEl.className = 'dash-status';
 
-  const range = encodeURIComponent(`'${QA_LOG_SHEET_NAME}'!A2:K`);
+  const range = encodeURIComponent(`'${QA_LOG_SHEET_NAME}'!A2:M`);
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${QA_SPREADSHEET_ID}/values/${range}?key=${SHEETS_API_KEY}`;
 
   fetch(url)
@@ -5838,6 +5943,63 @@ function renderDashboard(prefix) {
 updateScore('L');
 updateScore('B');
 applyZTPGreyout('L');
+
+/* ─── S2: Real-time Log button validation ─────────────────
+   Enable the Log button only when all required fields are
+   filled; keeps users from hitting submit and getting a toast.
+─────────────────────────────────────────────────────────── */
+function checkLogReady(prefix) {
+  const name    = (document.getElementById(prefix + '-agent')?.value || '').trim();
+  const auditNo = (document.getElementById(prefix + '-auditNo')?.value || '').trim();
+  const year    = document.getElementById(prefix + '-year')?.value || '';
+  const month   = document.getElementById(prefix + '-month')?.value || '';
+  const week    = document.getElementById(prefix + '-week')?.value || '';
+  const noAudit = document.getElementById(prefix + '-noAudit')?.checked || false;
+  const alreadyLogged = sessionLogged[prefix] === true;
+  const btn = document.getElementById(prefix + '-logBtn');
+  if (!btn) return;
+  const ready = noAudit || (name && auditNo && year && month && week);
+  btn.disabled = !ready || alreadyLogged;
+  if (!alreadyLogged) {
+    btn.title = ready ? '' : 'Fill in Agent, Audit No., Year, Month and Week first';
+  }
+}
+
+function watchLogReady(prefix) {
+  const ids = [prefix+'-agent', prefix+'-auditNo', prefix+'-year', prefix+'-month', prefix+'-week', prefix+'-noAudit'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', () => checkLogReady(prefix));
+  });
+  checkLogReady(prefix);
+}
+
+['L','B','T','LC'].forEach(p => {
+  /* LC shares the L header fields */
+  const prefix = p === 'LC' ? 'L' : p;
+  if (p === 'LC') {
+    /* LC log button watches L's fields */
+    const lcBtn = document.getElementById('LC-logBtn');
+    if (lcBtn) {
+      ['L-agent','L-auditNo','L-year','L-month','L-week','L-noAudit'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', () => {
+          const name    = (document.getElementById('L-agent')?.value || '').trim();
+          const auditNo = (document.getElementById('L-auditNo')?.value || '').trim();
+          const year    = document.getElementById('L-year')?.value || '';
+          const month   = document.getElementById('L-month')?.value || '';
+          const week    = document.getElementById('L-week')?.value || '';
+          const noAudit = document.getElementById('L-noAudit')?.checked || false;
+          const ready = noAudit || (name && auditNo && year && month && week);
+          lcBtn.disabled = !ready || (sessionLogged['LC'] === true);
+          if (sessionLogged['LC'] !== true) lcBtn.title = ready ? '' : 'Fill in Agent, Audit No., Year, Month and Week first';
+        });
+      });
+    }
+  } else {
+    watchLogReady(p);
+  }
+});
 applyZTPGreyout('B');
 updateCompletion('L');
 updateCompletion('B');
@@ -5904,14 +6066,10 @@ function savePDF(prefix) {
   });
 
   // ── collect remarks ──────────────────────────────────────
-  const remarksCard = scorecardTab.querySelector('.remarks-card');
-  const textareas = remarksCard ? remarksCard.querySelectorAll('textarea') : [];
-  const selects   = remarksCard ? remarksCard.querySelectorAll('select') : [];
-  const inputs    = remarksCard ? remarksCard.querySelectorAll('input') : [];
-  const callSummary   = textareas[0]?.value || '';
-  const coachingNotes = textareas[1]?.value || '';
-  const priority      = selects[0]?.value || '';
-  const auditorSig    = inputs[0]?.value || '';
+  const callSummary   = document.getElementById(prefix + '-callSummary')?.value   || '';
+  const coachingNotes = document.getElementById(prefix + '-coachingNotes')?.value || '';
+  const priority      = document.getElementById(prefix + '-priority')?.value      || '';
+  const auditorSig    = document.getElementById(prefix + '-auditorSig')?.value    || '';
 
   // ── live score ───────────────────────────────────────────
   const noAuditPdf = document.getElementById(prefix + '-noAudit')?.checked || false;
@@ -6250,7 +6408,7 @@ function loadSharedData(callback) {
   if (sharedState.loading) return;
 
   sharedState.loading = true;
-  const range = encodeURIComponent(`'${QA_LOG_SHEET_NAME}'!A2:K`);
+  const range = encodeURIComponent(`'${QA_LOG_SHEET_NAME}'!A2:M`);
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${QA_SPREADSHEET_ID}/values/${range}?key=${SHEETS_API_KEY}`;
 
   fetch(url)
@@ -7120,7 +7278,221 @@ function showReportTab(tab, btn) {
   document.querySelectorAll('.report-tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('rpt-panel-' + tab).classList.add('active');
   btn.classList.add('active');
+  if (tab === 'export') { renderExportPreview(); return; }
   applyReportFilters();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   EXPORT CSV — integrated into Analytics & Reports
+═══════════════════════════════════════════════════════════ */
+
+/* Active week set for the export tab */
+const exportActiveWeeks = new Set(['Week 1','Week 2','Week 3','Week 4']);
+
+function exportToggleWeek(btn) {
+  const wk = btn.dataset.week;
+  if (exportActiveWeeks.has(wk)) { exportActiveWeeks.delete(wk); btn.classList.remove('active'); }
+  else { exportActiveWeeks.add(wk); btn.classList.add('active'); }
+  renderExportPreview();
+}
+
+function exportToggleAllWeeks() {
+  const allActive = exportActiveWeeks.size === 4;
+  document.querySelectorAll('.exp-week-btn').forEach(btn => {
+    if (allActive) { exportActiveWeeks.clear(); btn.classList.remove('active'); }
+    else { exportActiveWeeks.add(btn.dataset.week); btn.classList.add('active'); }
+  });
+  renderExportPreview();
+}
+
+function exportNormWk(raw) {
+  const s = (raw || '').toString().trim();
+  return /^\d$/.test(s) ? 'Week ' + s : s;
+}
+
+function exportPerfLabel(score) {
+  const raw = (score || '').toString().trim().toUpperCase();
+  if (raw === 'N/A' || raw === '') return 'N/A';
+  const n = parseFloat(score);
+  if (isNaN(n)) return 'N/A';
+  if (n === 100) return 'Excellent';
+  if (n >= 95) return 'Outstanding';
+  if (n >= 87) return 'Satisfactory';
+  if (n >= 81) return 'Needs Improvement';
+  return 'Poor';
+}
+
+function exportScoreColor(score) {
+  const n = parseFloat(score);
+  if (isNaN(n)) return 'var(--text-tertiary)';
+  if (n === 100) return 'var(--yes)';
+  if (n >= 95) return 'var(--minor)';
+  if (n >= 87) return 'var(--major)';
+  if (n >= 81) return '#c2410c';
+  return 'var(--ztp)';
+}
+
+function exportCampStyle(camp) {
+  const c = (camp || '').toLowerCase();
+  if (c === 'legacy') return 'background:var(--legacy-light);color:var(--legacy)';
+  if (c === 'banyan') return 'background:var(--banyan-light);color:var(--banyan)';
+  return 'background:var(--takahami-light);color:var(--takahami)';
+}
+
+function getExportRows(forceCampaign) {
+  let rows = getAllRows();
+  const campaign = forceCampaign || document.getElementById('rpt-campaign')?.value || 'all';
+  const year     = document.getElementById('rpt-year')?.value || 'all';
+  const month    = document.getElementById('rpt-month')?.value || 'all';
+  const agent    = document.getElementById('rpt-agent')?.value || 'all';
+
+  if (campaign !== 'all') rows = rows.filter(r => (r[1]||'').trim() === campaign);
+  if (year !== 'all') rows = rows.filter(r => String(r[2]||'').trim() === String(year));
+  if (month !== 'all') rows = rows.filter(r => (r[3]||'').trim() === month);
+  if (agent !== 'all') rows = rows.filter(r => (r[5]||'').trim() === agent);
+  if (exportActiveWeeks.size > 0) rows = rows.filter(r => exportActiveWeeks.has(exportNormWk(r[4])));
+  return rows;
+}
+
+function renderExportPreview() {
+  if (!sharedState.loaded) {
+    document.getElementById('export-record-count').textContent = 'Load data first — click ⟳ Refresh Data above';
+    document.getElementById('export-preview-card').style.display = 'none';
+    return;
+  }
+
+  const rows = getExportRows();
+  const countEl = document.getElementById('export-record-count');
+  countEl.textContent = rows.length + ' record' + (rows.length !== 1 ? 's' : '') + ' match current filters';
+
+  const card = document.getElementById('export-preview-card');
+  if (!rows.length) { card.style.display = 'none'; return; }
+  card.style.display = '';
+
+  document.getElementById('export-preview-badge').textContent = rows.length + ' record' + (rows.length !== 1 ? 's' : '');
+
+  /* Summary chips */
+  const scores = rows.map(r => parseScore(r[7])).filter(s => s !== null);
+  const avg = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : null;
+  const passRate = scores.length ? Math.round(scores.filter(s=>s>=87).length/scores.length*100) : null;
+  const fails = scores.filter(s=>s<=80).length;
+  const uniqueAgents = new Set(rows.map(r=>(r[5]||'').trim())).size;
+  const uniqueWeeks  = new Set(rows.map(r=>exportNormWk(r[4]))).size;
+
+  document.getElementById('export-summary-grid').innerHTML = [
+    [rows.length, 'Total Audits', ''],
+    [uniqueAgents, 'Agents', ''],
+    [avg !== null ? avg + '%' : '—', 'Avg Score', avg !== null ? exportScoreColor(avg) : ''],
+    [passRate !== null ? passRate + '%' : '—', 'Pass Rate', ''],
+    [fails, 'Critical Fails', fails > 0 ? 'color:var(--ztp)' : ''],
+    [uniqueWeeks, 'Weeks', ''],
+  ].map(([val, lbl, style]) => `
+    <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;text-align:center">
+      <div style="font-size:20px;font-weight:700;letter-spacing:-1px;line-height:1.1;font-variant-numeric:tabular-nums;${style}">${val}</div>
+      <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text-tertiary);margin-top:2px">${lbl}</div>
+    </div>`).join('');
+
+  /* Table rows */
+  const display = rows.slice(0, 100);
+  const tdBase = 'padding:7px 10px;border-bottom:1px solid var(--border);white-space:nowrap;font-size:12px';
+  document.getElementById('export-preview-tbody').innerHTML = display.map((r, i) => {
+    const camp  = (r[1]||'').trim();
+    const score = (r[7]||'').trim();
+    const perf  = exportPerfLabel(score);
+    return `<tr>
+      <td style="${tdBase};color:var(--text-tertiary)">${i+1}</td>
+      <td style="${tdBase}"><span style="display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;${exportCampStyle(camp)}">${camp}</span></td>
+      <td style="${tdBase};font-weight:600">${r[5]||'—'}</td>
+      <td style="${tdBase}">${r[2]||'—'}</td>
+      <td style="${tdBase}">${r[3]||'—'}</td>
+      <td style="${tdBase}">${exportNormWk(r[4])}</td>
+      <td style="${tdBase}">${r[6]||'—'}</td>
+      <td style="${tdBase};font-weight:700;font-variant-numeric:tabular-nums;color:${exportScoreColor(score)}">${score||'—'}</td>
+      <td style="${tdBase}">${perf}</td>
+      <td style="${tdBase}">${r[10]||'—'}</td>
+      <td style="${tdBase}">${r[9]||'—'}</td>
+      <td style="${tdBase}">${r[8]||'—'}</td>
+      <td style="${tdBase}">${r[12]||'—'}</td>
+    </tr>`;
+  }).join('') + (rows.length > 100 ? `<tr><td colspan="13" style="${tdBase};text-align:center;color:var(--text-tertiary);font-size:11px">… ${rows.length - 100} more rows not shown · CSV will include all</td></tr>` : '');
+}
+
+function runExportCSV(allCampaigns) {
+  if (!sharedState.loaded) {
+    showExportStatus('No data loaded. Click ⟳ Refresh Data first.', 'error'); return;
+  }
+
+  const year    = document.getElementById('rpt-year')?.value || 'all';
+  const month   = document.getElementById('rpt-month')?.value || 'all';
+  const agent   = document.getElementById('rpt-agent')?.value || 'all';
+
+  function buildFilename(camp) {
+    const parts = ['QA', camp.replace(/\s+/g,'-'), year !== 'all' ? year : 'AllYears'];
+    if (month !== 'all') parts.push(month);
+    const wkList = [...exportActiveWeeks].sort();
+    if (wkList.length < 4 && wkList.length > 0) parts.push('Wk' + wkList.map(w=>w.replace('Week ','')).join('-'));
+    if (agent !== 'all') parts.push(agent.replace(/[^a-zA-Z0-9]/g,'-').replace(/-+/g,'-'));
+    return parts.join('_') + '.csv';
+  }
+
+  function toCSV(rows) {
+    const headers = ['Timestamp','Campaign','Year','Month','Week','Agent Name','Audit No.','QA Score','Performance','Audit Date','Call Date/Time','CTM Phone','Team Leader','QA Auditor'];
+    const csvRows = [headers];
+    rows.forEach(r => {
+      csvRows.push([
+        r[0]||'', r[1]||'', r[2]||'', r[3]||'',
+        exportNormWk(r[4]),
+        r[5]||'', r[6]||'', r[7]||'',
+        exportPerfLabel(r[7]||''),
+        r[10]||'', r[9]||'', r[8]||'',
+        r[11]||'', r[12]||''
+      ].map(v => { const s=String(v); return s.includes(',')||s.includes('"')||s.includes('\n') ? '"'+s.replace(/"/g,'""')+'"' : s; }));
+    });
+    return csvRows.map(row=>row.join(',')).join('\r\n');
+  }
+
+  function triggerDownload(csv, filename) {
+    const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 5000);
+  }
+
+  if (allCampaigns) {
+    const campaigns = ['Legacy','Banyan','Takahami'];
+    let exported = 0;
+    const skipped = [];
+    campaigns.forEach(camp => {
+      const rows = getExportRows(camp);
+      if (rows.length > 0) { triggerDownload(toCSV(rows), buildFilename(camp)); exported++; }
+      else skipped.push(camp);
+    });
+    if (exported === 0) {
+      showExportStatus('No records found for any campaign with the current filters.', 'error');
+    } else {
+      const skipNote = skipped.length ? ' (' + skipped.join(', ') + ' had 0 records and were skipped)' : '';
+      showExportStatus('✓ Exported ' + exported + ' CSV file' + (exported>1?'s':'') + ' — one per campaign.' + skipNote, 'success');
+    }
+  } else {
+    const rows = getExportRows();
+    if (!rows.length) { showExportStatus('No records match the current filters.', 'error'); return; }
+    const camp = document.getElementById('rpt-campaign')?.value || 'all';
+    triggerDownload(toCSV(rows), buildFilename(camp === 'all' ? 'All-Campaigns' : camp));
+    showExportStatus('✓ Exported ' + rows.length + ' records to CSV.', 'success');
+  }
+}
+
+function showExportStatus(msg, type) {
+  const el = document.getElementById('export-status');
+  el.style.display = '';
+  el.style.background = type === 'error' ? 'var(--ztp-bg)' : type === 'success' ? '#ecfdf5' : 'var(--legacy-light)';
+  el.style.color = type === 'error' ? 'var(--ztp)' : type === 'success' ? 'var(--yes)' : 'var(--legacy)';
+  el.style.border = type === 'error' ? '1px solid #fecaca' : type === 'success' ? '1px solid #d1fae5' : '1px solid var(--legacy-mid)';
+  el.textContent = msg;
+  setTimeout(() => { el.style.display = 'none'; }, 5000);
 }
 
 function loadAndRefreshReports() {
@@ -7132,6 +7504,7 @@ function loadAndRefreshReports() {
     // populate agent & auditor dropdowns
     populateReportSelects();
     applyReportFilters();
+    renderExportPreview(); // pre-render so Export tab shows instantly, no flicker
     markRefreshed('reports');
   });
 }
@@ -7211,6 +7584,7 @@ function applyReportFilters() {
   else if (panelId === 'rpt-panel-team') renderReportTeam(rows);
   else if (panelId === 'rpt-panel-trends') renderReportTrends(rows);
   else if (panelId === 'rpt-panel-auditor') renderReportAuditor(rows);
+  else if (panelId === 'rpt-panel-export') renderExportPreview();
 }
 
 function renderReportOverview(rows) {
@@ -7756,6 +8130,8 @@ Log it again anyway?`)) return;
   fd.append('ctmPhone', chatId);
   fd.append('callDateTime', chatDT);
   fd.append('auditDate', auditDate);
+  fd.append('teamLeader', (document.getElementById('L-teamLeader')?.value || '').trim());
+  fd.append('qaAuditor',  (document.getElementById('L-qaAuditor')?.value  || '').trim());
 
   fetch(QA_LOG_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: fd })
     .then(() => {
@@ -8033,7 +8409,7 @@ function updateScoreT() {
       accEl.className = 'acc-status ' + (secEarned >= sec.maxPts ? 'ok' : secEarned > 0 ? 'warn' : 'warn');
     }
     if (sideEl) {
-      sideEl.textContent = secEarned.toFixed(1);
+      sideEl.textContent = secEarned.toFixed(1) + ' / ' + sec.maxPts.toFixed(1);
       sideEl.className = 'score-section-pts' + (secEarned < sec.maxPts ? ' has-ded' : '');
     }
   });
@@ -8123,9 +8499,6 @@ function resetFormT() {
 /* ═══════════════════════════════════════════════════════════
    TAKAHAMI — logQAResult / resetForm extensions
 ═══════════════════════════════════════════════════════════ */
-sessionLogged['T'] = false;
-loggedCTMPhones['T'] = new Set();
-
 // Extend logQAResult to support prefix 'T'
 // Use IIFE to capture the original at the correct time (avoids hoisting issue)
 ;(function() {
@@ -8170,6 +8543,8 @@ loggedCTMPhones['T'] = new Set();
     fd.append('campaign', 'Takahami'); fd.append('ctmPhone', callId);
     fd.append('callDateTime', callDT); fd.append('auditDate', auditDate);
     fd.append('noAudit', noAuditT ? 'Yes' : 'No');
+    fd.append('teamLeader', (document.getElementById('T-teamLeader')?.value || '').trim());
+    fd.append('qaAuditor',  (document.getElementById('T-qaAuditor')?.value  || '').trim());
 
     fetch(QA_LOG_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: fd })
       .then(function() {
