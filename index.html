@@ -5626,14 +5626,20 @@ function resetForm(prefix) {
     s.className = 'dv d0';
   });
 
-  scoreTab.querySelectorAll('textarea, input[type=text], input[type=datetime-local], input[type=date]').forEach(el => el.value = '');
-  scoreTab.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+  // Clear only scorecard-internal textareas/inputs (not remarks fields)
+  const preserveIds = [
+    prefix + '-callSummary', prefix + '-chatSummary',
+    prefix + '-auditorSig', prefix + '-coachingNotes'
+  ];
+  scoreTab.querySelectorAll('textarea, input[type=text], input[type=datetime-local], input[type=date]').forEach(el => {
+    if (!preserveIds.includes(el.id)) el.value = '';
+  });
+  scoreTab.querySelectorAll('select').forEach(s => {
+    if (!preserveIds.includes(s.id)) s.selectedIndex = 0;
+  });
 
-  const metaBar = document.getElementById(prefix + '-metaBar');
-  if (metaBar) {
-    metaBar.querySelectorAll('input[type=text], input[type=datetime-local], input[type=date]').forEach(el => el.value = '');
-    metaBar.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
-  }
+  // Preserve all meta bar fields (Audit No., Agent, CTM Phone, Call Date/Time,
+  // Audit Date, Year, Month, Week, Team Leader, QA Auditor) — do not touch metaBar at all
 
   sessionLogged[prefix] = false;
   const btn = document.getElementById(prefix + '-logBtn');
@@ -8466,16 +8472,17 @@ function resetFormT() {
     dv.className = 'dv dw-yes';
   });
 
-  tab.querySelectorAll('textarea, input[type=text]').forEach(el => el.value = '');
-  tab.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+  // Clear only scorecard-internal fields, preserve remarks
+  const preserveIdsT = ['T-auditorSig', 'T-coachingNotes'];
+  tab.querySelectorAll('textarea, input[type=text]').forEach(el => {
+    if (!preserveIdsT.includes(el.id)) el.value = '';
+  });
+  tab.querySelectorAll('select').forEach(s => {
+    if (!preserveIdsT.includes(s.id)) s.selectedIndex = 0;
+  });
 
-  const metaBar = document.getElementById('T-metaBar');
-  if (metaBar) {
-    metaBar.querySelectorAll('input, select').forEach(el => {
-      if (el.tagName === 'SELECT') el.selectedIndex = 0;
-      else el.value = '';
-    });
-  }
+  // Preserve all meta bar fields (Audit No., Agent, CTM Phone, Call Date/Time,
+  // Audit Date, Year, Month, Week, Team Leader, QA Auditor) — do not touch metaBar at all
 
   sessionLogged['T'] = false;
   loggedCTMPhones['T'] = new Set();
