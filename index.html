@@ -5602,7 +5602,8 @@ function logQAResult(prefix) {
         btn.style.background = '#6b7280';
         btn.title = 'Already logged. Reset the form to log a new entry.';
       }
-      showToast('✓ QA result logged to the spreadsheet.');
+      showToast('✓ QA result logged to the spreadsheet. Saving PDF…');
+      setTimeout(() => savePDF(prefix), 400);
     })
     .catch(() => {
       showToast('⚠ Could not reach the log server. Check your connection.', true);
@@ -8149,7 +8150,8 @@ Log it again anyway?`)) return;
         btn.style.background = '#6b7280';
         btn.title = 'Already logged. Reset the form to log a new entry.';
       }
-      showToast('✓ Chat QA result logged to the spreadsheet.');
+      showToast('✓ Chat QA result logged to the spreadsheet. Saving PDF…');
+      setTimeout(() => saveChatPDF(), 400);
     })
     .catch(() => {
       showToast('⚠ Could not reach the log server. Check your connection.', true);
@@ -8558,7 +8560,8 @@ function resetFormT() {
         if (callId) loggedCTMPhones['T'].add(callId);
         sessionLogged['T'] = true;
         if (btn) { btn.disabled = true; btn.textContent = '✓ Logged'; btn.style.background = '#6b7280'; btn.title = 'Already logged. Reset to log a new entry.'; }
-        showToast('✓ Takahami QA result logged to the spreadsheet.');
+        showToast('✓ Takahami QA result logged to the spreadsheet. Saving PDF…');
+        setTimeout(() => savePDF('T'), 400);
       })
       .catch(function() {
         showToast('⚠ Could not reach the log server.', true);
