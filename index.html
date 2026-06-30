@@ -138,8 +138,8 @@
 }
 
 [data-theme="dark"] .top-nav {
-  background: rgba(20,23,24,0.92);
-  border-bottom-color: var(--border);
+  background: linear-gradient(120deg, #0a141f 0%, #142943 45%, #1f3f5c 100%);
+  border-bottom-color: rgba(255,255,255,0.08);
 }
 
 [data-theme="dark"] .header-legacy-bar {
@@ -170,12 +170,13 @@
 .theme-toggle {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 5px 11px;
+  padding: 6px 10px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--surface-2);
-  color: var(--text-secondary);
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.1);
+  color: #ffffff;
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
@@ -186,9 +187,8 @@
 }
 
 .theme-toggle:hover {
-  background: var(--surface);
-  color: var(--text-primary);
-  border-color: var(--text-tertiary);
+  background: rgba(255,255,255,0.18);
+  border-color: rgba(255,255,255,0.3);
 }
 
 .theme-toggle-icon {
@@ -217,11 +217,9 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255,255,255,0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  box-shadow: var(--shadow-xs);
+  background: linear-gradient(120deg, #0f1c2e 0%, #1c3a5e 45%, #2d5f8a 100%);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  box-shadow: var(--shadow-sm);
 }
 
 .top-nav-inner {
@@ -240,7 +238,7 @@ body {
   gap: var(--space-2);
   font-size: 13px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #ffffff;
   letter-spacing: -0.2px;
   white-space: nowrap;
 }
@@ -249,7 +247,8 @@ body {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--legacy);
+  background: #ffffff;
+  opacity: 0.85;
   transition: background 0.2s;
 }
 
@@ -257,9 +256,9 @@ body {
   display: flex;
   gap: 4px;
   padding: 3px;
-  background: var(--bg);
+  background: rgba(255,255,255,0.1);
   border-radius: var(--radius-md);
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255,255,255,0.12);
 }
 
 .brand-btn {
@@ -272,14 +271,14 @@ body {
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: rgba(255,255,255,0.7);
   cursor: pointer;
   background: transparent;
   transition: all 0.15s ease;
   white-space: nowrap;
 }
 
-.brand-btn:hover { background: var(--surface); color: var(--text-primary); }
+.brand-btn:hover { background: rgba(255,255,255,0.12); color: #ffffff; }
 
 .brand-btn.active-legacy {
   background: var(--legacy);
@@ -1569,6 +1568,154 @@ body {
 .toast.error { background: var(--ztp); }
 
 /* ═══════════════════════════════════════════════════════════
+   AUDIT TARGET WARNING MODAL — "Extra Audit Detected"
+   Calm, enterprise-style notice (not a system error) that guides
+   the auditor to resolve duplicate/extra audits in the source sheet.
+═══════════════════════════════════════════════════════════ */
+.audit-limit-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(17,24,39,0.45);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.audit-limit-overlay.show { opacity: 1; }
+
+.audit-limit-modal {
+  position: relative;
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-6) var(--space-6) var(--space-5);
+  transform: translateY(8px) scale(0.98);
+  transition: transform 0.15s ease;
+}
+
+.audit-limit-overlay.show .audit-limit-modal {
+  transform: translateY(0) scale(1);
+}
+
+.audit-limit-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.audit-limit-close:hover { background: var(--surface-2); color: var(--text-primary); }
+
+.audit-limit-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--major-bg);
+  border: 1px solid var(--major-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: var(--space-4);
+}
+
+.audit-limit-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.2px;
+  margin-bottom: 8px;
+}
+
+.audit-limit-desc {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.audit-limit-desc strong { color: var(--text-primary); font-weight: 600; }
+
+.audit-limit-count {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--major);
+  background: var(--major-bg);
+  border: 1px solid var(--major-border);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  margin-bottom: var(--space-4);
+}
+
+.audit-limit-guidance {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  margin-bottom: var(--space-5);
+}
+
+.audit-limit-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.audit-limit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.audit-limit-btn-primary {
+  background: var(--text-primary);
+  color: var(--surface);
+}
+
+.audit-limit-btn-primary:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+
+.audit-limit-btn-text {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.audit-limit-btn-text:hover { background: var(--surface-2); color: var(--text-primary); }
+
+/* ═══════════════════════════════════════════════════════════
    TAKAHAMI — Purple brand tokens & scorecard-specific styles
 ═══════════════════════════════════════════════════════════ */
 :root {
@@ -1728,14 +1875,14 @@ body {
   font-family: inherit;
   font-size: 12px;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: rgba(255,255,255,0.7);
   cursor: pointer;
   background: transparent;
   transition: all 0.15s;
   white-space: nowrap;
 }
-.app-nav-btn:hover { background: var(--surface-2); color: var(--text-primary); border-color: var(--border); }
-.app-nav-btn.active { background: var(--legacy-light); color: var(--legacy); border-color: var(--legacy-mid); font-weight: 600; }
+.app-nav-btn:hover { background: rgba(255,255,255,0.12); color: #ffffff; border-color: rgba(255,255,255,0.15); }
+.app-nav-btn.active { background: rgba(255,255,255,0.16); color: #ffffff; border-color: rgba(255,255,255,0.22); font-weight: 600; }
 .app-nav-btn .nav-icon { font-size: 13px; line-height: 1; }
 
 /* Global page panels */
@@ -2159,6 +2306,8 @@ body {
 .wk-missing { background: var(--ztp-bg); color: var(--ztp); }
 .wk-na { background: var(--bg); color: var(--text-tertiary); font-weight: 400; }
 .wk-over { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; font-weight: 700; }
+.cov-spark-wrap { display: flex; align-items: center; justify-content: flex-end; }
+.cov-spark-none { font-size: 11px; color: var(--text-tertiary); }
 
 /* QA score cells */
 .qa-score-pill {
@@ -3038,9 +3187,8 @@ body {
         <span class="nav-icon">📖</span> QA Guide
       </button>
     </div>
-    <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle dark/light mode">
+    <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme">
       <span class="theme-toggle-icon" id="theme-icon">🌙</span>
-      <span id="theme-label">Dark</span>
     </button>
   </div>
 </nav>
@@ -4393,7 +4541,7 @@ body {
       <div class="coverage-wrap">
         <table class="coverage-table">
           <thead id="dash-coverage-thead">
-            <tr><th class="agent-th">Agent</th><th>Wk 1</th><th>Wk 2</th><th>Wk 3</th><th>Wk 4</th><th>Wk 5</th><th>Total</th><th>Status</th></tr>
+            <tr><th class="agent-th">Agent</th><th>Wk 1</th><th>Wk 2</th><th>Wk 3</th><th>Wk 4</th><th>Wk 5</th><th>Total</th><th>Status</th><th>Score Trend</th></tr>
           </thead>
           <tbody id="dash-coverage-tbody">
             <tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text-tertiary);font-size:12px">Click Refresh to load audit data</td></tr>
@@ -5207,6 +5355,29 @@ body {
 
 <div class="toast" id="qa-toast"></div>
 
+<div class="audit-limit-overlay" id="audit-limit-overlay" onclick="if (event.target === event.currentTarget) closeAuditLimitModal()">
+  <div class="audit-limit-modal" role="alertdialog" aria-labelledby="audit-limit-title" aria-describedby="audit-limit-desc">
+    <button class="audit-limit-close" id="audit-limit-close-btn" onclick="closeAuditLimitModal()" aria-label="Close">✕</button>
+    <div class="audit-limit-icon">⚠️</div>
+    <div class="audit-limit-title" id="audit-limit-title">Extra audit detected</div>
+    <div class="audit-limit-desc" id="audit-limit-desc">
+      You've already completed the required audits for <strong id="audit-limit-agent-name"></strong> in <strong id="audit-limit-week-label"></strong>.
+    </div>
+    <div class="audit-limit-count" id="audit-limit-count-label"></div>
+    <div class="audit-limit-guidance">
+      Please check the Google Sheet and remove any duplicate or extra audit entry before submitting another audit for this agent and week.
+    </div>
+    <div class="audit-limit-actions">
+      <a class="audit-limit-btn audit-limit-btn-primary" id="audit-limit-sheet-link" href="#" target="_blank" rel="noopener" onclick="closeAuditLimitModal()">
+        Review in Google Sheet
+      </a>
+      <button class="audit-limit-btn audit-limit-btn-text" id="audit-limit-log-anyway-btn">
+        Log it anyway
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ═══════════════════════════════════════════════════════════
    THEME TOGGLE
@@ -5216,7 +5387,6 @@ function toggleTheme() {
   const newTheme = isDark ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', newTheme);
   document.getElementById('theme-icon').textContent = newTheme === 'dark' ? '☀️' : '🌙';
-  document.getElementById('theme-label').textContent = newTheme === 'dark' ? 'Light' : 'Dark';
   try { localStorage.setItem('qa-theme', newTheme); } catch(e) {}
 }
 
@@ -5229,9 +5399,7 @@ function toggleTheme() {
       // Will update button after DOM ready
       document.addEventListener('DOMContentLoaded', function() {
         const icon = document.getElementById('theme-icon');
-        const label = document.getElementById('theme-label');
         if (icon) icon.textContent = '☀️';
-        if (label) label.textContent = 'Light';
       });
     }
   } catch(e) {}
@@ -5573,6 +5741,12 @@ function logQAResult(prefix) {
     if (!confirm(`⚠ A record with ${dupLabel} "${ctmPhone}" has already been logged this session.\n\nLog it again anyway?`)) return;
   }
 
+  checkAuditTargetBeforeLog(prefix, brand, year, month, week, name, () => {
+    _submitQAResult(prefix, brand, year, month, week, name, auditNo, qaScore, noAudit, ctmPhone, callDateTime, auditDate);
+  });
+}
+
+function _submitQAResult(prefix, brand, year, month, week, name, auditNo, qaScore, noAudit, ctmPhone, callDateTime, auditDate) {
   const btn = document.getElementById(prefix + '-logBtn');
   const original = btn ? btn.textContent : '';
   if (btn) { btn.disabled = true; btn.textContent = 'Logging…'; }
@@ -5729,6 +5903,107 @@ const dashState = {
 };
 const REQUIRED_PER_WEEK = 3;   // QA audits required per agent per week (Legacy & Banyan)
 const REQUIRED_PER_WEEK_T = 2; // QA audits required per agent per week (Takahami)
+
+/* ═══════════════════════════════════════════════════════════
+   AUDIT TARGET VALIDATION — Extra Audit Detection
+   Checks how many audits already exist for an agent/week before
+   a new one is submitted, and warns the auditor if the required
+   target has already been met or exceeded.
+═══════════════════════════════════════════════════════════ */
+function normalizeWeekValue(raw) {
+  const s = (raw || '').toString().trim();
+  if (/^\d$/.test(s)) return 'Week ' + s;
+  if (/^Week\s*\d$/i.test(s)) return 'Week ' + s.replace(/\D/g, '');
+  return s;
+}
+
+function countExistingAudits(brand, year, month, week, agentName) {
+  const normTarget = normalizeWeekValue(week);
+  return getAllRows().filter(r => {
+    const rBrand = (r[1] || '').trim();
+    const rYear  = String(r[2] || '').trim();
+    const rMonth = (r[3] || '').trim();
+    const rWeek  = normalizeWeekValue(r[4]);
+    const rName  = (r[5] || '').trim();
+    return rBrand === brand &&
+      rYear === String(year) &&
+      rMonth === month &&
+      rWeek === normTarget &&
+      rName === agentName;
+  }).length;
+}
+
+// Auditors that have been explicitly cleared to log one more audit this
+// session despite already meeting their target (set by the modal's
+// "Log it anyway" action). Cleared once the audit is actually submitted.
+const auditLimitBypass = {};
+
+function checkAuditTargetBeforeLog(prefix, brand, year, month, week, agentName, onProceed) {
+  const bypassKey = prefix + '|' + brand + '|' + year + '|' + month + '|' + week + '|' + agentName;
+  if (auditLimitBypass[bypassKey]) {
+    delete auditLimitBypass[bypassKey];
+    onProceed();
+    return;
+  }
+
+  // If the shared sheet data hasn't been loaded yet, there is nothing to
+  // check against — proceed without blocking the auditor's workflow.
+  if (!sharedState.loaded || !agentName || !week) {
+    onProceed();
+    return;
+  }
+
+  const required = prefix === 'T' ? REQUIRED_PER_WEEK_T : REQUIRED_PER_WEEK;
+  const existing = countExistingAudits(brand, year, month, week, agentName);
+
+  if (existing >= required) {
+    showAuditLimitModal({
+      agentName, week, existing, required,
+      onLogAnyway: () => {
+        auditLimitBypass[bypassKey] = true;
+        onProceed();
+      }
+    });
+    return;
+  }
+
+  onProceed();
+}
+
+function showAuditLimitModal(opts) {
+  const overlay = document.getElementById('audit-limit-overlay');
+  const sheetLink = document.getElementById('audit-limit-sheet-link');
+  document.getElementById('audit-limit-agent-name').textContent = opts.agentName;
+  document.getElementById('audit-limit-week-label').textContent = opts.week;
+  document.getElementById('audit-limit-count-label').textContent =
+    `${opts.existing} of ${opts.required} required audit${opts.required !== 1 ? 's' : ''} already logged`;
+  if (sheetLink) {
+    sheetLink.href = (typeof QA_SHEET_URL !== 'undefined' && QA_SHEET_URL) ? QA_SHEET_URL : '#';
+  }
+
+  const logAnywayBtn = document.getElementById('audit-limit-log-anyway-btn');
+  const newLogAnywayBtn = logAnywayBtn.cloneNode(true);
+  logAnywayBtn.parentNode.replaceChild(newLogAnywayBtn, logAnywayBtn);
+  newLogAnywayBtn.addEventListener('click', () => {
+    closeAuditLimitModal();
+    opts.onLogAnyway();
+  });
+
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => overlay.classList.add('show'));
+}
+
+function closeAuditLimitModal() {
+  const overlay = document.getElementById('audit-limit-overlay');
+  overlay.classList.remove('show');
+  setTimeout(() => { overlay.style.display = 'none'; }, 150);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const overlay = document.getElementById('audit-limit-overlay');
+  if (overlay && overlay.classList.contains('show')) closeAuditLimitModal();
+});
 
 function populateDashYearMonth(prefix) {
   const yearSel = document.getElementById(prefix + '-dash-year');
@@ -6566,10 +6841,6 @@ function refreshDashPage() {
     if (counts[a] && counts[a].hasOwnProperty(w)) counts[a][w]++;
   });
 
-  const now = new Date();
-  const isCurrentMonth = (Number(year) === now.getFullYear()) &&
-    (['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()] === month);
-  const todayWeekNum = Math.min(4, Math.ceil(now.getDate()/7));
   const weeksWithData = new Set();
   filtered.forEach(r => {
     if (r[4]) {
@@ -6579,17 +6850,10 @@ function refreshDashPage() {
     }
   });
   const allWks = ['Week 1','Week 2','Week 3','Week 4'];
-  const reqWks = allWks.filter((w,idx) => {
-    const wn = idx+1;
-    if (weeksWithData.has(w)) return true;
-    if (isCurrentMonth && wn <= todayWeekNum) return true;
-    if (!isCurrentMonth) {
-      const mi = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].indexOf(month);
-      if (Number(year) < now.getFullYear()) return true;
-      if (mi < now.getMonth()) return true;
-    }
-    return false;
-  });
+  // A week is shown only once it actually has logged audit data — this
+  // applies uniformly to past, current, and future months. No week is
+  // fabricated ahead of time based on today's date or calendar position.
+  const reqWks = allWks.filter(w => weeksWithData.has(w));
 
   let totalReq=0, totalMet=0, agentsOnTrack=0;
   agents.forEach(a => {
@@ -6690,12 +6954,61 @@ function refreshDashPage() {
   }
 
   // ── Coverage table ──
+  function agentWeekAvg(agentName, week) {
+    const wkRows = filtered.filter(r => {
+      const name = (r[5]||'').trim();
+      const raw  = (r[4]||'').toString().trim();
+      const normW = /^\d$/.test(raw) ? 'Week '+raw : (/^Week\s*\d$/i.test(raw) ? 'Week '+raw.replace(/\D/g,'') : raw);
+      return name === agentName && normW === week;
+    });
+    const sc = wkRows.map(r => parseScore(r[7])).filter(s => s !== null);
+    return sc.length ? sc.reduce((a,b)=>a+b,0)/sc.length : null;
+  }
+
+  function coverageSparkSvg(weekAvgs) {
+    const valid = weekAvgs.map((v,i)=>({v,i})).filter(p => p.v !== null);
+    if (valid.length < 2) return `<span class="cov-spark-none">—</span>`;
+    const w = 80, h = 26, pad = 3;
+    const min = Math.min(...valid.map(p=>p.v));
+    const max = Math.max(...valid.map(p=>p.v));
+    const lo = min === max ? min - 1 : min;
+    const hi = min === max ? max + 1 : max;
+    const n = weekAvgs.length;
+    const x = i => pad + (i/(n-1)) * (w - pad*2);
+    const y = v => h - pad - ((v - lo)/(hi - lo)) * (h - pad*2);
+    const first = valid[0].v, last = valid[valid.length-1].v;
+    const delta = last - first;
+    const color = delta > 1 ? 'var(--yes)' : delta < -1 ? 'var(--ztp)' : 'var(--text-tertiary)';
+    let path = '';
+    weekAvgs.forEach((v,i) => {
+      if (v === null) return;
+      path += (path ? 'L' : 'M') + x(i).toFixed(1) + ',' + y(v).toFixed(1) + ' ';
+    });
+    let dots = '';
+    valid.forEach(p => { dots += `<circle cx="${x(p.i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="1.6" fill="${color}"/>`; });
+    const lastPt = valid[valid.length-1];
+    dots += `<circle cx="${x(lastPt.i).toFixed(1)}" cy="${y(lastPt.v).toFixed(1)}" r="2.4" fill="${color}"/>`;
+    return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><path d="${path}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>${dots}</svg>`;
+  }
+
   const coverageTheadEl = document.getElementById('dash-coverage-thead');
   const coverageTbodyEl = document.getElementById('dash-coverage-tbody');
   const wkHeaders = reqWks.map((w,i)=>`<th>Wk ${i+1}</th>`).join('');
-  coverageTheadEl.innerHTML = `<tr><th class="agent-th">Agent</th>${wkHeaders}<th>Total</th><th>Status</th></tr>`;
+  coverageTheadEl.innerHTML = `<tr><th class="agent-th">Agent</th>${wkHeaders}<th>Total</th><th>Status</th><th>Score Trend</th></tr>`;
 
   coverageTbodyEl.innerHTML = '';
+
+  if (reqWks.length === 0) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="8">
+      <div class="empty-state">
+        <span class="empty-state-icon">🗒️</span>
+        <span class="empty-state-text">No audits logged yet for ${month} ${year}</span>
+        <span class="empty-state-sub">Weeks will appear here automatically once audits are recorded for this month.</span>
+      </div>
+    </td></tr>`;
+    coverageTbodyEl.appendChild(tr);
+  } else {
   agents.forEach(a => {
     let cells=''; let ar=0,am=0;
     reqWks.forEach(w => {
@@ -6730,9 +7043,12 @@ function refreshDashPage() {
           ? `<span class="wk-pill wk-met">On Track</span>`
           : `<span class="wk-pill wk-missing">${short} Short</span>`;
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td class="agent-td">${a}</td>${cells}<td><strong>${total}</strong></td><td>${statusHtml}</td>`;
+    const weekAvgsForSpark = reqWks.map(w => agentWeekAvg(a, w));
+    const sparkHtml = coverageSparkSvg(weekAvgsForSpark);
+    tr.innerHTML = `<td class="agent-td">${a}</td>${cells}<td><strong>${total}</strong></td><td>${statusHtml}</td><td><div class="cov-spark-wrap">${sparkHtml}</div></td>`;
     coverageTbodyEl.appendChild(tr);
   });
+  }
 
   const pct = totalReq>0 ? Math.round(totalMet/totalReq*100) : 0;
   document.getElementById('dash-coverage-status').textContent = `${pct}% overall coverage`;
@@ -6848,18 +7164,17 @@ function refreshDashPage() {
 
     trendTbodyEl.innerHTML = '';
 
-    // Helper: get weekly avg for an agent
-    function agentWeekAvg(agentName, week) {
-      const wkRows = filtered.filter(r => {
-        const name = (r[5]||'').trim();
-        const raw  = (r[4]||'').toString().trim();
-        const normW = /^\d$/.test(raw) ? 'Week '+raw : (/^Week\s*\d$/i.test(raw) ? 'Week '+raw.replace(/\D/g,'') : raw);
-        return name === agentName && normW === week;
-      });
-      const sc = wkRows.map(r => parseScore(r[7])).filter(s => s !== null);
-      return sc.length ? sc.reduce((a,b)=>a+b,0)/sc.length : null;
-    }
-
+    if (reqWks.length === 0) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td colspan="7">
+        <div class="empty-state">
+          <span class="empty-state-icon">📈</span>
+          <span class="empty-state-text">No score data yet for ${month} ${year}</span>
+          <span class="empty-state-sub">Trends will appear here automatically once audits are recorded for this month.</span>
+        </div>
+      </td></tr>`;
+      trendTbodyEl.appendChild(tr);
+    } else {
     agents.forEach(agent => {
       // Get weekly averages for required weeks only
       const weekAvgs = reqWks.map(w => agentWeekAvg(agent, w));
@@ -6923,6 +7238,7 @@ function refreshDashPage() {
         <td><span class="trend-delta ${deltaClass}">${deltaText}</span></td>`;
       trendTbodyEl.appendChild(tr);
     });
+    }
   }
 }
 
@@ -8542,6 +8858,12 @@ function resetFormT() {
       if (!confirm('⚠ A record with Call ID "' + callId + '" has already been logged this session.\n\nLog it again anyway?')) return;
     }
 
+    checkAuditTargetBeforeLog('T', 'Takahami', year, month, week, name, function() {
+      _submitTakahamiQAResult(year, month, week, name, auditNo, qaScore, noAuditT, callId, callDT, auditDate);
+    });
+  };
+
+  function _submitTakahamiQAResult(year, month, week, name, auditNo, qaScore, noAuditT, callId, callDT, auditDate) {
     var btn = document.getElementById('T-logBtn');
     var original = btn ? btn.textContent : '';
     if (btn) { btn.disabled = true; btn.textContent = 'Logging…'; }
@@ -8567,7 +8889,7 @@ function resetFormT() {
         showToast('⚠ Could not reach the log server.', true);
         if (btn) { btn.disabled = false; btn.textContent = original; }
       });
-  };
+  }
 })();
 
 // Extend resetForm to support prefix 'T'
