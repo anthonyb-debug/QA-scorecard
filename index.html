@@ -6390,11 +6390,16 @@ function savePDF(prefix) {
     catch(e) { return str; }
   }
 
+  // Detect whether Legacy is on Call QA or Chat QA tab
+  const isLegacyCallQA = prefix !== 'L' || document.getElementById('L-tab-scorecard')?.classList.contains('active');
+  const idLabel = isLegacyCallQA ? 'CTM Phone' : 'Chat ID';
+  const dtLabel = isLegacyCallQA ? 'Call Date / Time' : 'Chat Date / Time';
+
   const metaRows = [
     ['Audit No.', meta.auditNo || '—'],
     ['Agent', meta.agent || '—'],
-    [prefix === 'L' ? 'Chat ID' : 'CTM Phone', meta.ctmPhone || '—'],
-    [prefix === 'L' ? 'Chat Date / Time' : 'Call Date / Time', prefix === 'L' ? (meta.callDateTime || '—') : fmtDT(meta.callDateTime)],
+    [idLabel, meta.ctmPhone || '—'],
+    [dtLabel, fmtDT(meta.callDateTime)],
     ['Audit Date', fmtD(meta.auditDate)],
     ['Period', [meta.year, meta.month, meta.week].filter(Boolean).join(' · ') || '—'],
     ['Team Leader', meta.teamLeader || '—'],
@@ -6407,6 +6412,7 @@ function savePDF(prefix) {
 
   // ── assemble full HTML ───────────────────────────────────
   const pdfName = pdfFileName(meta);
+  const callQATitle = isLegacyCallQA ? 'Legacy Quality Scorecard' : 'Legacy Chat QA Scorecard';
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6539,7 +6545,7 @@ function savePDF(prefix) {
 
 <div class="pdf-header">
   <div>
-    <div class="pdf-title">${brand} Quality Scorecard</div>
+    <div class="pdf-title">${prefix === 'L' ? callQATitle : brand + ' Quality Scorecard'}</div>
     <div class="pdf-subtitle">Contact Center QA Audit · ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
   </div>
   <div class="pdf-score-box">
@@ -8568,7 +8574,7 @@ function saveChatPDF() {
   ];
   const metaHTML = metaRows.map(([k,v]) => `<div class="mrow"><span class="mk">${k}</span><span class="mv">${v}</span></div>`).join('');
 
-  const pdfName = pdfFileName({auditNo, agent, week, month, year});
+  const pdfName = pdfFileName(meta);
 
   const html = `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
