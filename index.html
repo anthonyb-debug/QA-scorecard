@@ -6580,10 +6580,17 @@ function savePDF(prefix) {
 </body>
 </html>`;
 
-  const win = window.open('', '_blank', 'width=900,height=700');
-  if (!win) { alert('Please allow pop-ups for this page to use Print / Save PDF.'); return; }
-  win.document.write(html);
-  win.document.close();
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, '_blank');
+  if (!win) {
+    // fallback: download the HTML file directly
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = pdfName + '.html';
+    a.click();
+  }
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
 
@@ -8635,10 +8642,17 @@ function saveChatPDF() {
 <script>window.onload = function(){ document.title = '${pdfName}'; window.print(); }<\/script>
 </body></html>`;
 
-  const win = window.open('', '_blank', 'width=900,height=700');
-  if (!win) { alert('Please allow pop-ups for this page to use Print / Save PDF.'); return; }
-  win.document.write(html);
-  win.document.close();
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, '_blank');
+  if (!win) {
+    // fallback: download the HTML file directly
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = pdfName + '.html';
+    a.click();
+  }
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
 /* Init Chat QA scoring on load */
@@ -9018,10 +9032,16 @@ tr.grp-h td{ background:#f3f4f6; color:#374151; font-weight:700; font-size:8px; 
 <script>window.onload=function(){window.print();}<\/script>
 </body></html>`;
 
-  const win = window.open('','_blank','width=900,height=700');
-  if (!win) { alert('Please allow pop-ups to use Print / Save PDF.'); return; }
-  win.document.write(htmlDoc);
-  win.document.close();
+  const blob = new Blob([htmlDoc], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, '_blank');
+  if (!win) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = pdfName + '.html';
+    a.click();
+  }
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
 }; })();
 
 /* ═══════════════════════════════════════════════════════════
