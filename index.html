@@ -4529,47 +4529,36 @@ body {
 
     </div>
 
-    <!-- Row 4: Weekly coverage table -->
+    <!-- Row 4 + 6 merged: Weekly audit matrix (coverage + score) -->
     <div class="panel" style="margin-bottom:16px">
       <div class="panel-header">
         <div>
-          <div class="panel-title">Weekly Audit Coverage</div>
+          <div class="panel-title">Weekly Audit Matrix</div>
           <div class="panel-subtitle" id="dash-coverage-subtitle">2 audits required per agent per week</div>
         </div>
-        <div id="dash-coverage-status" style="font-size:11px;color:var(--text-tertiary)"></div>
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end">
+          <div id="dash-coverage-status" style="font-size:11px;color:var(--text-tertiary)"></div>
+          <div id="dash-matrix-seg" role="tablist" aria-label="Matrix view" style="display:inline-flex;gap:2px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:3px">
+            <button type="button" data-mode="combined" aria-selected="true" onclick="setDashMatrixMode('combined',this)" style="border:none;border-radius:6px;font-family:inherit;font-size:12px;font-weight:500;padding:5px 12px;cursor:pointer;background:var(--surface);color:var(--text-primary)">Combined</button>
+            <button type="button" data-mode="scores" aria-selected="false" onclick="setDashMatrixMode('scores',this)" style="border:none;border-radius:6px;font-family:inherit;font-size:12px;font-weight:500;padding:5px 12px;cursor:pointer;background:transparent;color:var(--text-tertiary)">Scores</button>
+            <button type="button" data-mode="coverage" aria-selected="false" onclick="setDashMatrixMode('coverage',this)" style="border:none;border-radius:6px;font-family:inherit;font-size:12px;font-weight:500;padding:5px 12px;cursor:pointer;background:transparent;color:var(--text-tertiary)">Coverage</button>
+          </div>
+        </div>
       </div>
-      <div class="coverage-wrap">
-        <table class="coverage-table">
-          <thead id="dash-coverage-thead">
-            <tr><th class="agent-th">Agent</th><th>Wk 1</th><th>Wk 2</th><th>Wk 3</th><th>Wk 4</th><th>Wk 5</th><th>Total</th><th>Status</th><th>Score Trend</th></tr>
+      <div id="dash-matrix-legend" style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:10px 18px;border-bottom:1px solid var(--border-subtle);font-size:11px;color:var(--text-tertiary)">
+        <span style="display:flex;align-items:center;gap:5px"><span style="display:flex;gap:3px"><span style="width:5px;height:5px;border-radius:50%;background:var(--yes)"></span><span style="width:5px;height:5px;border-radius:50%;background:var(--yes)"></span></span>Audits met</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="display:flex;gap:3px"><span style="width:5px;height:5px;border-radius:50%;background:var(--major)"></span><span style="width:5px;height:5px;border-radius:50%;background:#c3c8d2"></span></span>Partial</span>
+        <span style="display:flex;align-items:center;gap:5px"><span class="qa-score-pill qa-satisfactory" style="font-size:10px">87%</span>Score by tier</span>
+        <span style="display:flex;align-items:center;gap:5px;color:var(--yes);font-weight:600">&#9650; Improving</span>
+        <span style="display:flex;align-items:center;gap:5px;color:var(--ztp);font-weight:600">&#9660; Regressing</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="coverage-table" id="dash-matrix-table">
+          <thead id="dash-matrix-thead">
+            <tr><th class="agent-th">Agent</th><th>Wk 1</th><th>Wk 2</th><th>Wk 3</th><th>Wk 4</th><th>Total</th><th>Trend</th><th>Change</th></tr>
           </thead>
-          <tbody id="dash-coverage-tbody">
+          <tbody id="dash-matrix-tbody">
             <tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text-tertiary);font-size:12px">Click Refresh to load audit data</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Row 6: Agent Score Trend -->
-    <div class="panel" style="margin-bottom:16px">
-      <div class="panel-header">
-        <div>
-          <div class="panel-title">Agent Score Trend</div>
-          <div class="panel-subtitle">Week-over-week progression and regression · based on weekly averages</div>
-        </div>
-        <div id="dash-trend-legend" style="display:flex;gap:12px;align-items:center;font-size:11px">
-          <span style="display:flex;align-items:center;gap:4px;color:var(--yes);font-weight:600">▲ Improving</span>
-          <span style="display:flex;align-items:center;gap:4px;color:var(--ztp);font-weight:600">▼ Regressing</span>
-          <span style="display:flex;align-items:center;gap:4px;color:var(--text-tertiary);font-weight:600">→ Stable</span>
-        </div>
-      </div>
-      <div id="dash-agent-trend-wrap" style="overflow-x:auto">
-        <table class="coverage-table" id="dash-agent-trend-table">
-          <thead id="dash-agent-trend-thead">
-            <tr><th class="agent-th">Agent</th><th>Trend</th><th>Wk 1</th><th>Wk 2</th><th>Wk 3</th><th>Wk 4</th><th>Change</th></tr>
-          </thead>
-          <tbody id="dash-agent-trend-tbody">
-            <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-tertiary);font-size:12px">Click Refresh to load trend data</td></tr>
           </tbody>
         </table>
       </div>
@@ -6820,6 +6809,76 @@ function loadAndRefreshDash() {
   });
 }
 
+var dashMatrixMode = 'combined';
+var dashMatrixState = null;
+
+function mxScoreCls(v){
+  if (v === null) return 'qa-none';
+  if (v === 100) return 'qa-excellent';
+  if (v >= 95) return 'qa-outstanding';
+  if (v >= 87) return 'qa-satisfactory';
+  if (v >= 81) return 'qa-needs';
+  return 'qa-poor';
+}
+
+function mxDots(cnt, rpw){
+  let h = '<div style="display:flex;gap:3px;justify-content:center;margin-top:4px">';
+  for (let i=0; i<rpw; i++){
+    let col;
+    if (cnt > rpw) col = '#7c3aed';
+    else if (i < cnt) col = (cnt >= rpw) ? 'var(--yes)' : 'var(--major)';
+    else col = '#c3c8d2';
+    h += '<span style="width:5px;height:5px;border-radius:50%;background:'+col+'"></span>';
+  }
+  return h + '</div>';
+}
+
+function setDashMatrixMode(mode, btn){
+  dashMatrixMode = mode;
+  document.querySelectorAll('#dash-matrix-seg button').forEach(function(b){
+    const on = b.getAttribute('data-mode') === mode;
+    b.style.background = on ? 'var(--surface)' : 'transparent';
+    b.style.color = on ? 'var(--text-primary)' : 'var(--text-tertiary)';
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  renderDashMatrix();
+}
+
+function renderDashMatrix(){
+  const st = dashMatrixState;
+  const thead = document.getElementById('dash-matrix-thead');
+  const tbody = document.getElementById('dash-matrix-tbody');
+  if (!thead || !tbody || !st) return;
+  const mode = dashMatrixMode;
+  const wkH = st.reqWks.map((w,i) => `<th>Wk ${i+1}</th>`).join('');
+  thead.innerHTML = `<tr><th class="agent-th">Agent</th>${wkH}<th>Total</th><th>Trend</th><th>Change</th></tr>`;
+  tbody.innerHTML = '';
+  if (st.reqWks.length === 0){
+    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><span class="empty-state-icon">🗒️</span><span class="empty-state-text">No audits logged yet for ${st.month} ${st.year}</span><span class="empty-state-sub">Weeks appear here automatically once audits are recorded for this month.</span></div></td></tr>`;
+    return;
+  }
+  st.rows.forEach(function(r){
+    let cells = '';
+    r.weeks.forEach(function(w){
+      if (mode === 'scores'){
+        cells += '<td>' + (w.avg === null ? '<span class="trend-wk-score na">—</span>' : `<span class="qa-score-pill ${mxScoreCls(w.avg)}">${w.avg.toFixed(1)}%</span>`) + '</td>';
+      } else if (mode === 'coverage'){
+        const cls = w.cnt > st.rpw ? 'wk-over' : w.cnt === st.rpw ? 'wk-met' : w.cnt > 0 ? 'wk-partial' : 'wk-missing';
+        cells += `<td><span class="wk-pill ${cls}">${w.cnt}/${st.rpw}</span></td>`;
+      } else {
+        const pill = w.avg === null ? '<span class="trend-wk-score na">—</span>' : `<span class="qa-score-pill ${mxScoreCls(w.avg)}">${w.avg.toFixed(1)}%</span>`;
+        cells += '<td>' + pill + mxDots(w.cnt, st.rpw) + '</td>';
+      }
+    });
+    cells += `<td><strong>${r.total}</strong></td>`;
+    cells += `<td><span class="trend-direction ${r.dirClass}">${r.dirLabel}</span></td>`;
+    cells += `<td><span class="trend-delta ${r.deltaClass}">${r.deltaText}</span></td>`;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="agent-td">${r.name}</td>${cells}`;
+    tbody.appendChild(tr);
+  });
+}
+
 function refreshDashPage() {
   if (!sharedState.loaded) return;
   const prefix = dashActiveCampaign;
@@ -7004,64 +7063,29 @@ function refreshDashPage() {
     return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><path d="${path}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>${dots}</svg>`;
   }
 
-  const coverageTheadEl = document.getElementById('dash-coverage-thead');
-  const coverageTbodyEl = document.getElementById('dash-coverage-tbody');
-  const wkHeaders = reqWks.map((w,i)=>`<th>Wk ${i+1}</th>`).join('');
-  coverageTheadEl.innerHTML = `<tr><th class="agent-th">Agent</th>${wkHeaders}<th>Total</th><th>Status</th><th>Score Trend</th></tr>`;
-
-  coverageTbodyEl.innerHTML = '';
-
-  if (reqWks.length === 0) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="8">
-      <div class="empty-state">
-        <span class="empty-state-icon">🗒️</span>
-        <span class="empty-state-text">No audits logged yet for ${month} ${year}</span>
-        <span class="empty-state-sub">Weeks will appear here automatically once audits are recorded for this month.</span>
-      </div>
-    </td></tr>`;
-    coverageTbodyEl.appendChild(tr);
-  } else {
-  agents.forEach(a => {
-    let cells=''; let ar=0,am=0;
-    reqWks.forEach(w => {
-      const cnt = counts[a][w];
-      ar+=RPW; am+=Math.min(cnt,RPW);
-      let cls, lbl;
-      if (cnt > RPW) {
-        // Over-audit warning
-        const overCount = cnt - RPW;
-        const warnSvg = `<svg width="10" height="10" viewBox="0 0 16 16" fill="none" style="flex-shrink:0"><path d="M8 1.5L1 14.5h14L8 1.5z" fill="#7c3aed" opacity=".15"/><path d="M8 1.5L1 14.5h14L8 1.5z" stroke="#7c3aed" stroke-width="1.5" fill="none"/><line x1="8" y1="6" x2="8" y2="10" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="12.5" r=".75" fill="#7c3aed"/></svg>`;
-        cls = 'wk-over';
-        lbl = `<span class="over-tip-wrap" style="gap:3px">${warnSvg}${cnt}/${RPW}<span class="over-tip">⚠ Over Target — ${overCount} extra audit${overCount > 1 ? 's' : ''} logged</span></span>`;
-      } else if (cnt === RPW) {
-        cls = 'wk-met'; lbl = `${cnt}/${RPW}`;
-      } else if (cnt > 0) {
-        cls = 'wk-partial'; lbl = `${cnt}/${RPW}`;
-      } else {
-        cls = 'wk-missing'; lbl = `0/${RPW}`;
-      }
-      cells += `<td><span class="wk-pill ${cls}">${lbl}</span></td>`;
-    });
-    const total = allWks.reduce((s,w)=>s+counts[a][w],0);
-    const ok = ar>0 && am===ar;
-    const short = ar-am;
-    // Check if any week is over target for this agent
-    const hasOverAudit = reqWks.some(w => counts[a][w] > RPW);
-    const statusHtml = ar===0
-      ? `<span class="wk-pill wk-na">No weeks</span>`
-      : hasOverAudit && ok
-        ? `<span class="wk-pill wk-over" title="One or more weeks exceeded the 3-audit target">⚠ Over Target</span>`
-        : ok
-          ? `<span class="wk-pill wk-met">On Track</span>`
-          : `<span class="wk-pill wk-missing">${short} Short</span>`;
-    const tr = document.createElement('tr');
-    const weekAvgsForSpark = reqWks.map(w => agentWeekAvg(a, w));
-    const sparkHtml = coverageSparkSvg(weekAvgsForSpark);
-    tr.innerHTML = `<td class="agent-td">${a}</td>${cells}<td><strong>${total}</strong></td><td>${statusHtml}</td><td><div class="cov-spark-wrap">${sparkHtml}</div></td>`;
-    coverageTbodyEl.appendChild(tr);
+  // ── Combined weekly matrix (coverage + score) ──
+  const matrixRows = agents.map(a => {
+    const weeks = reqWks.map(w => ({ cnt: counts[a][w], avg: agentWeekAvg(a, w) }));
+    const total = allWks.reduce((s,w) => s + counts[a][w], 0);
+    const weekAvgs = weeks.map(w => w.avg);
+    const valid = weekAvgs.filter(v => v !== null);
+    let dirClass, dirLabel, deltaClass, deltaText;
+    if (valid.length === 0){
+      dirClass='trend-na'; dirLabel='No data'; deltaClass='flat'; deltaText='—';
+    } else if (valid.length < 2){
+      dirClass='trend-flat'; dirLabel='→ 1 week'; deltaClass='flat'; deltaText='—';
+    } else {
+      const firstIdx = weekAvgs.findIndex(v => v !== null);
+      const lastIdx = weekAvgs.length - 1 - [...weekAvgs].reverse().findIndex(v => v !== null);
+      const delta = weekAvgs[lastIdx] - weekAvgs[firstIdx];
+      if (delta > 1){ dirClass='trend-up'; dirLabel='▲ Improving'; deltaClass='up'; deltaText='+'+delta.toFixed(1)+'%'; }
+      else if (delta < -1){ dirClass='trend-down'; dirLabel='▼ Regressing'; deltaClass='down'; deltaText=delta.toFixed(1)+'%'; }
+      else { dirClass='trend-flat'; dirLabel='→ Stable'; deltaClass='flat'; deltaText=(delta>=0?'+':'')+delta.toFixed(1)+'%'; }
+    }
+    return { name:a, weeks, total, dirClass, dirLabel, deltaClass, deltaText };
   });
-  }
+  dashMatrixState = { reqWks, rpw: RPW, month, year, rows: matrixRows };
+  renderDashMatrix();
 
   const pct = totalReq>0 ? Math.round(totalMet/totalReq*100) : 0;
   document.getElementById('dash-coverage-status').textContent = `${pct}% overall coverage`;
