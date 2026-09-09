@@ -6614,21 +6614,11 @@ function savePDF(prefix) {
   <div class="sig-field"><div class="sig-label">QA Auditor Signature</div><div class="sig-line"></div></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script><script>window.onload=function(){document.title='${pdfName}';var o={margin:8,filename:'${pdfName}.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}};function fin(){setTimeout(function(){try{window.close();}catch(e){}},700);}if(window.html2pdf){html2pdf().set(o).from(document.body).save().then(fin).catch(function(){window.print();});}else{window.print();}}<\/script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script><script>window.onload=function(){var o={margin:8,image:{type:"jpeg",quality:0.98},html2canvas:{scale:2,useCORS:true,windowWidth:900},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"]}};function post(b){try{parent.postMessage({__nsPdf:true,blob:b},"*");}catch(e){}}if(window.html2pdf){html2pdf().set(o).from(document.body).outputPdf("blob").then(post).catch(function(){post(null);});}else{post(null);}}<\/script>
 </body>
 </html>`;
 
-  const blob = new Blob([html], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  const win = window.open(url, '_blank');
-  if (!win) {
-    // fallback: download the HTML file directly
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = pdfName + '.html';
-    a.click();
-  }
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  nsDeliverPdf(html, pdfName);
 }
 
 
@@ -8724,20 +8714,10 @@ function saveChatPDF() {
   <div class="sig-field"><div class="sig-label">Team Leader Signature</div><div class="sig-line"></div></div>
   <div class="sig-field"><div class="sig-label">QA Auditor Signature</div><div class="sig-line"></div></div>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script><script>window.onload=function(){document.title='${pdfName}';var o={margin:8,filename:'${pdfName}.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}};function fin(){setTimeout(function(){try{window.close();}catch(e){}},700);}if(window.html2pdf){html2pdf().set(o).from(document.body).save().then(fin).catch(function(){window.print();});}else{window.print();}}<\/script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script><script>window.onload=function(){var o={margin:8,image:{type:"jpeg",quality:0.98},html2canvas:{scale:2,useCORS:true,windowWidth:900},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"]}};function post(b){try{parent.postMessage({__nsPdf:true,blob:b},"*");}catch(e){}}if(window.html2pdf){html2pdf().set(o).from(document.body).outputPdf("blob").then(post).catch(function(){post(null);});}else{post(null);}}<\/script>
 </body></html>`;
 
-  const blob = new Blob([html], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  const win = window.open(url, '_blank');
-  if (!win) {
-    // fallback: download the HTML file directly
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = pdfName + '.html';
-    a.click();
-  }
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  nsDeliverPdf(html, pdfName);
 }
 
 /* Init Chat QA scoring on load */
@@ -8798,77 +8778,63 @@ function updateScoreT() {
   const tab = document.getElementById('T-tab-scorecard');
   if (!tab) return;
 
-  // Collect all criterion rows (skip group headers)
   const allDvs = [...tab.querySelectorAll('tbody tr:not(.criteria-group-row) .dv')];
+  const scoreEl = document.getElementById('T-displayScore');
+  const bar = document.getElementById('T-progressBar');
+  const perfEl = document.getElementById('T-perfLabel');
+  const secBounds = [[0,4],[5,9],[10,20],[21,35],[36,43]];
 
-  // Section earned/max using section index in allDvs
-  // Build per-section groups by cumulative count
-  const secBounds = [
-    [0, 4],    // I: 5 rows
-    [5, 9],    // II: 5 rows
-    [10, 20],  // III: 11 rows
-    [21, 35],  // IV: 15 rows
-    [36, 43],  // V: 8 rows (5.1A–G)
-  ];
+  // A criterion is 'answered' once Yes or No is chosen.
+  const answered = allDvs.filter(dv => dv.classList.contains('dw-yes') || dv.classList.contains('dw-no')).length;
 
+  if (answered === 0) {
+    // Nothing graded yet — mirror Legacy/Banyan 'Not scored' (don't imply a perfect score).
+    secBounds.forEach((b, si) => {
+      const sec = T_SECTIONS[si];
+      const accEl = document.getElementById(sec.id);
+      const sideEl = document.getElementById(sec.sideId);
+      if (accEl) { accEl.textContent = '—'; accEl.className = 'acc-status'; }
+      if (sideEl) { sideEl.textContent = '—'; sideEl.className = 'score-section-pts'; }
+    });
+    if (scoreEl) scoreEl.textContent = '—';
+    if (bar) { bar.style.width = '0%'; bar.style.background = 'var(--na)'; }
+    if (perfEl) { perfEl.textContent = 'Not scored'; perfEl.className = 'score-perf-label ns-notscored'; }
+    return;
+  }
+
+  // DEDUCTION model (like Legacy/Banyan): every criterion counts as its full weight
+  // unless it is explicitly marked 'No', in which case that weight is deducted.
   let totalEarned = 0;
-
   secBounds.forEach((bounds, si) => {
     const [from, to] = bounds;
     let secEarned = 0;
     for (let i = from; i <= to && i < allDvs.length; i++) {
-      secEarned += parseFloat(allDvs[i]?.dataset.earned || 0);
+      const dv = allDvs[i];
+      secEarned += (dv && dv.classList.contains('dw-no')) ? 0 : parseFloat(dv?.dataset.weight || 0);
     }
     totalEarned += secEarned;
 
     const sec = T_SECTIONS[si];
     const accEl = document.getElementById(sec.id);
     const sideEl = document.getElementById(sec.sideId);
-    const pctSec = Math.round((secEarned / sec.maxPts) * 100);
     const txt = secEarned.toFixed(1) + ' / ' + sec.maxPts.toFixed(1);
-
-    if (accEl) {
-      accEl.textContent = txt;
-      accEl.className = 'acc-status ' + (secEarned >= sec.maxPts ? 'ok' : secEarned > 0 ? 'warn' : 'warn');
-    }
-    if (sideEl) {
-      sideEl.textContent = secEarned.toFixed(1) + ' / ' + sec.maxPts.toFixed(1);
-      sideEl.className = 'score-section-pts' + (secEarned < sec.maxPts ? ' has-ded' : '');
-    }
+    if (accEl) { accEl.textContent = txt; accEl.className = 'acc-status ' + (secEarned >= sec.maxPts ? 'ok' : 'warn'); }
+    if (sideEl) { sideEl.textContent = txt; sideEl.className = 'score-section-pts' + (secEarned < sec.maxPts ? ' has-ded' : ''); }
   });
 
-  const scoreEl = document.getElementById('T-displayScore');
-  const bar = document.getElementById('T-progressBar');
-  const perfEl = document.getElementById('T-perfLabel');
-
-  const allPillsChkT = [...tab.querySelectorAll('tbody tr:not(.criteria-group-row) .pill-toggle')];
-  const answeredChkT = allPillsChkT.filter(pt => pt.querySelector('.ay, .an, .aa')).length;
-
-  if (answeredChkT === 0) {
-    // Nothing has been graded yet — don't imply a perfect score
-    if (scoreEl) scoreEl.textContent = '—%';
-    if (bar) { bar.style.width = '0%'; bar.style.background = 'var(--na)'; }
-    if (perfEl) { perfEl.textContent = 'Not Scored'; perfEl.className = 'score-perf-label perf-na'; }
-    return;
-  }
-
-  // Overall score — display as integer (e.g. 100% not 100.0%)
   const displayPct = Math.round(totalEarned);
-
   if (scoreEl) scoreEl.textContent = displayPct + '%';
-
   if (bar) {
     bar.style.width = totalEarned + '%';
-    bar.style.background = totalEarned >= 95 ? '#059669' : totalEarned >= 87 ? '#d97706' : '#dc2626';
+    bar.style.background = totalEarned >= 95 ? '#2f7d5a' : totalEarned >= 87 ? '#97671b' : '#b4453f';
   }
 
   let perf, perfClass;
-  if (totalEarned === 100)      { perf = 'Excellent';         perfClass = 'perf-excellent'; }
-  else if (totalEarned >= 95)   { perf = 'Outstanding';       perfClass = 'perf-outstanding'; }
-  else if (totalEarned >= 87)   { perf = 'Satisfactory';      perfClass = 'perf-satisfactory'; }
-  else if (totalEarned >= 81)   { perf = 'Needs Improvement'; perfClass = 'perf-needs'; }
-  else                           { perf = 'Poor Performance';  perfClass = 'perf-poor'; }
-
+  if (totalEarned >= 100)      { perf = 'Excellent';         perfClass = 'perf-excellent'; }
+  else if (totalEarned >= 95)  { perf = 'Outstanding';       perfClass = 'perf-excellent'; }
+  else if (totalEarned >= 87)  { perf = 'Satisfactory';      perfClass = 'perf-needs'; }
+  else if (totalEarned >= 81)  { perf = 'Needs Improvement'; perfClass = 'perf-needs'; }
+  else                          { perf = 'Poor Performance';  perfClass = 'perf-poor'; }
   if (perfEl) { perfEl.textContent = perf; perfEl.className = 'score-perf-label ' + perfClass; }
 }
 
@@ -9127,19 +9093,10 @@ tr.grp-h td{ background:#f3f4f6; color:#374151; font-weight:700; font-size:8px; 
   <div class="sf"><div class="sl">Team Leader Signature</div><div class="sl-line"></div></div>
   <div class="sf"><div class="sl">QA Auditor Signature</div><div class="sl-line"></div></div>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script><script>window.onload=function(){var o={margin:8,filename:'QA-Report.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}};function fin(){setTimeout(function(){try{window.close();}catch(e){}},700);}if(window.html2pdf){html2pdf().set(o).from(document.body).save().then(fin).catch(function(){window.print();});}else{window.print();}}<\/script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script><script>window.onload=function(){var o={margin:8,image:{type:"jpeg",quality:0.98},html2canvas:{scale:2,useCORS:true,windowWidth:900},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"]}};function post(b){try{parent.postMessage({__nsPdf:true,blob:b},"*");}catch(e){}}if(window.html2pdf){html2pdf().set(o).from(document.body).outputPdf("blob").then(post).catch(function(){post(null);});}else{post(null);}}<\/script>
 </body></html>`;
 
-  const blob = new Blob([htmlDoc], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  const win = window.open(url, '_blank');
-  if (!win) {
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = pdfName + '.html';
-    a.click();
-  }
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  nsDeliverPdf(htmlDoc, pdfName);
 }; })();
 
 /* ═══════════════════════════════════════════════════════════
@@ -9752,6 +9709,72 @@ try{
   },500);});
 }catch(e){}
 })();
+</script>
+
+<style id="ns-darkpills">
+/* Dark mode legibility: make the selected Yes / No / N/A unmistakable.
+   Unselected stays dim; selected becomes a solid, high-contrast filled chip. */
+[data-theme="dark"] .pill-btn{ color: var(--text-tertiary) !important; }
+[data-theme="dark"] .pill-btn.ay,
+[data-theme="dark"] .pill-btn.ay-takahami{
+  background:#35b07c !important; color:#08120d !important; font-weight:700 !important;
+  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.28) !important; }
+[data-theme="dark"] .pill-btn.an,
+[data-theme="dark"] .ztp-row .pill-btn.an{
+  background:#dd6a63 !important; color:#180d0d !important; font-weight:700 !important;
+  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.28) !important; }
+[data-theme="dark"] .pill-btn.aa{
+  background:#9aa3b2 !important; color:#0f1319 !important; font-weight:700 !important;
+  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.22) !important; }
+/* ZTP-locked pills were light-grey (unreadable in dark) — give them a proper dark disabled look */
+[data-theme="dark"] .ztp-locked .pill-btn{
+  background:#20252e !important; color:#4a515c !important; border-color:#2a303a !important; }
+/* selected reads a touch bolder in light mode too */
+.pill-btn.ay, .pill-btn.an, .pill-btn.aa, .pill-btn.ay-takahami{ font-weight:600 !important; }
+</style>
+
+
+<script id="ns-savepdf">
+async function nsDeliverPdf(html, name){
+  name = (name || 'QA-Report');
+  var handle = null;
+  if (window.showSaveFilePicker){
+    try{
+      handle = await window.showSaveFilePicker({
+        suggestedName: name + '.pdf',
+        types: [{ description: 'PDF document', accept: { 'application/pdf': ['.pdf'] } }]
+      });
+    }catch(e){ if (e && e.name === 'AbortError') return; handle = null; }
+  }
+  var blob = await new Promise(function(resolve){
+    var ifr = document.createElement('iframe');
+    ifr.setAttribute('aria-hidden','true');
+    ifr.style.cssText = 'position:fixed;left:-99999px;top:0;width:900px;height:1200px;border:0;opacity:0;';
+    var settled = false;
+    function cleanup(){ try{ document.body.removeChild(ifr); }catch(e){} window.removeEventListener('message', onMsg); }
+    function onMsg(ev){ if(!ev.data || !ev.data.__nsPdf || settled) return; settled = true; cleanup(); resolve(ev.data.blob || null); }
+    window.addEventListener('message', onMsg);
+    ifr.srcdoc = html;
+    document.body.appendChild(ifr);
+    setTimeout(function(){ if(!settled){ settled = true; cleanup(); resolve(null); } }, 25000);
+  });
+  if(!blob){
+    try{ var u = URL.createObjectURL(new Blob([html], {type:'text/html'})); window.open(u,'_blank'); setTimeout(function(){ URL.revokeObjectURL(u); }, 15000); }catch(e){}
+    return;
+  }
+  if(handle){
+    try{ var w = await handle.createWritable(); await w.write(blob); await w.close(); return; }
+    catch(e){ /* fall through to download */ }
+  }
+  nsDownloadBlob(blob, name);
+}
+function nsDownloadBlob(blob, name){
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = (name || 'QA-Report') + '.pdf';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+}
 </script>
 </body>
 </html>
