@@ -9776,5 +9776,146 @@ function nsDownloadBlob(blob, name){
   setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
 }
 </script>
+
+<style id="ns-enhance">
+/* keyboard-focused criterion row */
+.criterion-table tbody tr.ns-krow-active > td{ background: var(--legacy-light) !important; }
+.criterion-table tbody tr.ns-krow-active > td:first-child{ box-shadow: inset 3px 0 0 var(--legacy); }
+/* saving indicator */
+#ns-save-status{ display:none; align-items:center; gap:6px; margin-left:auto; font-size:12px; color:var(--text-secondary);
+  padding:4px 10px; border:1px solid var(--border); border-radius:999px; background:var(--surface); white-space:nowrap; }
+#ns-save-status.show{ display:inline-flex; }
+#ns-save-status .dot{ width:6px; height:6px; border-radius:50%; background:var(--text-tertiary); }
+#ns-save-status[data-state="saving"] .dot{ background:var(--major); }
+#ns-save-status[data-state="saved"] .dot{ background:var(--yes); }
+#ns-header #ns-theme{ margin-left:8px !important; }
+/* shortcuts overlay */
+#ns-kbd-overlay{ position:fixed; inset:0; background:rgba(15,20,28,.45); display:none; align-items:center; justify-content:center; z-index:10001; }
+#ns-kbd-overlay.show{ display:flex; }
+.ns-kbd-card{ background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:0 20px 44px rgba(0,0,0,.28); padding:22px 24px; width:min(420px,92vw); }
+.ns-kbd-h{ font-size:15px; font-weight:600; margin-bottom:14px; color:var(--text-primary); }
+.ns-kbd-t{ width:100%; border-collapse:collapse; font-size:13px; color:var(--text-secondary); }
+.ns-kbd-t td{ padding:7px 0; border-top:1px solid var(--border); }
+.ns-kbd-t tr:first-child td{ border-top:0; }
+.ns-kbd-t td:last-child{ text-align:right; color:var(--text-primary); }
+.ns-kbd-t kbd{ font-family:'IBM Plex Mono',monospace; font-size:11px; background:var(--surface-2); border:1px solid var(--border-strong,#d3dae2); border-radius:5px; padding:2px 6px; color:var(--text-primary); }
+.ns-kbd-close{ margin-top:18px; width:100%; padding:9px; border-radius:8px; border:1px solid var(--legacy); background:var(--legacy); color:#fff; font:inherit; font-size:13px; font-weight:500; cursor:pointer; }
+[data-theme="dark"] .ns-kbd-close{ color:#0e1420; }
+.ns-hint-toast{ position:fixed; bottom:22px; left:50%; transform:translateX(-50%); background:var(--text-primary); color:#fff; font-size:12.5px;
+  padding:10px 15px; border-radius:9px; box-shadow:0 10px 28px rgba(0,0,0,.22); z-index:10000; max-width:90vw; }
+[data-theme="dark"] .ns-hint-toast{ background:#0e1420; border:1px solid var(--border); }
+.ns-hint-toast kbd{ font-family:'IBM Plex Mono',monospace; font-size:11px; background:rgba(255,255,255,.15); border-radius:4px; padding:1px 5px; }
+.ns-hint-toast.hide{ opacity:0; transition:opacity .5s; }
+</style>
+<script id="ns-enhance-js">
+(function(){
+'use strict';
+/* ---------- Saving / Saved indicator ---------- */
+try{
+  function mountStatus(){
+    var header=document.getElementById('ns-header'), theme=document.getElementById('ns-theme');
+    if(!header||!theme||document.getElementById('ns-save-status')) return;
+    var s=document.createElement('div'); s.id='ns-save-status'; s.setAttribute('data-state','saved');
+    s.innerHTML='<span class="dot"></span><span class="txt">Saved</span>';
+    header.insertBefore(s, theme);
+  }
+  if(document.readyState!=='loading') mountStatus(); else document.addEventListener('DOMContentLoaded', mountStatus);
+  window.addEventListener('load', mountStatus);
+  var savedTimer;
+  function markSaving(){
+    var e=document.getElementById('ns-save-status'); if(!e) return;
+    e.classList.add('show'); e.setAttribute('data-state','saving');
+    var t=e.querySelector('.txt'); if(t) t.textContent='Saving…';
+    clearTimeout(savedTimer);
+    savedTimer=setTimeout(function(){ e.setAttribute('data-state','saved'); var t2=e.querySelector('.txt'); if(t2) t2.textContent='Saved'; }, 550);
+  }
+  document.addEventListener('click',function(ev){ if(ev.target.closest && ev.target.closest('.pill-btn')) markSaving(); });
+  document.addEventListener('change',function(ev){ if(ev.target.closest && ev.target.closest('.meta-bar')) markSaving(); });
+}catch(e){}
+
+/* ---------- Keyboard scoring ---------- */
+try{
+  var kb={row:null};
+  function visibleTab(){
+    var tabs=document.querySelectorAll('[id$="-tab-scorecard"],[id$="-tab-chat"]');
+    for(var i=0;i<tabs.length;i++){ if(tabs[i].offsetParent!==null && tabs[i].querySelector('.criterion-table')) return tabs[i]; }
+    return null;
+  }
+  function rowsOf(tab){ return [].slice.call(tab.querySelectorAll('.criterion-table tbody tr:not(.criteria-group-row)')); }
+  function setRow(row){
+    if(kb.row) kb.row.classList.remove('ns-krow-active');
+    kb.row=row; if(!row) return;
+    var sec=row.closest('.acc-section'); if(sec && !sec.classList.contains('open')) sec.classList.add('open');
+    row.classList.add('ns-krow-active');
+    try{ row.scrollIntoView({block:'center', behavior:'smooth'}); }catch(e){ row.scrollIntoView(); }
+  }
+  function move(delta){
+    var tab=visibleTab(); if(!tab) return; var rows=rowsOf(tab); if(!rows.length) return;
+    var idx=kb.row?rows.indexOf(kb.row):-1;
+    if(idx===-1){ setRow(delta>0?rows[0]:rows[rows.length-1]); return; }
+    setRow(rows[Math.max(0,Math.min(rows.length-1, idx+delta))]);
+  }
+  function grade(which){
+    var tab=visibleTab(); if(!tab) return; var rows=rowsOf(tab); if(!rows.length) return;
+    if(!kb.row || rows.indexOf(kb.row)===-1) setRow(rows[0]);
+    var pills=kb.row.querySelectorAll('.pill-toggle .pill-btn');
+    var idx= which==='y'?0 : which==='n'?1 : 2;
+    if(pills[idx]) pills[idx].click();
+    move(1); // auto-advance
+  }
+  document.addEventListener('click',function(e){
+    var b=e.target.closest && e.target.closest('.pill-btn'); if(!b) return;
+    var r=b.closest('tr'); if(!r) return;
+    if(kb.row && kb.row!==r) kb.row.classList.remove('ns-krow-active'); kb.row=r;
+  });
+  document.addEventListener('keydown',function(e){
+    var t=e.target, typing = t && (t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT'||t.isContentEditable);
+    if(e.key==='?' && !typing){ e.preventDefault(); toggleOverlay(); return; }
+    if(e.key==='Escape'){ closeOverlay(); return; }
+    if(typing || e.ctrlKey || e.metaKey || e.altKey) return;
+    if(!visibleTab()) return;
+    var k=(e.key||'').toLowerCase();
+    if(e.key==='ArrowDown'||k==='j'){ e.preventDefault(); move(1); }
+    else if(e.key==='ArrowUp'||k==='k'){ e.preventDefault(); move(-1); }
+    else if(k==='y'){ e.preventDefault(); grade('y'); }
+    else if(k==='n'){ e.preventDefault(); grade('n'); }
+    else if(k==='a'){ e.preventDefault(); grade('a'); }
+  });
+  /* shortcuts overlay */
+  function ensureOverlay(){
+    if(document.getElementById('ns-kbd-overlay')) return;
+    var o=document.createElement('div'); o.id='ns-kbd-overlay';
+    o.innerHTML='<div class="ns-kbd-card"><div class="ns-kbd-h">Keyboard shortcuts</div>'+
+      '<table class="ns-kbd-t">'+
+      '<tr><td><kbd>&#8593;</kbd> / <kbd>&#8595;</kbd> &nbsp;or&nbsp; <kbd>J</kbd> / <kbd>K</kbd></td><td>Move between criteria</td></tr>'+
+      '<tr><td><kbd>Y</kbd></td><td>Mark Yes</td></tr>'+
+      '<tr><td><kbd>N</kbd></td><td>Mark No</td></tr>'+
+      '<tr><td><kbd>A</kbd></td><td>Mark N/A</td></tr>'+
+      '<tr><td><kbd>?</kbd></td><td>Toggle this help</td></tr>'+
+      '<tr><td><kbd>Esc</kbd></td><td>Close</td></tr>'+
+      '</table><button class="ns-kbd-close" type="button">Got it</button></div>';
+    document.body.appendChild(o);
+    o.addEventListener('click',function(e){ if(e.target===o) closeOverlay(); });
+    o.querySelector('.ns-kbd-close').addEventListener('click',closeOverlay);
+  }
+  function toggleOverlay(){ ensureOverlay(); document.getElementById('ns-kbd-overlay').classList.toggle('show'); }
+  function closeOverlay(){ var o=document.getElementById('ns-kbd-overlay'); if(o) o.classList.remove('show'); }
+  window.nsShowShortcuts=toggleOverlay;
+  /* one-time discovery hint */
+  window.addEventListener('load',function(){
+    setTimeout(function(){
+      try{ if(localStorage.getItem('ns_kbd_hint')) return; }catch(e){}
+      if(!visibleTab()) return;
+      var h=document.createElement('div'); h.className='ns-hint-toast';
+      h.innerHTML='Tip: score with the keyboard — <kbd>Y</kbd> <kbd>N</kbd> <kbd>A</kbd>, move with <kbd>&#8593;</kbd><kbd>&#8595;</kbd>, press <kbd>?</kbd> for shortcuts.';
+      document.body.appendChild(h);
+      try{ localStorage.setItem('ns_kbd_hint','1'); }catch(e){}
+      setTimeout(function(){ h.classList.add('hide'); },7000);
+      setTimeout(function(){ if(h.parentNode) h.remove(); },7600);
+    }, 1800);
+  });
+}catch(e){}
+})();
+</script>
 </body>
 </html>
