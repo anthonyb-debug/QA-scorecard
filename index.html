@@ -3739,7 +3739,7 @@ body {
         </div>
 
         <div class="score-actions">
-          <button class="btn btn-log" id="L-logBtn" disabled title="Fill in Agent, Audit No., Year, Month and Week first" onclick="logQAResult('L')">Log QA Result</button>
+          <button class="btn btn-log" id="L-logBtn" disabled title="Fill in Agent, Audit No., Year, Month and Week first" onclick="nsLogAndSave('L')">Log QA Result</button>
           <button class="btn btn-primary-legacy" onclick="savePDF('L')">Print / Save PDF</button>
           <button class="btn btn-ghost" onclick="openSheet()">QA Database</button>
           <button class="btn btn-ghost" onclick="resetForm('L')">Reset Form</button>
@@ -3799,7 +3799,7 @@ body {
         </div>
 
         <div class="score-actions">
-          <button class="btn btn-log" id="LC-logBtn" disabled title="Fill in Agent, Audit No., Year, Month and Week first" onclick="logChatQAResult()">Log Chat QA</button>
+          <button class="btn btn-log" id="LC-logBtn" disabled title="Fill in Agent, Audit No., Year, Month and Week first" onclick="nsLogAndSave('LC')">Log Chat QA</button>
           <button class="btn btn-primary-legacy" onclick="saveChatPDF()">Print / Save PDF</button>
           <button class="btn btn-ghost" onclick="openSheet()">QA Database</button>
           <button class="btn btn-ghost" onclick="resetChatForm()">Reset Form</button>
@@ -4155,7 +4155,7 @@ body {
         </div>
 
         <div class="score-actions">
-          <button class="btn btn-log" id="B-logBtn" disabled title="Fill in Agent, Audit No., Year, Month and Week first" onclick="logQAResult('B')">Log QA Result</button>
+          <button class="btn btn-log" id="B-logBtn" disabled title="Fill in Agent, Audit No., Year, Month and Week first" onclick="nsLogAndSave('B')">Log QA Result</button>
           <button class="btn btn-primary-banyan" onclick="savePDF('B')">Print / Save PDF</button>
           <button class="btn btn-ghost" onclick="openSheet()">QA Database</button>
           <button class="btn btn-ghost" onclick="resetForm('B')">Reset Form</button>
@@ -4419,7 +4419,7 @@ body {
         </div>
 
         <div class="score-actions">
-          <button class="btn btn-log" id="T-logBtn" disabled title="Fill in Agent, Audit No., Year, Month and Week first" onclick="logQAResult('T')">Log QA Result</button>
+          <button class="btn btn-log" id="T-logBtn" disabled title="Fill in Agent, Audit No., Year, Month and Week first" onclick="nsLogAndSave('T')">Log QA Result</button>
           <button class="btn btn-primary-takahami" onclick="savePDF('T')">Print / Save PDF</button>
           <button class="btn btn-ghost" onclick="openSheet()">QA Database</button>
           <button class="btn btn-ghost" onclick="resetForm('T')">Reset Form</button>
@@ -9916,6 +9916,23 @@ try{
   });
 }catch(e){}
 })();
+</script>
+
+<script id="ns-log-and-save">
+/* "Log QA Result" now also saves the PDF (with the Save-As location picker).
+   The PDF save is triggered FIRST so the picker opens during the click's user
+   activation; logging then runs. The Log button is disabled until the required
+   fields are filled, so this only fires for a valid audit. */
+function nsLogAndSave(prefix){
+  try{
+    if(prefix==='LC'){ if(typeof saveChatPDF==='function') saveChatPDF(); }
+    else { if(typeof savePDF==='function') savePDF(prefix); }
+  }catch(e){ try{console.warn('PDF save failed:',e);}catch(_){} }
+  try{
+    if(prefix==='LC'){ if(typeof logChatQAResult==='function') logChatQAResult(); }
+    else { if(typeof logQAResult==='function') logQAResult(prefix); }
+  }catch(e){ try{console.warn('Log failed:',e);}catch(_){} }
+}
 </script>
 </body>
 </html>
