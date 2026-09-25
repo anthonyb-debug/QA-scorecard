@@ -9729,6 +9729,27 @@ function statusFor(pp){
   }
 }
 
+/* ---------- apply status in the same frame as the core scoring (no flash) ---------- */
+function completionFor(pp){
+  var sel=pp.prefix.charAt(0)==='T'?'tbody tr:not(.criteria-group-row) .pill-toggle':'.pill-toggle';
+  var pills=[].slice.call(pp.el.querySelectorAll(sel));
+  var ans=pills.filter(function(t){return !!t.querySelector(ANS);}).length, tot=pills.length;
+  var bar=$(pp.prefix+'-completionBar'); if(bar) bar.style.width=(tot?Math.round(ans/tot*100):0)+'%';
+  var lab=$(pp.prefix+'-completionPct'); if(lab){var t=ans+' of '+tot+' scored'; if(lab.textContent!==t) lab.textContent=t;}
+}
+function syncPrefix(pfx){
+  var pp=panels().filter(function(x){return x.prefix===pfx;})[0]; if(!pp) return;
+  completionFor(pp); statusFor(pp);
+}
+[['updateScore',null],['updateCompletion',null],['updateChatScore','LC'],['updateChatCompletion','LC'],['updateScoreT','T'],['updateCompletionT','T']].forEach(function(w){
+  var name=w[0],fixed=w[1],orig=window[name]; if(typeof orig!=='function') return;
+  window[name]=function(){
+    var r=orig.apply(this,arguments);
+    try{ syncPrefix(fixed||arguments[0]); }catch(e){ console.warn(e); }
+    return r;
+  };
+});
+
 /* ---------- "Still needed" under each Log button ---------- */
 var REQ=[['auditNo','Audit no.'],['agent','Agent'],['year','Year'],['month','Month'],['week','Week']];
 var reveal={};
