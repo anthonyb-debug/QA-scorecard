@@ -4535,10 +4535,11 @@ body {
                 <th>Performance</th>
                 <th>Auditor</th>
                 <th>CTM phone</th>
+                <th><span class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Audit form</span></th>
               </tr>
             </thead>
             <tbody id="profile-history-tbody">
-              <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-tertiary);font-size:12px">No audit history found</td></tr>
+              <tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text-tertiary);font-size:12px">No audit history found</td></tr>
             </tbody>
           </table>
         </div>
@@ -5520,6 +5521,7 @@ function _submitQAResult(prefix, brand, year, month, week, name, auditNo, qaScor
   fd.append('noAudit', noAudit ? 'Yes' : 'No');
   fd.append('teamLeader', (document.getElementById(prefix + '-teamLeader')?.value || '').trim());
   fd.append('qaAuditor',  (document.getElementById(prefix + '-qaAuditor')?.value  || '').trim());
+  try { fd.append('details', nsAuditDetails(prefix)); } catch (e) { /* form snapshot is optional */ }
 
   fetch(QA_LOG_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: fd })
     .then(() => {
@@ -6615,6 +6617,7 @@ function renderDashMatrix(){
     cells += `<td><span class="trend-delta ${r.deltaClass}">${r.deltaText}</span></td>`;
     const tr = document.createElement('tr');
     tr.innerHTML = `<td class="agent-td">${r.name}</td>${cells}`;
+    try { st.reqWks.forEach(function(wk, wi){ var td = tr.children[wi+1]; if (td && r.weeks[wi] && r.weeks[wi].cnt > 0) { td.className = 'ns-mx-click'; td.setAttribute('data-ns-wk', wk); td.setAttribute('data-ns-agent', r.name); td.tabIndex = 0; td.setAttribute('aria-label', 'View ' + r.name + ' ' + wk + ' audit forms'); } }); } catch (e) {}
     tbody.appendChild(tr);
   });
 }
@@ -6625,7 +6628,7 @@ function refreshDashPage() {
   const brand = prefix === 'L' ? 'Legacy' : prefix === 'B' ? 'Banyan' : 'Takahami';
   const RPW = prefix === 'T' ? REQUIRED_PER_WEEK_T : REQUIRED_PER_WEEK;
   const subtitleEl = document.getElementById('dash-coverage-subtitle');
-  if (subtitleEl) subtitleEl.textContent = `${RPW} audits required per agent per week`;
+  if (subtitleEl) subtitleEl.textContent = `${RPW} audits required per agent per week. Select a week to view its audit forms.`;
   const year = document.getElementById('dash-year-sel')?.value || '';
   const month = document.getElementById('dash-month-sel')?.value || '';
   const agents = DASH_AGENTS[prefix];
@@ -7248,7 +7251,7 @@ function renderAgentProfile() {
       if (!week) return;
       const key = isAllMonths ? `${month} · ${week}` : week;
       if (!groupMap.has(key)) groupMap.set(key, { month, week, audits: [] });
-      groupMap.get(key).audits.push({ score: s, auditNo: r[6]||'', isNA });
+      groupMap.get(key).audits.push({ score: s, auditNo: r[6]||'', isNA, ref: nsRowRef(r) });
     });
 
     // Sort keys: by month order then week order
@@ -7286,10 +7289,10 @@ function renderAgentProfile() {
       const auditRowsHtml = audits.map((a, i) => {
         const aCls = a.isNA ? 'qa-none' : wbcCls(a.score);
         const scoreDisplay = a.isNA ? '<span class="score-na-pill">N/A</span>' : `<span class="wbc-audit-score qa-score-pill ${aCls}">${a.score}%</span>`;
-        return `<div class="wbc-audit-row">
+        return `<button type="button" class="wbc-audit-row" data-ns-audit="${a.ref}" title="View audit form">
           <span class="wbc-audit-label">Audit ${i+1}</span>
           ${scoreDisplay}
-        </div>`;
+        </button>`;
       }).join('');
 
       return `<div class="week-breakdown-card">
@@ -7337,10 +7340,11 @@ function renderAgentProfile() {
         <td>${tierDisplay}</td>
         <td>${r[12]||'—'}</td>
         <td style="font-size:11px;color:var(--text-tertiary)">${r[8]||'—'}</td>
+        <td><button type="button" class="ns-view-btn" data-ns-audit="${nsRowRef(r)}" aria-label="View audit ${r[6]||''} form"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>View form</button></td>
       </tr>`;
     }).join('');
   } else {
-    histTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-tertiary);font-size:12px">No audit history for this agent in the selected period</td></tr>';
+    histTbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text-tertiary);font-size:12px">No audit history for this agent in the selected period</td></tr>';
   }
 }
 
@@ -8247,6 +8251,7 @@ async function logChatQAResult() {
   fd.append('auditDate', auditDate);
   fd.append('teamLeader', (document.getElementById('L-teamLeader')?.value || '').trim());
   fd.append('qaAuditor',  (document.getElementById('L-qaAuditor')?.value  || '').trim());
+  try { fd.append('details', nsAuditDetails('LC')); } catch (e) { /* form snapshot is optional */ }
 
   fetch(QA_LOG_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: fd })
     .then(() => {
@@ -8665,6 +8670,7 @@ async function resetFormT() {
     fd.append('noAudit', noAuditT ? 'Yes' : 'No');
     fd.append('teamLeader', (document.getElementById('T-teamLeader')?.value || '').trim());
     fd.append('qaAuditor',  (document.getElementById('T-qaAuditor')?.value  || '').trim());
+  try { fd.append('details', nsAuditDetails('T')); } catch (e) { /* form snapshot is optional */ }
 
     fetch(QA_LOG_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: fd })
       .then(function() {
@@ -10004,5 +10010,479 @@ window.nsConfirm=function(o){
 })();
 
 </script>
+
+<!-- ═══════════ AUDIT FORM VIEWER (coaching) ═══════════ -->
+<style id="ns-audit-viewer-css">
+.ns-view-btn{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border:1px solid var(--border-strong);border-radius:7px;background:var(--surface);color:var(--text-primary);font:inherit;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;}
+.ns-view-btn:hover{background:var(--surface-2);}
+.ns-view-btn svg{width:14px;height:14px;flex:none;}
+.ns-view-btn:focus-visible,button.wbc-audit-row:focus-visible,#dash-matrix-tbody td.ns-mx-click:focus-visible,.nsv button:focus-visible,.nsv-toggle input:focus-visible{outline:2px solid var(--legacy);outline-offset:2px;}
+button.wbc-audit-row{background:none;border:0;font:inherit;color:inherit;cursor:pointer;text-align:left;border-radius:6px;padding:4px 6px;margin:0 -6px;width:calc(100% + 12px);}
+button.wbc-audit-row:hover{background:var(--surface-2);}
+button.wbc-audit-row:hover .wbc-audit-label{color:var(--text-primary);text-decoration:underline;text-underline-offset:2px;}
+#dash-matrix-tbody td.ns-mx-click{cursor:pointer;}
+#dash-matrix-tbody td.ns-mx-click:hover{background:var(--surface-2);}
+
+body.nsv-open{overflow:hidden;}
+.nsv-overlay{position:fixed;inset:0;z-index:10040;display:flex;align-items:flex-start;justify-content:center;padding:4vh 20px;overflow-y:auto;
+  background:rgba(15,20,28,.46);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);opacity:0;transition:opacity .16s ease;}
+.nsv-overlay.show{opacity:1;}
+.nsv{--nsv-accent:var(--legacy);--nsv-tier:var(--text-primary);width:min(940px,100%);background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;
+  box-shadow:0 24px 60px -12px rgba(15,20,28,.35),0 2px 6px rgba(15,20,28,.08);transform:translateY(8px);transition:transform .18s cubic-bezier(.2,.8,.3,1);}
+.nsv-overlay.show .nsv{transform:none;}
+.nsv-head{display:flex;gap:18px;align-items:flex-start;padding:20px 22px 18px;border-top:4px solid var(--nsv-accent);border-bottom:1px solid var(--border);}
+.nsv-who{flex:1;min-width:0;}
+.nsv-name{font-size:20px;font-weight:600;color:var(--text-primary);line-height:1.25;overflow-wrap:anywhere;}
+.nsv-sub{font-size:13px;color:var(--text-secondary);margin-top:4px;line-height:1.45;}
+.nsv-score{text-align:right;flex:none;}
+.nsv-score-num{font-size:32px;font-weight:600;line-height:1;color:var(--nsv-tier);font-variant-numeric:tabular-nums;}
+.nsv-score-perf{font-size:12.5px;font-weight:600;color:var(--nsv-tier);margin-top:5px;}
+.nsv-x{flex:none;width:34px;height:34px;margin:-4px -6px 0 0;border:0;border-radius:8px;background:none;color:var(--text-secondary);cursor:pointer;display:grid;place-items:center;}
+.nsv-x:hover{background:var(--surface-2);color:var(--text-primary);}
+.nsv-x svg{width:18px;height:18px;}
+.nsv-switch{display:flex;gap:6px;padding:10px 22px;border-bottom:1px solid var(--border);background:var(--surface-2);overflow-x:auto;}
+.nsv-switch button{flex:none;height:30px;padding:0 12px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text-secondary);font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;white-space:nowrap;}
+.nsv-switch button[aria-pressed="true"]{border-color:var(--nsv-accent);color:var(--text-primary);box-shadow:inset 0 0 0 1px var(--nsv-accent);}
+.nsv-tools{display:flex;align-items:center;gap:12px 20px;flex-wrap:wrap;padding:12px 22px;border-bottom:1px solid var(--border-subtle);}
+.nsv-tally{display:flex;gap:16px;flex-wrap:wrap;flex:1;font-size:12.5px;color:var(--text-secondary);}
+.nsv-tally b{color:var(--text-primary);font-weight:600;}
+.nsv-tally .t-no b{color:var(--no);}
+.nsv-toggle{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-primary);cursor:pointer;user-select:none;}
+.nsv-toggle input{width:16px;height:16px;margin:0;accent-color:var(--nsv-accent);}
+.nsv-body{padding:18px 22px 22px;}
+.nsv-meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px 20px;margin:0 0 20px;}
+.nsv-meta dt{font-size:11.5px;color:var(--text-tertiary);}
+.nsv-meta dd{margin:2px 0 0;font-size:13px;font-weight:500;color:var(--text-primary);overflow-wrap:anywhere;}
+.nsv-sec{border:1px solid var(--border);border-radius:10px;margin-bottom:12px;overflow:hidden;}
+.nsv-sec-h{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface-2);border-bottom:1px solid var(--border);}
+.nsv-sec-num{min-width:24px;height:24px;padding:0 6px;border-radius:6px;background:var(--nsv-accent);color:var(--surface);font-size:11.5px;font-weight:600;display:grid;place-items:center;}
+.nsv-sec-title{flex:1;font-size:13.5px;font-weight:600;color:var(--text-primary);}
+.nsv-sec-status{font-size:12px;font-weight:600;color:var(--text-secondary);white-space:nowrap;}
+.nsv-sec-status.bad{color:var(--no);}
+.nsv-item{display:grid;grid-template-columns:44px minmax(0,1fr) auto 66px 46px;gap:12px;align-items:center;padding:10px 14px;border-top:1px solid var(--border-subtle);}
+.nsv-sec-h + .nsv-item{border-top:0;}
+.nsv-item.is-no{background:var(--no-bg);box-shadow:inset 3px 0 0 var(--no);}
+.nsv-n{font-size:12px;color:var(--text-tertiary);font-variant-numeric:tabular-nums;}
+.nsv-t{font-size:13px;font-weight:500;color:var(--text-primary);line-height:1.35;}
+.nsv-s{font-size:12px;color:var(--text-secondary);margin-top:2px;line-height:1.4;}
+.nsv-b{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;border:1px solid var(--border);color:var(--text-secondary);white-space:nowrap;}
+.nsv-b.major{color:var(--major);background:var(--major-bg);border-color:var(--major-border);}
+.nsv-b.minor{color:var(--minor);background:var(--minor-bg);border-color:var(--minor-border);}
+.nsv-b.ztp{color:var(--ztp);background:var(--ztp-bg);border-color:var(--ztp-border);}
+.nsv-r{justify-self:center;font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;}
+.nsv-r.y{color:var(--yes);background:var(--yes-bg);}
+.nsv-r.n{color:var(--surface);background:var(--no);}
+.nsv-r.a{color:var(--na);background:var(--na-bg);}
+.nsv-r.u{color:var(--text-tertiary);}
+.nsv-d{text-align:right;font-size:12.5px;font-weight:600;color:var(--text-tertiary);font-variant-numeric:tabular-nums;}
+.nsv-d.neg{color:var(--no);}
+.nsv-grp{padding:8px 14px;font-size:12px;font-weight:600;color:var(--text-secondary);background:var(--bg);border-top:1px solid var(--border-subtle);}
+.nsv-only-missed .nsv-item:not(.is-no),.nsv-only-missed .nsv-grp,.nsv-only-missed .nsv-sec:not(.has-no){display:none;}
+.nsv-nomiss{display:none;padding:28px 16px;text-align:center;font-size:13px;color:var(--text-secondary);border:1px dashed var(--border-strong);border-radius:10px;}
+.nsv-only-missed .nsv-nomiss.on{display:block;}
+.nsv-h3{font-size:14px;font-weight:600;color:var(--text-primary);margin:22px 0 10px;}
+.nsv-rm{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.nsv-rm .full{grid-column:1/-1;}
+.nsv-rm .lbl{font-size:11.5px;color:var(--text-tertiary);margin-bottom:4px;}
+.nsv-rm .v{font-size:13px;line-height:1.55;color:var(--text-primary);white-space:pre-wrap;overflow-wrap:anywhere;background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:8px;padding:10px 12px;}
+.nsv-rm .v.empty{color:var(--text-tertiary);}
+.nsv-state{padding:44px 24px;text-align:center;}
+.nsv-state-t{font-size:15px;font-weight:600;color:var(--text-primary);}
+.nsv-state-m{font-size:13px;line-height:1.55;color:var(--text-secondary);max-width:460px;margin:6px auto 0;}
+.nsv-state .nsv-meta{text-align:left;max-width:640px;margin:22px auto 0;}
+.nsv-btn{height:34px;padding:0 14px;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text-primary);font:inherit;font-size:13px;font-weight:500;cursor:pointer;}
+.nsv-btn:hover{background:var(--surface-2);}
+.nsv-btn.pri{background:var(--nsv-accent);border-color:var(--nsv-accent);color:var(--surface);}
+.nsv-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 22px;border-top:1px solid var(--border);font-size:12px;color:var(--text-tertiary);}
+.nsv-foot .acts{display:flex;gap:8px;}
+.nsv-loading{display:inline-block;width:18px;height:18px;border:2px solid var(--border-strong);border-top-color:var(--nsv-accent);border-radius:50%;animation:nsvspin .8s linear infinite;margin-bottom:10px;}
+@keyframes nsvspin{to{transform:rotate(360deg);}}
+@media(max-width:640px){
+  .nsv-overlay{padding:0;}
+  .nsv{border-radius:0;min-height:100%;}
+  .nsv-head{flex-wrap:wrap;}
+  .nsv-score{order:3;text-align:left;width:100%;display:flex;align-items:baseline;gap:10px;}
+  .nsv-score-num{font-size:26px;}
+  .nsv-item{grid-template-columns:minmax(0,1fr) auto;}
+  .nsv-n,.nsv-b,.nsv-d{display:none;}
+  .nsv-rm{grid-template-columns:1fr;}
+}
+@media(prefers-reduced-motion:reduce){.nsv-overlay,.nsv{transition:none!important;}.nsv-loading{animation-duration:2.4s;}}
+@media print{
+  body.nsv-open > *:not(.nsv-overlay){display:none!important;}
+  body.nsv-open{padding:0!important;background:#fff!important;overflow:visible!important;}
+  .nsv-overlay{position:static;padding:0;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;overflow:visible;}
+  .nsv{box-shadow:none;border:0;width:100%;transform:none;}
+  .nsv-x,.nsv-switch,.nsv-toggle,.nsv-foot .acts{display:none!important;}
+  .nsv-sec{break-inside:avoid;}
+}
+</style>
+<script id="ns-audit-viewer-js">
+(function(){
+'use strict';
+
+/* ---------- config ---------- */
+var DETAILS_SHEET = 'QA Details';     // tab the Apps Script writes full forms to
+var MAX_DETAILS   = 45000;            // Google Sheets cell limit is 50,000 characters
+
+var FORMS = {
+  L:  { tab:'L-tab-scorecard', score:'L-',  meta:'L-metaBar', name:'Legacy call QA',  noAudit:'L-noAudit' },
+  LC: { tab:'L-tab-chat',      score:'LC-', meta:'L-metaBar', name:'Legacy chat QA',  noAudit:null },
+  B:  { tab:'B-tab-scorecard', score:'B-',  meta:'B-metaBar', name:'Banyan call QA',  noAudit:'B-noAudit' },
+  T:  { tab:'T-tab-scorecard', score:'T-',  meta:'T-metaBar', name:'Takahami QA',     noAudit:'T-noAudit' }
+};
+
+function $(id){ return document.getElementById(id); }
+function txt(el){ return el ? (el.textContent || '').replace(/\s+/g,' ').trim() : ''; }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function ctlVal(c){
+  if (!c) return '';
+  if (c.tagName === 'SELECT'){ var o = c.options[c.selectedIndex]; return (o && c.value) ? (o.textContent || '').trim() : ''; }
+  if (c.type === 'checkbox') return c.checked ? 'Yes' : 'No';
+  return (c.value || '').trim();
+}
+
+/* =========================================================
+   1) SNAPSHOT — called when the QA logs an audit.
+   Captures exactly what is on screen so old audits keep
+   their original wording even if the scorecard changes later.
+   ========================================================= */
+window.nsAuditDetails = function(key){
+  var f = FORMS[key]; if (!f) return '';
+  var tab = $(f.tab); if (!tab) return '';
+  var noAudit = f.noAudit ? !!($(f.noAudit) || {}).checked : false;
+  var d = { v:1, form:f.name, noAudit:noAudit,
+            score: noAudit ? 'N/A' : txt($(f.score + 'displayScore')),
+            perf:  noAudit ? 'No audit' : txt($(f.score + 'perfLabel')),
+            meta:[], sections:[], remarks:[] };
+
+  var mb = $(f.meta);
+  if (mb) mb.querySelectorAll('.mf').forEach(function(mf){
+    if (mf.style.display === 'none') return;
+    var l = txt(mf.querySelector('label')); var c = mf.querySelector('input,select,textarea');
+    if (l && c) d.meta.push([l, ctlVal(c)]);
+  });
+
+  tab.querySelectorAll('.acc-section').forEach(function(sec){
+    var s = { n:txt(sec.querySelector('.acc-num')), t:txt(sec.querySelector('.acc-title')), st:txt(sec.querySelector('.acc-status')), i:[] };
+    sec.querySelectorAll('tbody tr').forEach(function(tr){
+      if (tr.classList.contains('criteria-group-row')){ s.i.push({ g:txt(tr) }); return; }
+      var title = txt(tr.querySelector('.criterion-title')); if (!title) return;
+      var r = '', x = '';
+      tr.querySelectorAll('.pill-btn').forEach(function(b){
+        if (b.classList.contains('ay')){ r = txt(b); x = 'y'; }
+        else if (b.classList.contains('an')){ r = txt(b); x = 'n'; }
+        else if (b.classList.contains('aa')){ r = 'N/A'; x = 'a'; }
+      });
+      s.i.push({ n:txt(tr.querySelector('.col-num')), t:title, s:txt(tr.querySelector('.criterion-sub')),
+                 b:txt(tr.querySelector('.badge, .badge-weighted')), r:r, x:x, d:txt(tr.querySelector('.dv')) });
+    });
+    if (s.i.length) d.sections.push(s);
+  });
+
+  tab.querySelectorAll('.remarks-body > div').forEach(function(div){
+    var l = txt(div.querySelector('label')); var c = div.querySelector('input,select,textarea');
+    if (l && c) d.remarks.push([l, ctlVal(c).slice(0, 6000), div.classList.contains('full') ? 1 : 0]);
+  });
+
+  var json = JSON.stringify(d);
+  if (json.length > MAX_DETAILS){ d.sections.forEach(function(s){ s.i.forEach(function(it){ delete it.s; }); }); json = JSON.stringify(d); }
+  if (json.length > MAX_DETAILS){ d.remarks.forEach(function(rm){ rm[1] = rm[1].slice(0, 1500); }); json = JSON.stringify(d); }
+  return json;
+};
+
+/* =========================================================
+   2) LOOKUP — find the saved form for a row of the QA Log
+   ========================================================= */
+var REG = [];
+window.nsRowRef = function(r){ REG.push(r); return REG.length - 1; };
+
+var idx = { rows:null, at:0, p:null, missing:false };
+var cache = {};
+
+function sheetsUrl(range){
+  return 'https://sheets.googleapis.com/v4/spreadsheets/' + QA_SPREADSHEET_ID + '/values/' + encodeURIComponent(range) + '?key=' + SHEETS_API_KEY;
+}
+function getJSON(url){
+  return fetch(url).then(function(res){
+    return res.json().catch(function(){ return {}; }).then(function(j){
+      if (!res.ok){
+        var msg = (j && j.error && j.error.message) || ('HTTP ' + res.status);
+        var e = new Error(msg); e.missingTab = /Unable to parse range/i.test(msg); throw e;
+      }
+      return j;
+    });
+  });
+}
+function loadIndex(force){
+  if (!force && idx.rows && Date.now() - idx.at < 60000) return Promise.resolve(idx.rows);
+  if (idx.p) return idx.p;
+  idx.p = getJSON(sheetsUrl("'" + DETAILS_SHEET + "'!A2:I"))
+    .then(function(j){ idx.rows = j.values || []; idx.missing = false; idx.at = Date.now(); idx.p = null; return idx.rows; })
+    .catch(function(e){ idx.p = null; if (e.missingTab){ idx.rows = []; idx.missing = true; idx.at = Date.now(); return idx.rows; } throw e; });
+  return idx.p;
+}
+
+function nWeek(v){ var m = String(v || '').match(/\d+/); return m ? m[0] : ''; }
+function nMonth(v){ return String(v || '').trim().slice(0,3).toLowerCase(); }
+function nTxt(v){ return String(v || '').trim().toLowerCase().replace(/\s+/g,' '); }
+function nId(v){ return String(v || '').toLowerCase().replace(/[^a-z0-9]/g,''); }
+function nNum(v){ var m = String(v || '').replace(/,/g,'').match(/\d+(\.\d+)?/); return m ? String(parseFloat(m[0])) : ''; }
+function nCamp(v){ return nTxt(v).split(' ')[0]; }
+
+/* main QA Log row: 0 ts,1 campaign,2 year,3 month,4 week,5 agent,6 audit no,7 score,8 id,9 call dt,10 audit date,11 TL,12 QA
+   QA Details row: 0 ts,1 campaign,2 year,3 month,4 week,5 agent,6 audit no,7 score,8 id,9 details json */
+function sameAudit(d, r){
+  if (nCamp(d[1]) !== nCamp(r[1]) || nId(d[2]) !== nId(r[2]) || nMonth(d[3]) !== nMonth(r[3]) ||
+      nWeek(d[4]) !== nWeek(r[4]) || nTxt(d[5]) !== nTxt(r[5]) || nNum(d[6]) !== nNum(r[6])) return -1;
+  var di = nId(d[8]), ri = nId(r[8]);
+  if (di && ri && di !== ri) return -1;
+  var ds = nTxt(d[7]), rs = nTxt(r[7]);
+  if (ds && rs && nNum(ds) !== nNum(rs) && !(ds === 'n/a' && rs === 'n/a')) return -1;
+  var sc = 0;
+  if (di && di === ri) sc += 4;
+  if (ds && ds === rs) sc += 2;
+  if (nTxt(d[1]) === nTxt(r[1])) sc += 1;
+  return sc;
+}
+function findIndex(r){
+  var rows = idx.rows || [], best = -1, bestSc = -1;
+  for (var i = 0; i < rows.length; i++){
+    var sc = sameAudit(rows[i], r);
+    if (sc >= 0 && sc >= bestSc){ best = i; bestSc = sc; }   // ties: newest wins
+  }
+  return best;
+}
+function fetchDetail(r, retried){
+  return loadIndex(retried).then(function(){
+    if (idx.missing) return { status:'setup' };
+    var i = findIndex(r);
+    if (i < 0) return retried ? { status:'none' } : fetchDetail(r, true);
+    var n = i + 2;
+    if (cache[n]) return { status:'ok', data:cache[n].data, ts:cache[n].ts };
+    return getJSON(sheetsUrl("'" + DETAILS_SHEET + "'!A" + n + ":J" + n)).then(function(j){
+      var row = (j.values && j.values[0]) || [];
+      if (sameAudit(row, r) < 0){                     // tab was re-sorted since we indexed it
+        if (retried) return { status:'none' };
+        idx.at = 0; return fetchDetail(r, true);
+      }
+      var data; try { data = JSON.parse(row[9] || ''); } catch(e){ return { status:'broken' }; }
+      cache[n] = { data:data, ts:row[0] || '' };
+      return { status:'ok', data:data, ts:row[0] || '' };
+    });
+  });
+}
+
+/* =========================================================
+   3) VIEWER
+   ========================================================= */
+var ov = null, st = null, lastFocus = null;
+var ACCENT = { legacy:'var(--legacy)', banyan:'var(--banyan)', takahami:'var(--takahami)' };
+var IC_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+
+function tierOf(score){
+  var s = (typeof parseScore === 'function') ? parseScore(score) : parseFloat(score);
+  if (String(score || '').trim().toUpperCase() === 'N/A') return { label:'No audit', color:'var(--na)' };
+  if (s === null || isNaN(s)) return { label:'', color:'var(--text-primary)' };
+  try { var t = scoreTier(s); return { label:tierLabel(t), color:tierColor(t) }; } catch(e){ return { label:'', color:'var(--text-primary)' }; }
+}
+function fmtWeek(v){ var w = nWeek(v); return w ? 'Week ' + w : (v || ''); }
+function fmtWhen(v){
+  if (!v) return '';
+  var dt = new Date(v); if (isNaN(dt)) return String(v);
+  return dt.toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' });
+}
+function scoreText(v){ var s = String(v || '').trim(); if (!s) return '—'; if (s.toUpperCase() === 'N/A') return 'N/A'; return /%$/.test(s) ? s : (nNum(s) ? nNum(s) + '%' : s); }
+
+function rowMeta(r){
+  return [['Team leader', r[11]], ['QA auditor', r[12]], ['Call / chat ID', r[8]], ['Call / chat date', fmtWhen(r[9])], ['Audit date', r[10]]]
+    .filter(function(p){ return p[1]; });
+}
+function metaHTML(pairs){
+  if (!pairs.length) return '';
+  return '<dl class="nsv-meta">' + pairs.map(function(p){ return '<div><dt>' + esc(p[0]) + '</dt><dd>' + esc(p[1] || '—') + '</dd></div>'; }).join('') + '</dl>';
+}
+
+function headHTML(r, d){
+  var score = d && d.score ? d.score : scoreText(r[7]);
+  var tier = tierOf(d && d.score ? d.score : r[7]);
+  var perf = (d && d.perf) || tier.label;
+  var bits = [r[1], r[6] ? 'Audit ' + r[6] : '', [fmtWeek(r[4]), [r[3], r[2]].filter(Boolean).join(' ')].filter(Boolean).join(', ')].filter(Boolean);
+  return '<div class="nsv-who"><div class="nsv-name" id="nsv-title">' + esc(r[5] || 'Agent') + '</div>' +
+         '<div class="nsv-sub">' + esc(bits.join(' \u2014 ')) + (d && d.form ? '<br>' + esc(d.form) : '') + '</div></div>' +
+         '<div class="nsv-score" style="--nsv-tier:' + tier.color + '"><div class="nsv-score-num">' + esc(score) + '</div>' +
+         (perf ? '<div class="nsv-score-perf">' + esc(perf) + '</div>' : '') + '</div>' +
+         '<button type="button" class="nsv-x" data-nsv="close" aria-label="Close">' + IC_X + '</button>';
+}
+
+function badgeCls(b){ b = (b || '').toLowerCase(); return b.indexOf('major') > -1 ? 'major' : b.indexOf('minor') > -1 ? 'minor' : (b.indexOf('ztp') > -1 || b.indexOf('zero') > -1 || b.indexOf('critical') > -1) ? 'ztp' : ''; }
+
+function formHTML(r, d){
+  var hidden = /^(agent|audit no\.?|year|month|week)$/i;
+  var meta = (d.meta || []).filter(function(p){ return !hidden.test(p[0]); });
+  var met = 0, miss = 0, na = 0, blank = 0, secs = '';
+  (d.sections || []).forEach(function(s){
+    var body = '', has = false;
+    s.i.forEach(function(it){
+      if (it.g !== undefined){ body += '<div class="nsv-grp">' + esc(it.g) + '</div>'; return; }
+      var x = it.x || (/^no$/i.test(it.r) ? 'n' : /^yes$/i.test(it.r) ? 'y' : it.r === 'N/A' ? 'a' : '');
+      if (x === 'y') met++; else if (x === 'n'){ miss++; has = true; } else if (x === 'a') na++; else blank++;
+      var ded = (it.d || '').trim(), neg = /^[-\u2212]/.test(ded);
+      body += '<div class="nsv-item' + (x === 'n' ? ' is-no' : '') + '">' +
+        '<span class="nsv-n">' + esc(it.n) + '</span>' +
+        '<div><div class="nsv-t">' + esc(it.t) + '</div>' + (it.s ? '<div class="nsv-s">' + esc(it.s) + '</div>' : '') + '</div>' +
+        (it.b ? '<span class="nsv-b ' + badgeCls(it.b) + '">' + esc(it.b) + '</span>' : '<span></span>') +
+        '<span class="nsv-r ' + (x || 'u') + '">' + esc(it.r || 'Not scored') + '</span>' +
+        '<span class="nsv-d' + (neg ? ' neg' : '') + '">' + esc(ded || '') + '</span></div>';
+    });
+    var bad = /[-\u2212]|fail|viol/i.test(s.st || '');
+    secs += '<section class="nsv-sec' + (has ? ' has-no' : '') + '"><div class="nsv-sec-h">' +
+      (s.n ? '<span class="nsv-sec-num">' + esc(s.n) + '</span>' : '') +
+      '<span class="nsv-sec-title">' + esc(s.t) + '</span>' +
+      (s.st && s.st !== '—' ? '<span class="nsv-sec-status' + (bad ? ' bad' : '') + '">' + esc(s.st) + '</span>' : '') +
+      '</div>' + body + '</section>';
+  });
+
+  var tally = '<div class="nsv-tally" aria-live="polite">' +
+    '<span class="t-no"><b>' + miss + '</b> missed</span><span><b>' + met + '</b> met</span>' +
+    (na ? '<span><b>' + na + '</b> N/A</span>' : '') + (blank ? '<span><b>' + blank + '</b> not scored</span>' : '') + '</div>';
+  var tools = d.noAudit ? '' : '<div class="nsv-tools">' + tally +
+    '<label class="nsv-toggle"><input type="checkbox" data-nsv="missed"' + (st.missed ? ' checked' : '') + '> Show missed items only</label></div>';
+
+  var rem = (d.remarks || []).map(function(p){
+    return '<div class="' + (p[2] ? 'full' : '') + '"><div class="lbl">' + esc(p[0]) + '</div><div class="v' + (p[1] ? '' : ' empty') + '">' + esc(p[1] || 'None entered') + '</div></div>';
+  }).join('');
+
+  var body = d.noAudit
+    ? '<div class="nsv-state"><div class="nsv-state-t">No audit this week</div><div class="nsv-state-m">The QA marked this week as no audit, so there are no scored items.</div></div>'
+    : secs + '<div class="nsv-nomiss' + (miss ? '' : ' on') + '">No missed items on this audit.</div>';
+
+  return tools + '<div class="nsv-body' + (st.missed && !d.noAudit ? ' nsv-only-missed' : '') + '">' + metaHTML(meta) + body +
+    (rem ? '<h3 class="nsv-h3">Remarks and coaching notes</h3><div class="nsv-rm">' + rem + '</div>' : '') + '</div>';
+}
+
+function stateHTML(kind, r, msg){
+  var t, m, extra = '';
+  if (kind === 'loading') return '<div class="nsv-state" role="status"><span class="nsv-loading" aria-hidden="true"></span><div class="nsv-state-m">Loading the audit form\u2026</div></div>';
+  if (kind === 'setup'){ t = 'Full forms aren\u2019t being saved yet'; m = 'The \u201cQA Details\u201d tab doesn\u2019t exist in the QA spreadsheet. Once the Apps Script update is deployed, every audit logged after that will open here.'; }
+  else if (kind === 'none'){ t = 'Full form not on record'; m = 'This audit was logged before full forms were saved, so only the score is stored. The PDF the QA saved at the time has the item-by-item results.'; }
+  else if (kind === 'broken'){ t = 'This form couldn\u2019t be read'; m = 'The saved details for this audit are incomplete. The PDF the QA saved at the time has the full results.'; }
+  else { t = 'Couldn\u2019t load the audit form'; m = (msg ? msg + '. ' : '') + 'Check your connection, then try again.'; extra = '<div style="margin-top:16px"><button type="button" class="nsv-btn pri" data-nsv="retry">Try again</button></div>'; }
+  return '<div class="nsv-state"><div class="nsv-state-t">' + esc(t) + '</div><div class="nsv-state-m">' + esc(m) + '</div>' + extra + metaHTML(rowMeta(r)) + '</div>';
+}
+
+function switchHTML(){
+  if (st.list.length < 2) return '';
+  return '<div class="nsv-switch" role="group" aria-label="Audits">' + st.list.map(function(r, i){
+    return '<button type="button" data-nsv="pick" data-i="' + i + '" aria-pressed="' + (i === st.cur) + '">Audit ' + esc(r[6] || (i + 1)) + ' \u2014 ' + esc(scoreText(r[7])) + '</button>';
+  }).join('') + '</div>';
+}
+
+function render(){
+  var r = st.list[st.cur];
+  var camp = nCamp(r[1]);
+  var box = ov.querySelector('.nsv');
+  box.style.setProperty('--nsv-accent', ACCENT[camp] || 'var(--legacy)');
+  var res = st.res;
+  var d = res && res.status === 'ok' ? res.data : null;
+  var main = !res ? stateHTML('loading', r) : res.status === 'ok' ? formHTML(r, d) : stateHTML(res.status, r, res.msg);
+  var logged = res && res.ts ? 'Logged ' + fmtWhen(res.ts) : (r[0] ? 'Logged ' + fmtWhen(r[0]) : '');
+  box.innerHTML = '<header class="nsv-head">' + headHTML(r, d) + '</header>' + switchHTML() + main +
+    '<footer class="nsv-foot"><span>' + esc(logged) + '</span><span class="acts">' +
+    (d ? '<button type="button" class="nsv-btn" data-nsv="print">Print</button>' : '') +
+    '<button type="button" class="nsv-btn pri" data-nsv="close">Close</button></span></footer>';
+}
+
+function load(){
+  var r = st.list[st.cur], token = st.token = {};
+  st.res = null; render();
+  fetchDetail(r, false).then(function(res){ if (st && st.token === token){ st.res = res; render(); } })
+    .catch(function(e){ if (st && st.token === token){ st.res = { status:'error', msg:e.message }; render(); } });
+}
+
+function onKey(e){
+  if (!ov) return;
+  if (e.key === 'Escape'){ e.preventDefault(); close(); return; }
+  if (e.key === 'Tab'){
+    var f = ov.querySelectorAll('button, input, [tabindex="0"]'); if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  }
+}
+
+function open(list, start){
+  list = (list || []).filter(Boolean);
+  if (!list.length) return;
+  if (typeof SHEETS_API_KEY === 'undefined' || !SHEETS_API_KEY || SHEETS_API_KEY === 'YOUR_API_KEY_HERE'){
+    if (typeof showToast === 'function') showToast('Audit forms need the Google Sheets API key to be configured.', true);
+    return;
+  }
+  if (ov) close(true);
+  lastFocus = document.activeElement;
+  st = { list:list, cur:start || 0, missed:false, res:null };
+  ov = document.createElement('div');
+  ov.className = 'nsv-overlay';
+  ov.innerHTML = '<div class="nsv" role="dialog" aria-modal="true" aria-labelledby="nsv-title"></div>';
+  document.body.appendChild(ov);
+  document.body.classList.add('nsv-open');
+  ov.addEventListener('click', function(e){
+    if (e.target === ov){ close(); return; }
+    var b = e.target.closest('[data-nsv]'); if (!b) return;
+    var a = b.getAttribute('data-nsv');
+    if (a === 'close') close();
+    else if (a === 'print') window.print();
+    else if (a === 'retry'){ idx.at = 0; load(); }
+    else if (a === 'pick'){ st.cur = +b.getAttribute('data-i'); load(); var p = ov.querySelector('[data-nsv="pick"][data-i="' + st.cur + '"]'); if (p) p.focus(); }
+  });
+  ov.addEventListener('change', function(e){
+    if (e.target.getAttribute('data-nsv') !== 'missed') return;
+    st.missed = e.target.checked;
+    var body = ov.querySelector('.nsv-body'); if (body) body.classList.toggle('nsv-only-missed', st.missed);
+  });
+  document.addEventListener('keydown', onKey, true);
+  load();
+  requestAnimationFrame(function(){ ov.classList.add('show'); var x = ov.querySelector('.nsv-x'); if (x) x.focus(); });
+}
+function close(silent){
+  if (!ov) return;
+  document.removeEventListener('keydown', onKey, true);
+  ov.remove(); ov = null; st = null;
+  document.body.classList.remove('nsv-open');
+  if (!silent && lastFocus && lastFocus.focus) try { lastFocus.focus(); } catch(e){}
+}
+window.nsOpenAuditForm = open;
+
+/* =========================================================
+   4) ENTRY POINTS
+   ========================================================= */
+// Agent profile: history "View" buttons and weekly breakdown audit rows
+document.addEventListener('click', function(e){
+  var b = e.target.closest('[data-ns-audit]'); if (!b) return;
+  var r = REG[+b.getAttribute('data-ns-audit')]; if (r) open([r], 0);
+});
+
+// Audits page: weekly matrix cells
+function openMatrixCell(td){
+  var agent = td.getAttribute('data-ns-agent'), wk = td.getAttribute('data-ns-wk');
+  var s = (typeof dashMatrixState !== 'undefined') ? dashMatrixState : null; if (!s) return;
+  var brand = { L:'Legacy', B:'Banyan', T:'Takahami' }[typeof dashActiveCampaign !== 'undefined' ? dashActiveCampaign : 'L'];
+  var rows = getAllRows().filter(function(r){
+    return (r[1] || '') === brand && String(r[2] || '') === String(s.year) && (r[3] || '') === s.month &&
+           (r[5] || '').trim() === agent && 'Week ' + nWeek(r[4]) === wk;
+  }).sort(function(a, b){ return new Date(a[0] || 0) - new Date(b[0] || 0); });
+  open(rows, 0);
+}
+document.addEventListener('click', function(e){
+  var td = e.target.closest('#dash-matrix-tbody td.ns-mx-click'); if (td) openMatrixCell(td);
+});
+document.addEventListener('keydown', function(e){
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  var td = e.target.closest && e.target.closest('#dash-matrix-tbody td.ns-mx-click');
+  if (td){ e.preventDefault(); openMatrixCell(td); }
+});
+})();
+</script>
+
 </body>
 </html>
