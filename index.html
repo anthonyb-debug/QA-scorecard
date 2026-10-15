@@ -3029,7 +3029,7 @@ body {
         <div class="mf"><label>Audit date</label><input type="date" id="L-auditDate"></div>
         <div class="mf"><label>Year</label><select id="L-year"></select></div>
         <div class="mf"><label>Month</label><select id="L-month"></select></div>
-        <div class="mf"><label>Week</label><select id="L-week"><option value="">Select…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+        <div class="mf"><label>Week</label><select id="L-week"><option value="">Select…</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
         <div class="mf"><label>Team leader</label><select id="L-teamLeader"><option value="">Select…</option><option>Pineda, John Tristan</option></select></div>
         <div class="mf"><label>QA auditor</label><select id="L-qaAuditor"><option value="">Select…</option><option>Bucatcat, Raphael Zaldy</option></select></div>
         <div class="no-audit-row">
@@ -3599,7 +3599,7 @@ body {
         <div class="mf"><label>Audit date</label><input type="date" id="B-auditDate"></div>
         <div class="mf"><label>Year</label><select id="B-year"></select></div>
         <div class="mf"><label>Month</label><select id="B-month"></select></div>
-        <div class="mf"><label>Week</label><select id="B-week"><option value="">Select…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+        <div class="mf"><label>Week</label><select id="B-week"><option value="">Select…</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
         <div class="mf"><label>Team leader</label><select id="B-teamLeader"><option value="">Select…</option><option>Pineda, John Tristan</option></select></div>
         <div class="mf"><label>QA auditor</label><select id="B-qaAuditor"><option value="">Select…</option><option>Bucatcat, Raphael Zaldy</option></select></div>
         <div class="no-audit-row">
@@ -3951,7 +3951,7 @@ body {
         <div class="mf"><label>Audit date</label><input type="date" id="T-auditDate"></div>
         <div class="mf"><label>Year</label><select id="T-year"></select></div>
         <div class="mf"><label>Month</label><select id="T-month"></select></div>
-        <div class="mf"><label>Week</label><select id="T-week"><option value="">Select…</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+        <div class="mf"><label>Week</label><select id="T-week"><option value="">Select…</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
         <div class="mf"><label>Team leader</label><select id="T-teamLeader"><option value="">Select…</option><option>Pineda, John Tristan</option></select></div>
         <div class="mf"><label>QA auditor</label><select id="T-qaAuditor"><option value="">Select…</option><option>Bucatcat, Raphael Zaldy</option></select></div>
         <div class="no-audit-row">
@@ -4246,7 +4246,7 @@ body {
           <div class="kpi-icon" style="background:var(--ztp-bg);color:var(--ztp)"><svg class="ns-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
         </div>
         <div class="kpi-value" id="kpi-critical" style="color:var(--ztp)">—</div>
-        <div class="kpi-sub">ZTP or ≤80% score</div>
+        <div class="kpi-sub" id="kpi-critical-sub">ZTP violations</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-card-top">
@@ -4256,6 +4256,44 @@ body {
         <div class="kpi-value" id="kpi-on-track">—</div>
         <div class="kpi-sub">agents fully covered</div>
       </div>
+    </div>
+
+    <!-- Still to audit (QA work list) -->
+    <div class="panel nsd-panel" style="margin-bottom:16px">
+      <div class="panel-header nsd-head">
+        <div>
+          <div class="panel-title">Still to audit</div>
+          <div class="panel-subtitle" id="nsd-todo-sub">Agents who still need audits this week</div>
+        </div>
+        <div class="nsd-weeks" id="nsd-weeks" role="group" aria-label="Week"></div>
+      </div>
+      <div id="nsd-todo"><div class="empty-state" style="padding:16px"><span class="empty-state-sub">Select Refresh to load audits</span></div></div>
+    </div>
+
+    <!-- Coaching queue + Top performers -->
+    <div class="dash-grid" style="margin-bottom:16px">
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Coaching queue</div>
+            <div class="panel-subtitle">Audits this month that need a TL to follow up</div>
+          </div>
+          <span class="panel-badge" id="nsd-coach-badge">0</span>
+        </div>
+        <div id="nsd-coach"><div class="empty-state" style="padding:16px"><span class="empty-state-sub">Select Refresh to load audits</span></div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Top performing agents</div>
+          <span class="panel-badge" id="top-agents-badge">0</span>
+        </div>
+        <div class="agent-list" id="dash-top-agents">
+          <div class="empty-state"><span class="empty-state-icon"><svg class="ns-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0z"/></svg></span><span class="empty-state-sub">Select Refresh to load audits</span></div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Row 2: Audit trend + Coverage -->
@@ -4288,31 +4326,6 @@ body {
           <div id="dash-score-dist" style="display:flex;flex-direction:column;gap:6px">
             <div class="empty-state" style="padding:10px"><span class="empty-state-sub">Select Refresh to load audits</span></div>
           </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Row 3: Top performers + Needs improvement -->
-    <div class="dash-grid" style="margin-bottom:16px">
-
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">Top performing agents</div>
-          <span class="panel-badge" id="top-agents-badge">0</span>
-        </div>
-        <div class="agent-list" id="dash-top-agents">
-          <div class="empty-state"><span class="empty-state-icon"><svg class="ns-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0z"/></svg></span><span class="empty-state-sub">Select Refresh to load audits</span></div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">Agents needing improvement</div>
-          <span class="panel-badge" id="bottom-agents-badge">0</span>
-        </div>
-        <div class="agent-list" id="dash-bottom-agents">
-          <div class="empty-state"><span class="empty-state-icon"><svg class="ns-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m23 6-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg></span><span class="empty-state-sub">Select Refresh to load audits</span></div>
         </div>
       </div>
 
@@ -6675,16 +6688,22 @@ function refreshDashPage() {
   const avg = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length) : null;
   const passes = scores.filter(s => s >= 87).length;
   const passRate = scores.length ? Math.round(passes/scores.length*100) : null;
-  const criticals = scores.filter(s => s <= 80).length;
+  const isNA = r => (r[7]||'').toString().trim().toUpperCase() === 'N/A';
+  // ZTP violations: score of 0 for now; replaced with the count from saved forms once they load
+  const criticals = scores.filter(s => s === 0).length;
 
   // coverage
   const counts = {};
   agents.forEach(a => { counts[a] = {'Week 1':0,'Week 2':0,'Week 3':0,'Week 4':0}; });
+  // scored audits and "no audit" weeks, kept apart for the KPIs (the matrix still uses counts)
+  const scored = {}, excused = {};
+  agents.forEach(a => { scored[a] = {'Week 1':0,'Week 2':0,'Week 3':0,'Week 4':0}; excused[a] = {}; });
   filtered.forEach(r => {
     const a = (r[5]||'').trim();
     const raw = (r[4]||'').toString().trim();
     const w = /^\d$/.test(raw) ? 'Week '+raw : (/^Week\s*\d$/i.test(raw) ? 'Week '+raw.replace(/\D/g,'') : raw);
     if (counts[a] && counts[a].hasOwnProperty(w)) counts[a][w]++;
+    if (scored[a] && scored[a].hasOwnProperty(w)) { if (isNA(r)) excused[a][w] = true; else scored[a][w]++; }
   });
 
   const weeksWithData = new Set();
@@ -6704,13 +6723,13 @@ function refreshDashPage() {
   let totalReq=0, totalMet=0, agentsOnTrack=0;
   agents.forEach(a => {
     let ar=0,am=0;
-    reqWks.forEach(w => { ar+=3; am+=Math.min(counts[a][w],3); });
+    reqWks.forEach(w => { if (excused[a][w] && scored[a][w] === 0) return; ar+=RPW; am+=Math.min(scored[a][w],RPW); });
     totalReq+=ar; totalMet+=am;
     if (ar>0 && am===ar) agentsOnTrack++;
   });
 
-  document.getElementById('kpi-total').textContent = filtered.length;
-  document.getElementById('kpi-total-sub').textContent = `of ~${agents.length * reqWks.length * 3} target`;
+  document.getElementById('kpi-total').textContent = filtered.filter(r => !isNA(r)).length;
+  document.getElementById('kpi-total-sub').textContent = `of ${totalReq} target`;
   document.getElementById('kpi-avg-score').textContent = avg !== null ? avg.toFixed(1)+'%' : '—';
   document.getElementById('kpi-pass-rate').textContent = passRate !== null ? passRate+'%' : '—';
   document.getElementById('kpi-critical').textContent = criticals;
@@ -6719,7 +6738,7 @@ function refreshDashPage() {
   // ── Trend chart: audits per week ──
   const trendChart = document.getElementById('dash-trend-chart');
   if (reqWks.length > 0) {
-    const wkCounts = reqWks.map(w => filtered.filter(r => (r[4]||'').trim() === w).length);
+    const wkCounts = reqWks.map(w => filtered.filter(r => !isNA(r) && 'Week ' + ((r[4]||'').toString().match(/\d+/)||[''])[0] === w).length);
     const maxWk = Math.max(...wkCounts, 1);
     trendChart.innerHTML = wkCounts.map((cnt, i) => {
       const h = Math.round((cnt/maxWk)*90);
@@ -6791,7 +6810,7 @@ function refreshDashPage() {
 
   const botEl = document.getElementById('dash-bottom-agents');
   const bot = agentStats.filter(a => a.avg < 87).slice(-5).reverse();
-  if (bot.length) {
+  if (!botEl) { /* replaced by the coaching queue */ } else if (bot.length) {
     botEl.innerHTML = bot.map(agentRowHtml).join('');
     document.getElementById('bottom-agents-badge').textContent = bot.length;
   } else {
@@ -7270,7 +7289,7 @@ function renderAgentProfile() {
 
     const isAllMonths = !monthVal || monthVal === 'all';
     const monthOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const weekOrder  = ['Week 1','Week 2','Week 3','Week 4','Week 5'];
+    const weekOrder  = ['Week 1','Week 2','Week 3','Week 4'];
 
     // Build ordered keys: when all months, key = "Jan · Week 1" etc.
     // When specific month, key = "Week 1" etc.
@@ -7655,7 +7674,7 @@ function populateReportSelects() {
   auditors.forEach(a => { const o=document.createElement('option'); o.value=a; o.textContent=a; auditorSel.appendChild(o); });
 
   const weekSel = document.getElementById('rpt-week');
-  const weekOrder = ['Week 1','Week 2','Week 3','Week 4','Week 5'];
+  const weekOrder = ['Week 1','Week 2','Week 3','Week 4'];
   const weeks = [...new Set(rows.map(r=>(r[4]||'').trim()).filter(Boolean))].sort((a,b)=>{
     const ai = weekOrder.indexOf(a), bi = weekOrder.indexOf(b);
     return (ai===-1?99:ai)-(bi===-1?99:bi);
@@ -10826,6 +10845,7 @@ var DETAILS_SHEET = 'QA Details';
 var det = { rows:null, at:0, p:null, missing:false, parsed:{} };
 var sortBy = 'count', showAll = false, lastList = [];
 var TOP = 15, MIN_RATE_N = 3;
+window.nsDetailsStore = { load: function(f){ return loadDetails(f); }, state: det, parsed: function(i){ return parsed(i); }, keyOf: keyOf, invalidate: function(){ det.at = 0; } };
 
 function loadDetails(force){
   if (!force && det.rows && Date.now() - det.at < 180000) return Promise.resolve(det.rows);
@@ -11119,6 +11139,259 @@ if (typeof window.loadSharedData === 'function'){
   window.loadSharedData = function(){ try { load(true); } catch (e) {} return _lsd.apply(this, arguments); };
 }
 load(true);
+})();
+</script>
+
+
+<style id="ns-dash-worklists-css">
+/* ---- Dashboard work lists ---- */
+.nsd-head{gap:14px;flex-wrap:wrap;}
+.nsd-weeks{display:inline-flex;padding:3px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border-subtle);}
+.nsd-weeks button{height:28px;padding:0 10px;border:0;border-radius:6px;background:none;color:var(--text-tertiary);font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+.nsd-weeks button[aria-pressed="true"]{background:var(--surface);color:var(--text-primary);box-shadow:var(--shadow-xs);}
+.nsd-weeks .n{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--no-bg);color:var(--no);font-size:11px;font-weight:700;display:inline-grid;place-items:center;}
+.nsd-weeks .n.ok{background:var(--yes-bg);color:var(--yes);}
+.nsd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));}
+.nsd-todo{display:flex;align-items:center;gap:10px;padding:10px 18px;border-bottom:1px solid var(--border-subtle);border-right:1px solid var(--border-subtle);min-width:0;}
+.nsd-todo .who{flex:1;min-width:0;}
+.nsd-todo .nm{font-size:13px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nsd-todo .pg{font-size:11.5px;color:var(--text-tertiary);margin-top:2px;display:flex;align-items:center;gap:6px;}
+.nsd-dots{display:inline-flex;gap:3px;}
+.nsd-dots i{width:6px;height:6px;border-radius:50%;background:var(--border-strong);}
+.nsd-dots i.on{background:var(--yes);}
+.nsd-btn{height:28px;padding:0 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text-primary);font:inherit;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;flex:none;}
+.nsd-btn:hover{border-color:var(--border-strong);}
+.nsd-done{padding:22px 18px;text-align:center;font-size:13px;color:var(--text-secondary);}
+.nsd-done b{color:var(--yes);}
+.nsd-q{display:flex;align-items:flex-start;gap:10px;width:100%;padding:11px 18px;border:0;border-bottom:1px solid var(--border-subtle);background:none;text-align:left;font:inherit;color:inherit;cursor:pointer;}
+.nsd-q:hover{background:var(--surface-2);}
+.nsd-q .who{flex:1;min-width:0;}
+.nsd-q .nm{font-size:13px;font-weight:600;color:var(--text-primary);}
+.nsd-q .mt{font-size:11.5px;color:var(--text-tertiary);margin-top:1px;}
+.nsd-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.nsd-tag{padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;background:var(--na-bg);color:var(--text-secondary);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.nsd-tag.ztp{background:var(--ztp-bg);color:var(--ztp);}
+.nsd-tag.flag{background:var(--major-bg);color:var(--major);}
+.nsd-tag.rep{background:var(--minor-bg);color:var(--minor);}
+.nsd-sc{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;flex:none;padding-top:1px;}
+.nsd-more{display:block;width:100%;padding:9px;border:0;background:none;color:var(--legacy);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;}
+.nsd-weeks button:focus-visible,.nsd-btn:focus-visible,.nsd-q:focus-visible,.nsd-more:focus-visible{outline:2px solid var(--legacy);outline-offset:-2px;}
+</style>
+
+<script id="ns-dash-worklists-js">
+(function(){
+'use strict';
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function nTxt(v){ return String(v || '').trim().toLowerCase().replace(/\s+/g,' '); }
+function nId(v){ return String(v || '').toLowerCase().replace(/[^a-z0-9]/g,''); }
+function wkNum(v){ var m = String(v || '').match(/\d+/); return m ? +m[0] : 0; }
+function isNA(r){ return String(r[7] || '').trim().toUpperCase() === 'N/A'; }
+var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var BRAND = { L:'Legacy', LC:'Legacy Chat', B:'Banyan', T:'Takahami' };
+var COACH_TOP = 6;
+var st = { week:null, weekKey:'', coachAll:false, coach:[] };
+
+function ctx(){
+  var p = (typeof dashActiveCampaign !== 'undefined') ? dashActiveCampaign : 'L';
+  var year = ($('dash-year-sel') || {}).value || '', month = ($('dash-month-sel') || {}).value || '';
+  var rpw = p === 'T' ? REQUIRED_PER_WEEK_T : p === 'LC' ? REQUIRED_PER_WEEK_LC : REQUIRED_PER_WEEK;
+  var rows = (typeof getAllRows === 'function' ? getAllRows() : []).filter(function(r){
+    return (r[1] || '') === BRAND[p] && String(r[2] || '') === String(year) && (r[3] || '') === month;
+  });
+  return { p:p, brand:BRAND[p], year:year, month:month, rpw:rpw, rows:rows, agents:(DASH_AGENTS[p] || []).slice() };
+}
+function defaultWeek(c){
+  var now = new Date(), y = now.getFullYear(), m = now.getMonth(), cy = +c.year, cm = MONTHS.indexOf(c.month);
+  if (cy === y && cm === m) return Math.min(4, Math.ceil(now.getDate() / 7));
+  return (cy < y || (cy === y && cm < m)) ? 4 : 1;
+}
+
+/* ===================== Still to audit ===================== */
+function todoFor(c, w){
+  var done = {}, off = {};
+  c.rows.forEach(function(r){
+    if (wkNum(r[4]) !== w) return;
+    var a = (r[5] || '').trim();
+    if (isNA(r)) off[a] = true; else done[a] = (done[a] || 0) + 1;
+  });
+  return c.agents.filter(function(a){ return !off[a] && (done[a] || 0) < c.rpw; })
+    .map(function(a){ return { name:a, done:done[a] || 0 }; })
+    .sort(function(x, y){ return x.done - y.done || x.name.localeCompare(y.name); });
+}
+function renderTodo(c){
+  var box = $('nsd-todo'), wk = $('nsd-weeks'); if (!box || !wk) return;
+  var key = c.p + '|' + c.year + '|' + c.month;
+  if (st.weekKey !== key){ st.weekKey = key; st.week = defaultWeek(c); }
+  var lists = [1,2,3,4].map(function(w){ return todoFor(c, w); });
+  wk.innerHTML = [1,2,3,4].map(function(w){
+    var n = lists[w-1].length;
+    return '<button type="button" data-nsd-week="' + w + '" aria-pressed="' + (w === st.week) + '">Wk ' + w +
+      '<span class="n' + (n ? '' : ' ok') + '" aria-label="' + n + ' agents left">' + (n || '\u2713') + '</span></button>';
+  }).join('');
+  var list = lists[st.week - 1];
+  var sub = $('nsd-todo-sub');
+  if (sub) sub.textContent = c.rpw + ' audits per agent each week. Week ' + st.week + ', ' + c.month + ' ' + c.year + '.';
+  if (!c.agents.length){ box.innerHTML = '<div class="nsd-done">No agents are set up for this campaign.</div>'; return; }
+  if (!list.length){ box.innerHTML = '<div class="nsd-done"><b>All done.</b> Every agent has ' + c.rpw + ' audits for week ' + st.week + '.</div>'; return; }
+  box.innerHTML = '<div class="nsd-grid">' + list.map(function(t){
+    var dots = ''; for (var i = 0; i < c.rpw; i++) dots += '<i' + (i < t.done ? ' class="on"' : '') + '></i>';
+    return '<div class="nsd-todo"><span class="agent-avatar" style="background:' + avatarColor(t.name) + '">' + esc(initials(t.name)) + '</span>' +
+      '<div class="who"><div class="nm" title="' + esc(t.name) + '">' + esc(t.name) + '</div>' +
+      '<div class="pg"><span class="nsd-dots" aria-hidden="true">' + dots + '</span>' + t.done + ' of ' + c.rpw + ' done</div></div>' +
+      '<button type="button" class="nsd-btn" data-nsd-audit="' + esc(t.name) + '" data-nsd-next="' + (t.done + 1) + '">Start audit</button></div>';
+  }).join('') + '</div>';
+}
+
+/* open the scorecard with the agent, month, week and next audit number filled in */
+function setSel(id, v){
+  var el = $(id); if (!el || v == null) return;
+  v = String(v);
+  var has = [].some.call(el.options, function(o){ return o.value === v; });
+  if (!has){ var o = document.createElement('option'); o.value = v; o.textContent = v; el.appendChild(o); }
+  el.value = v; el.dispatchEvent(new Event('change', { bubbles:true }));
+}
+async function startAudit(name, next){
+  var c = ctx(), pre = c.p === 'LC' ? 'L' : c.p;
+  var cur = ($(pre + '-agent') || {}).value || '';
+  if (cur && cur !== name && typeof nsConfirm === 'function'){
+    var ok = await nsConfirm({ tone:'warn', title:'Switch the open scorecard to ' + name + '?',
+      message:'The scorecard is set to ' + cur + '. The agent, month, week and audit number will change. Answers already entered stay as they are.',
+      confirmText:'Switch agent', cancelText:'Keep ' + cur.split(',')[0], focusCancel:true });
+    if (!ok) return;
+  }
+  var nav = document.querySelector('.ns-item[data-page="scorecard"]'); if (nav) nav.click();
+  setTimeout(function(){
+    setSel(pre + '-year', c.year); setSel(pre + '-month', c.month); setSel(pre + '-week', String(st.week));
+    setSel(pre + '-agent', name);
+    var an = $(pre + '-auditNo');
+    if (an && [].some.call(an.options, function(o){ return o.value === String(next); })) setSel(pre + '-auditNo', next);
+    var f = $(pre + '-metaBar'); if (f && f.scrollIntoView) f.scrollIntoView({ block:'start' });
+  }, 60);
+}
+
+/* ===================== Coaching queue + ZTP count ===================== */
+function detailsFor(c, store){
+  var idx = {}, det = store.state;
+  (det.rows || []).forEach(function(r, i){ var k = store.keyOf(r); (idx[k] = idx[k] || []).push(i); });
+  return function(r){
+    var cand = idx[store.keyOf(r)]; if (!cand) return null;
+    var pick = cand[cand.length - 1], rid = nId(r[8]);
+    if (rid) for (var j = cand.length - 1; j >= 0; j--) if (nId(det.rows[cand[j]][8]) === rid){ pick = cand[j]; break; }
+    return store.parsed(pick);
+  };
+}
+function missedOf(d){
+  var out = [], ztp = [];
+  if (!d || d.noAudit) return { missed:out, ztp:ztp };
+  (d.sections || []).forEach(function(s){ (s.i || []).forEach(function(it){
+    if (it.g !== undefined || !it.t) return;
+    var x = it.x || (/^no$|^violated$/i.test(it.r) ? 'n' : '');
+    if (x !== 'n') return;
+    if (/ztp|zero|critical/i.test(it.b || '')) ztp.push(it.t); else out.push(it.t);
+  }); });
+  return { missed:out, ztp:ztp };
+}
+function priorityOf(d){
+  var p = ''; ((d && d.remarks) || []).forEach(function(rm){ if (/priority/i.test(rm[0])) p = rm[1] || ''; });
+  return p;
+}
+function buildQueue(c, getD){
+  /* each agent's audits in this campaign, oldest first, to spot repeat misses */
+  var byAgent = {};
+  (typeof getAllRows === 'function' ? getAllRows() : []).forEach(function(r){
+    if ((r[1] || '') !== c.brand || isNA(r)) return;
+    var a = (r[5] || '').trim(); (byAgent[a] = byAgent[a] || []).push(r);
+  });
+  Object.keys(byAgent).forEach(function(a){ byAgent[a].sort(function(x, y){ return new Date(x[0] || 0) - new Date(y[0] || 0); }); });
+
+  var q = [], ztpCount = 0;
+  c.rows.forEach(function(r){
+    if (isNA(r)) return;
+    var d = getD ? getD(r) : null, m = missedOf(d), score = parseScore(r[7]), tags = [], rank = 9;
+    var ztp = m.ztp.length > 0 || (!d && score === 0);
+    if (ztp){ ztpCount++; tags.push({ c:'ztp', t: m.ztp.length ? 'ZTP: ' + m.ztp[0] : 'ZTP violation' }); rank = 0; }
+    var pr = priorityOf(d);
+    if (/critical/i.test(pr)){ tags.push({ c:'flag', t:'QA flag: Critical' }); rank = Math.min(rank, 1); }
+    else if (/high/i.test(pr)){ tags.push({ c:'flag', t:'QA flag: Coaching needed' }); rank = Math.min(rank, 2); }
+    if (score !== null && score < 87 && !ztp){ tags.push({ c:'', t: score <= 80 ? 'Poor score' : 'Below 87%' }); rank = Math.min(rank, score <= 80 ? 3 : 4); }
+    if (d && m.missed.length){
+      var hist = byAgent[(r[5] || '').trim()] || [], i = hist.indexOf(r);
+      for (var k = i - 1; k >= 0; k--){
+        var pd = getD(hist[k]); if (!pd) continue;
+        var prev = missedOf(pd).missed;
+        var rep = m.missed.filter(function(t){ return prev.indexOf(t) > -1; });
+        if (rep.length){ tags.push({ c:'rep', t:'Missed again: ' + rep[0] + (rep.length > 1 ? ' +' + (rep.length - 1) : '') }); rank = Math.min(rank, 5); }
+        break;                                   // compare with the previous audit that has a saved form
+      }
+    }
+    if (tags.length) q.push({ r:r, tags:tags, rank:rank, score:score });
+  });
+  q.sort(function(a, b){ return a.rank - b.rank || (a.score === null ? 101 : a.score) - (b.score === null ? 101 : b.score) || new Date(b.r[0] || 0) - new Date(a.r[0] || 0); });
+  return { q:q, ztp:ztpCount };
+}
+function renderCoach(c, res, loading){
+  var box = $('nsd-coach'), badge = $('nsd-coach-badge'); if (!box) return;
+  st.coach = res.q;
+  if (badge) badge.textContent = res.q.length;
+  if (!res.q.length){
+    box.innerHTML = '<div class="nsd-done">' + (c.rows.length ? '<b>Nothing to follow up.</b> No low scores, ZTP violations, QA flags or repeat misses this month.' : 'No audits logged for ' + esc(c.month + ' ' + c.year) + ' yet.') + '</div>';
+    return;
+  }
+  var shown = st.coachAll ? res.q : res.q.slice(0, COACH_TOP);
+  box.innerHTML = shown.map(function(it, i){
+    var r = it.r, t = (typeof scoreTier === 'function' && it.score !== null) ? scoreTier(it.score) : null;
+    return '<button type="button" class="nsd-q" data-nsd-coach="' + i + '">' +
+      '<span class="agent-avatar" style="background:' + avatarColor(r[5] || '') + '">' + esc(initials(r[5] || '')) + '</span>' +
+      '<span class="who"><span class="nm">' + esc(r[5] || '') + '</span>' +
+      '<span class="mt" style="display:block">Week ' + wkNum(r[4]) + ', audit ' + esc(r[6] || '?') + (r[12] ? ', by ' + esc(r[12]) : '') + '</span>' +
+      '<span class="nsd-tags">' + it.tags.map(function(g){ return '<span class="nsd-tag ' + g.c + '" title="' + esc(g.t) + '">' + esc(g.t) + '</span>'; }).join('') + '</span></span>' +
+      '<span class="nsd-sc" style="color:' + (t ? tierColor(t) : 'var(--text-primary)') + '">' + esc(r[7] || '') + '</span></button>';
+  }).join('') +
+  (res.q.length > COACH_TOP ? '<button type="button" class="nsd-more" data-nsd-more="1">' + (st.coachAll ? 'Show fewer' : 'Show all ' + res.q.length) + '</button>' : '') +
+  (loading ? '<div class="nsd-done" style="padding:8px 18px;font-size:12px">Checking saved forms for ZTP, QA flags and repeat misses\u2026</div>' : '');
+}
+function setCritical(n, exact){
+  var el = $('kpi-critical'); if (el) el.textContent = n;
+  var sub = $('kpi-critical-sub'); if (sub) sub.textContent = exact ? 'ZTP violations' : 'ZTP violations (checking forms\u2026)';
+}
+
+var token = 0;
+function render(){
+  if (typeof sharedState === 'undefined' || !sharedState.loaded) return;
+  var pg = (typeof currentPage !== 'undefined') ? currentPage : '';
+  if (pg !== 'dashboard') return;
+  var c = ctx();
+  renderTodo(c);
+  var quick = buildQueue(c, null);
+  var store = window.nsDetailsStore, my = ++token;
+  if (!store){ renderCoach(c, quick, false); setCritical(quick.ztp, true); return; }
+  renderCoach(c, quick, true); setCritical(quick.ztp, false);
+  store.load(false).then(function(){
+    if (my !== token) return;
+    var full = buildQueue(c, detailsFor(c, store));
+    renderCoach(c, full, false); setCritical(full.ztp, true);
+  }).catch(function(){ if (my === token){ renderCoach(c, quick, false); setCritical(quick.ztp, true); } });
+}
+
+document.addEventListener('click', function(e){
+  var w = e.target.closest('[data-nsd-week]');
+  if (w){ st.week = +w.getAttribute('data-nsd-week'); renderTodo(ctx()); return; }
+  var a = e.target.closest('[data-nsd-audit]');
+  if (a){ startAudit(a.getAttribute('data-nsd-audit'), +a.getAttribute('data-nsd-next')); return; }
+  var q = e.target.closest('[data-nsd-coach]');
+  if (q){ var it = st.coach[+q.getAttribute('data-nsd-coach')]; if (it && window.nsOpenAuditForm) nsOpenAuditForm([it.r], 0); return; }
+  if (e.target.closest('[data-nsd-more]')){ st.coachAll = !st.coachAll; render(); }
+});
+
+if (typeof window.refreshDashPage === 'function'){
+  var _r = window.refreshDashPage;
+  window.refreshDashPage = function(){ var out = _r.apply(this, arguments); try { render(); } catch (e) { console.warn('Dashboard lists:', e); } return out; };
+}
+if (typeof window.loadAndRefreshDash === 'function'){
+  var _l = window.loadAndRefreshDash;
+  window.loadAndRefreshDash = function(){ try { window.nsDetailsStore && nsDetailsStore.invalidate(); } catch (e) {} return _l.apply(this, arguments); };
+}
 })();
 </script>
 
