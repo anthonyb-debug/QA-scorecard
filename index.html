@@ -2950,6 +2950,7 @@ body {
       <button class="ns-camp-btn" id="ns-camp-btn"><span class="ns-camp-dot" id="ns-camp-dot"></span><span class="ns-camp-name" id="ns-camp-name">Legacy</span><span class="ns-camp-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 9l4-4 4 4M16 15l-4 4-4-4"/></svg></span></button>
       <div class="ns-camp-menu" id="ns-camp-menu">
         <button data-brand="legacy"><span class="ns-dot" style="background:var(--legacy)"></span>Legacy</button>
+        <button data-brand="legacychat"><span class="ns-dot" style="background:var(--legacy-chat)"></span>Legacy Chat</button>
         <button data-brand="banyan"><span class="ns-dot" style="background:var(--banyan)"></span>Banyan</button>
         <button data-brand="takahami"><span class="ns-dot" style="background:var(--takahami)"></span>Takahami</button>
       </div>
@@ -2978,6 +2979,15 @@ body {
 <header id="ns-header">
   <button class="ns-menu" id="ns-menu" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
   <div class="ns-crumb"><span id="ns-crumb-grp">Quality</span><span class="ns-sep">/</span><b id="ns-crumb-page">New scorecard</b></div>
+  <div class="ns-hf" id="ns-hf" role="group" aria-label="Filters">
+    <select id="hf-campaign" aria-label="Campaign"></select>
+    <select id="hf-year" aria-label="Year"></select>
+    <select id="hf-month" aria-label="Month"></select>
+    <select id="hf-week" aria-label="Week"></select>
+    <select id="hf-agent" aria-label="Agent"></select>
+    <select id="hf-auditor" aria-label="QA auditor"></select>
+    <button type="button" class="ns-hf-reset" id="hf-reset" hidden>Clear</button>
+  </div>
   <button class="ns-ic" id="ns-theme" type="button" aria-label="Switch to dark mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
   
 </header>
@@ -4591,6 +4601,7 @@ body {
         <select class="filter-select" id="rpt-campaign" onchange="onReportCampaignChange()">
           <option value="all">All Campaigns</option>
           <option value="Legacy">Legacy</option>
+          <option value="Legacy Chat">Legacy Chat</option>
           <option value="Banyan">Banyan</option>
           <option value="Takahami">Takahami</option>
         </select>
@@ -4633,6 +4644,7 @@ body {
       <button class="report-tab-btn" onclick="showReportTab('team',this)"><svg class="ns-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Team performance</button>
       <button class="report-tab-btn" onclick="showReportTab('trends',this)"><svg class="ns-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m23 6-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>QA trends</button>
       <button class="report-tab-btn" onclick="showReportTab('auditor',this)"><svg class="ns-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Auditor activity</button>
+      <button class="report-tab-btn" onclick="showReportTab('missed',this)"><svg class="ns-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/></svg>Missed items</button>
       <button class="report-tab-btn" onclick="showReportTab('export',this)" style="margin-left:auto">↓ Export CSV</button>
     </div>
 
@@ -4775,6 +4787,23 @@ body {
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+
+    <!-- MISSED ITEMS TAB -->
+    <div class="report-panel" id="rpt-panel-missed">
+      <div class="panel">
+        <div class="panel-header nsm-head">
+          <div>
+            <div class="panel-title">Most missed criteria</div>
+            <div class="panel-subtitle" id="nsm-sub">How often each item was marked No in the audits that match your filters</div>
+          </div>
+          <div class="nsm-sort" role="group" aria-label="Sort by">
+            <button type="button" data-nsm-sort="count" aria-pressed="true">Most missed</button>
+            <button type="button" data-nsm-sort="rate" aria-pressed="false">Highest miss rate</button>
+          </div>
+        </div>
+        <div id="nsm-body"><div class="nsm-state">Select Refresh Data to load audits.</div></div>
       </div>
     </div>
 
@@ -5496,6 +5525,7 @@ async function logQAResult(prefix) {
   if (ctmPhone && loggedCTMPhones[prefix].has(ctmPhone)) {
     if (!(await nsConfirm({ tone: 'warn', title: 'Log this record again?', message: `A record with ${dupLabel} "${ctmPhone}" was already logged this session. Logging it again adds a second entry to the spreadsheet.`, confirmText: 'Log again' }))) return;
   }
+  if (window.nsCheckDuplicates && !(await nsCheckDuplicates({ campaign: brand, year, month, week, agent: name, auditNo, id: ctmPhone, dt: callDateTime, idLabel: prefix === 'L' ? 'CTM phone' : 'CTM phone', kind: 'call', btn: prefix + '-logBtn' }))) return;
 
   checkAuditTargetBeforeLog(prefix, brand, year, month, week, name, () => {
     _submitQAResult(prefix, brand, year, month, week, name, auditNo, qaScore, noAudit, ctmPhone, callDateTime, auditDate);
@@ -5661,6 +5691,7 @@ const dashState = {
 };
 const REQUIRED_PER_WEEK = 3;   // QA audits required per agent per week (Legacy & Banyan)
 const REQUIRED_PER_WEEK_T = 2; // QA audits required per agent per week (Takahami)
+const REQUIRED_PER_WEEK_LC = 3; // QA audits required per agent per week (Legacy Chat)
 
 /* ═══════════════════════════════════════════════════════════
    AUDIT TARGET VALIDATION — Extra Audit Detection
@@ -6526,9 +6557,9 @@ function initDashPage() {
 function switchDashCampaign(prefix, btn) {
   dashActiveCampaign = prefix;
   document.querySelectorAll('.campaign-tab-btn[id^="dash-camp"]').forEach(b => b.classList.remove('active-legacy','active-banyan','active-takahami'));
-  const dashBrandMap = { L: 'legacy', B: 'banyan', T: 'takahami' };
+  const dashBrandMap = { L: 'legacy', LC: 'legacy', B: 'banyan', T: 'takahami' };
   if (btn) btn.classList.add('active-' + (dashBrandMap[prefix] || 'legacy'));
-  const dashTitles = { L: 'Legacy', B: 'Banyan', T: 'Takahami' };
+  const dashTitles = { L: 'Legacy', LC: 'Legacy Chat', B: 'Banyan', T: 'Takahami' };
   document.getElementById('dash-page-title').textContent = 'QA dashboard — ' + (dashTitles[prefix] || prefix);
   const aT = document.getElementById('audits-page-title');
   if (aT) aT.textContent = 'Weekly audits — ' + (dashTitles[prefix] || prefix);
@@ -6625,8 +6656,8 @@ function renderDashMatrix(){
 function refreshDashPage() {
   if (!sharedState.loaded) return;
   const prefix = dashActiveCampaign;
-  const brand = prefix === 'L' ? 'Legacy' : prefix === 'B' ? 'Banyan' : 'Takahami';
-  const RPW = prefix === 'T' ? REQUIRED_PER_WEEK_T : REQUIRED_PER_WEEK;
+  const brand = { L: 'Legacy', LC: 'Legacy Chat', B: 'Banyan', T: 'Takahami' }[prefix] || 'Legacy';
+  const RPW = prefix === 'T' ? REQUIRED_PER_WEEK_T : prefix === 'LC' ? REQUIRED_PER_WEEK_LC : REQUIRED_PER_WEEK;
   const subtitleEl = document.getElementById('dash-coverage-subtitle');
   if (subtitleEl) subtitleEl.textContent = `${RPW} audits required per agent per week. Select a week to view its audit forms.`;
   const year = document.getElementById('dash-year-sel')?.value || '';
@@ -7048,18 +7079,20 @@ function initProfilePage() {
 
 function populateProfileAgentSel() {
   const sel = document.getElementById('profile-agent-sel');
+  const keep = sel.value;
   sel.innerHTML = '<option value="">Select an agent…</option>';
-  const agents = DASH_AGENTS[profileActiveCampaign];
+  const agents = DASH_AGENTS[profileActiveCampaign] || [];
   agents.forEach(a => {
     const o = document.createElement('option');
     o.value = a; o.textContent = a; sel.appendChild(o);
   });
+  if (keep && agents.indexOf(keep) > -1) sel.value = keep;
 }
 
 function switchProfileCampaign(prefix, btn) {
   profileActiveCampaign = prefix;
   document.querySelectorAll('.campaign-tab-btn[id^="prof-camp"]').forEach(b => b.classList.remove('active-legacy','active-banyan','active-takahami'));
-  const profBrandMap = { L: 'legacy', B: 'banyan', T: 'takahami' };
+  const profBrandMap = { L: 'legacy', LC: 'legacy', B: 'banyan', T: 'takahami' };
   if (btn) btn.classList.add('active-' + (profBrandMap[prefix] || 'legacy'));
   populateProfileAgentSel();
   document.getElementById('profile-content').style.display = 'none';
@@ -7107,7 +7140,7 @@ function renderAgentProfile() {
   }
   document.getElementById('profile-status-msg').style.display = 'none';
 
-  const profBrandNames = { L: 'Legacy', B: 'Banyan', T: 'Takahami' };
+  const profBrandNames = { L: 'Legacy', LC: 'Legacy Chat', B: 'Banyan', T: 'Takahami' };
   const brand = profBrandNames[profileActiveCampaign] || 'Legacy';
   const year = document.getElementById('profile-year-sel').value;
   const monthVal = document.getElementById('profile-month-sel').value;
@@ -7137,6 +7170,8 @@ function renderAgentProfile() {
   const heroBar = document.getElementById('profile-hero-bar');
   heroBar.style.background = profileActiveCampaign === 'L'
     ? '#1f3a5f'
+    : profileActiveCampaign === 'LC'
+    ? '#2b6a7a'
     : profileActiveCampaign === 'B'
     ? '#2f7d5a'
     : '#5b5188';
@@ -7301,7 +7336,7 @@ function renderAgentProfile() {
             <span class="wbc-week-label">${mainLabel}</span>
             ${subLabel}
           </div>
-          <span class="wbc-count">${audits.length}/${profileActiveCampaign === 'T' ? REQUIRED_PER_WEEK_T : REQUIRED_PER_WEEK}</span>
+          <span class="wbc-count">${audits.length}/${profileActiveCampaign === 'T' ? REQUIRED_PER_WEEK_T : profileActiveCampaign === 'LC' ? REQUIRED_PER_WEEK_LC : REQUIRED_PER_WEEK}</span>
         </div>
         ${auditRowsHtml}
         <div class="wbc-divider"></div>
@@ -7565,7 +7600,7 @@ function runExportCSV(allCampaigns) {
   }
 
   if (allCampaigns) {
-    const campaigns = ['Legacy','Banyan','Takahami'];
+    const campaigns = ['Legacy','Legacy Chat','Banyan','Takahami'];
     let exported = 0;
     const skipped = [];
     campaigns.forEach(camp => {
@@ -7783,8 +7818,8 @@ function renderReportTeam(rows) {
 
   // By campaign
   const campaignEl = document.getElementById('rpt-by-campaign');
-  const allCampaigns = ['Legacy','Banyan','Takahami'];
-  const campColor = { Legacy:'var(--legacy)', Banyan:'var(--banyan)', Takahami:'var(--takahami)' };
+  const allCampaigns = ['Legacy','Legacy Chat','Banyan','Takahami'];
+  const campColor = { Legacy:'var(--legacy)', 'Legacy Chat':'var(--legacy-chat)', Banyan:'var(--banyan)', Takahami:'var(--takahami)' };
   const anyData = allCampaigns.some(b => rows.filter(r=>(r[1]||'')===b).length > 0);
   if (anyData) {
     campaignEl.innerHTML = allCampaigns.map(b => {
@@ -8233,6 +8268,7 @@ async function logChatQAResult() {
   if (chatId && loggedCTMPhones['LC'].has(chatId)) {
     if (!(await nsConfirm({ tone: 'warn', title: 'Log this chat again?', message: `A chat record with Chat ID "${chatId}" was already logged this session. Logging it again adds a second entry to the spreadsheet.`, confirmText: 'Log again' }))) return;
   }
+  if (window.nsCheckDuplicates && !(await nsCheckDuplicates({ campaign: 'Legacy Chat', year, month, week, agent: name, auditNo, id: chatId, dt: chatDT, idLabel: 'Chat ID', kind: 'chat', btn: 'LC-logBtn' }))) return;
 
   const btn = document.getElementById('LC-logBtn');
   const original = btn ? btn.textContent : '';
@@ -8651,6 +8687,7 @@ async function resetFormT() {
     if (callId && loggedCTMPhones['T'].has(callId)) {
       if (!(await nsConfirm({ tone: 'warn', title: 'Log this record again?', message: 'A record with Call ID "' + callId + '" was already logged this session. Logging it again adds a second entry to the spreadsheet.', confirmText: 'Log again' }))) return;
     }
+    if (window.nsCheckDuplicates && !(await nsCheckDuplicates({ campaign: 'Takahami', year: year, month: month, week: week, agent: name, auditNo: auditNo, id: callId, dt: callDT, idLabel: 'Call ID', kind: 'call', btn: 'T-logBtn' }))) return;
 
     checkAuditTargetBeforeLog('T', 'Takahami', year, month, week, name, function() {
       _submitTakahamiQAResult(year, month, week, name, auditNo, qaScore, noAuditT, callId, callDT, auditDate);
@@ -8828,6 +8865,17 @@ populateYearMonth('T');
    TAKAHAMI — DASH_AGENTS extension
 ═══════════════════════════════════════════════════════════ */
 DASH_AGENTS['T'] = ['Ado, Jaypee Dhan','Bartolome, Christian Byron','Hubilla, Alvin Jhon','Mapa, Christia Marie','Patricio, Cherabyl','Regaspi, Jeffrey'];
+/* Legacy Chat roster. Leave empty to list every agent who has a Legacy Chat
+   audit in the QA Log, or fill in names to fix the list, e.g. ['Magbanua, Rubie']. */
+var DASH_AGENTS_LC_FIXED = [];
+Object.defineProperty(DASH_AGENTS, 'LC', { enumerable: true, get: function () {
+  if (DASH_AGENTS_LC_FIXED.length) return DASH_AGENTS_LC_FIXED.slice();
+  try {
+    if (typeof sharedState === 'undefined' || !sharedState.loaded) return [];
+    return Array.from(new Set(getAllRows().filter(function (r) { return (r[1] || '').trim() === 'Legacy Chat'; })
+      .map(function (r) { return (r[5] || '').trim(); }).filter(Boolean))).sort();
+  } catch (e) { return []; }
+} });
 
 /* Init Takahami scoring on load */
 updateScoreT();
@@ -8841,6 +8889,7 @@ updateCompletionT();
  --bg:#f4f6f8;--surface:#fff;--surface-2:#f7f9fb;--border:#e4e8ee;--border-subtle:#eef1f5;--border-strong:#d3dae2;
  --text-primary:#1e232b;--text-secondary:#5b6472;--text-tertiary:#8a93a2;
  --legacy:#1f3a5f;--legacy-light:#eaf0f7;--legacy-mid:#d7e2ef;
+ --legacy-chat:#2b6a7a;
  --banyan:#2f7d5a;--banyan-light:#e8f1ec;--banyan-mid:#d3e6dc;
  --takahami:#5b5188;--takahami-dark:#443c6b;--takahami-light:#eeecf5;--takahami-mid:#ddd8ec;--takahami-text:#4a417a;
  --major:#97671b;--major-bg:#f4eddc;--major-border:#e6d3a8;
@@ -8856,6 +8905,7 @@ updateCompletionT();
  --bg:#12151a;--surface:#1b1f26;--surface-2:#20252e;--border:#2a303a;--border-subtle:#232830;--border-strong:#384150;
  --text-primary:#e7eaef;--text-secondary:#a3acb9;--text-tertiary:#737d8c;
  --legacy:#7aa4d8;--legacy-light:#223140;--legacy-mid:#2a3a4d;
+ --legacy-chat:#6fb3c4;
  --banyan:#62b78d;--banyan-light:#1a2a23;--banyan-mid:#22362c;
  --takahami:#9a8fcf;--takahami-dark:#6f649f;--takahami-light:#221f30;--takahami-mid:#2c283c;--takahami-text:#b3a9e0;
  --major:#d3a85a;--major-bg:#2b2617;--major-border:#3d3620;--minor:#7aa4d8;--minor-bg:#1a2532;--minor-border:#26364a;
@@ -9292,7 +9342,7 @@ body.ns-loading.ns-nodata .kpi-value{color:transparent!important;width:64px;bord
 .ns-dlg[data-tone="warn"] .ns-dlg-ic{background:var(--major-bg);color:var(--major);}
 .ns-dlg[data-tone="danger"] .ns-dlg-ic{background:var(--ztp-bg);color:var(--ztp);}
 .ns-dlg-title{font-size:16px;font-weight:600;color:var(--text-primary);line-height:1.35;margin:1px 0 6px;}
-.ns-dlg-msg{font-size:13.5px;line-height:1.55;color:var(--text-secondary);overflow-wrap:anywhere;}
+.ns-dlg-msg{font-size:13.5px;line-height:1.55;color:var(--text-secondary);overflow-wrap:anywhere;white-space:pre-line;}
 .ns-dlg-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;}
 .ns-dlg-btn{height:38px;padding:0 16px;border-radius:8px;font:inherit;font-size:13.5px;font-weight:500;cursor:pointer;border:1px solid var(--border-strong);background:var(--surface);color:var(--text-primary);}
 .ns-dlg-btn:hover{background:var(--surface-2);}
@@ -9682,7 +9732,7 @@ function nsLogAndSave(prefix){
 (function(){
 'use strict';
 function $(id){return document.getElementById(id);}
-var BR={legacy:{n:'Legacy',p:'L',c:'var(--legacy)'},banyan:{n:'Banyan',p:'B',c:'var(--banyan)'},takahami:{n:'Takahami',p:'T',c:'var(--takahami)'}};
+var BR={legacy:{n:'Legacy',p:'L',c:'var(--legacy)'},legacychat:{n:'Legacy Chat',p:'LC',c:'var(--legacy-chat)'},banyan:{n:'Banyan',p:'B',c:'var(--banyan)'},takahami:{n:'Takahami',p:'T',c:'var(--takahami)'}};
 var ST={brand:'legacy',page:'scorecard'};
 function svg(d){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d+'</svg>';}
 var MOON='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
@@ -9720,7 +9770,7 @@ function syncCampaign(page){
   try{
     if(page==='dashboard'||page==='audits') switchDashCampaign(p,null);
     else if(page==='profiles'){ if(profileActiveCampaign!==p) switchProfileCampaign(p,null); nsRenderRoster(); }
-    else if(page==='guide') switchGuideCampaign(p,null);
+    else if(page==='guide') switchGuideCampaign(p==='LC'?'L':p,null);
     else if(page==='reports'){var rs=$('rpt-campaign'); if(rs){rs.value=b.n; rs.dispatchEvent(new Event('change'));}}
   }catch(e){ console.warn('Campaign sync:',e); }
 }
@@ -9740,7 +9790,9 @@ if(campBtn&&campMenu){
   document.addEventListener('keydown',function(e){if(e.key==='Escape')setCampOpen(false);});
   campMenu.querySelectorAll('button[data-brand]').forEach(function(b){b.addEventListener('click',function(){
     var br=b.getAttribute('data-brand'); ST.brand=br;
-    try{ showBrand(br,null); }catch(e){}
+    try{ showBrand(br==='legacychat'?'legacy':br,null); }catch(e){}
+    if(br==='legacychat'){ try{ var ct=document.querySelector('#brand-legacy .header-inner-tab[onclick*="\'chat\'"]'); showTab('L','chat',ct); }catch(e){} }
+    else if(br==='legacy'){ try{ var cq=document.querySelector('#brand-legacy .header-inner-tab[onclick*="\'scorecard\'"]'); showTab('L','scorecard',cq); }catch(e){} }
     $('ns-camp-name').textContent=BR[br].n; $('ns-camp-dot').style.background=BR[br].c;
     campBtn.title='Campaign: '+BR[br].n; setCampOpen(false);
     syncCampaign(ST.page); nsScheduleStatus();
@@ -9920,7 +9972,8 @@ function pill(v){ if(v===null) return '<span style="color:var(--text-tertiary)">
 window.nsRenderRoster=function(){
   var host=$('ns-roster-body'); if(!host) return;
   var p=(typeof profileActiveCampaign!=='undefined')?profileActiveCampaign:'L';
-  var brand={L:'Legacy',B:'Banyan',T:'Takahami'}[p]||'Legacy';
+  var brand={L:'Legacy',LC:'Legacy Chat',B:'Banyan',T:'Takahami'}[p]||'Legacy';
+  if(p==='LC'&&typeof populateProfileAgentSel==='function'){try{populateProfileAgentSel();}catch(e){}}
   var agents=(typeof DASH_AGENTS!=='undefined'&&DASH_AGENTS[p])||[];
   var loaded=(typeof sharedState!=='undefined')&&sharedState.loaded;
   var ys=$('profile-year-sel'),ms=$('profile-month-sel');
@@ -9985,7 +10038,7 @@ window.nsConfirm=function(o){
     ok.textContent=o.confirmText||'Continue'; cancel.textContent=o.cancelText||'Cancel';
     document.body.appendChild(ov);
     requestAnimationFrame(function(){ov.classList.add('show');});
-    (tone==='danger'?cancel:ok).focus();
+    (tone==='danger'||o.focusCancel?cancel:ok).focus();
     function done(v){
       if(current!==done) return; current=null;
       document.removeEventListener('keydown',onKey,true);
@@ -10228,7 +10281,7 @@ function nMonth(v){ return String(v || '').trim().slice(0,3).toLowerCase(); }
 function nTxt(v){ return String(v || '').trim().toLowerCase().replace(/\s+/g,' '); }
 function nId(v){ return String(v || '').toLowerCase().replace(/[^a-z0-9]/g,''); }
 function nNum(v){ var m = String(v || '').replace(/,/g,'').match(/\d+(\.\d+)?/); return m ? String(parseFloat(m[0])) : ''; }
-function nCamp(v){ return nTxt(v).split(' ')[0]; }
+function nCamp(v){ var t = nTxt(v); return (/^legacy/.test(t) && /chat/.test(t)) ? 'legacy chat' : t.split(' ')[0]; }
 
 /* main QA Log row: 0 ts,1 campaign,2 year,3 month,4 week,5 agent,6 audit no,7 score,8 id,9 call dt,10 audit date,11 TL,12 QA
    QA Details row: 0 ts,1 campaign,2 year,3 month,4 week,5 agent,6 audit no,7 score,8 id,9 details json */
@@ -10277,7 +10330,7 @@ function fetchDetail(r, retried){
    3) VIEWER
    ========================================================= */
 var ov = null, st = null, lastFocus = null;
-var ACCENT = { legacy:'var(--legacy)', banyan:'var(--banyan)', takahami:'var(--takahami)' };
+var ACCENT = { legacy:'var(--legacy)', 'legacy chat':'var(--legacy-chat)', banyan:'var(--banyan)', takahami:'var(--takahami)' };
 var IC_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
 
 function tierOf(score){
@@ -10466,7 +10519,7 @@ document.addEventListener('click', function(e){
 function openMatrixCell(td){
   var agent = td.getAttribute('data-ns-agent'), wk = td.getAttribute('data-ns-wk');
   var s = (typeof dashMatrixState !== 'undefined') ? dashMatrixState : null; if (!s) return;
-  var brand = { L:'Legacy', B:'Banyan', T:'Takahami' }[typeof dashActiveCampaign !== 'undefined' ? dashActiveCampaign : 'L'];
+  var brand = { L:'Legacy', LC:'Legacy Chat', B:'Banyan', T:'Takahami' }[typeof dashActiveCampaign !== 'undefined' ? dashActiveCampaign : 'L'];
   var rows = getAllRows().filter(function(r){
     return (r[1] || '') === brand && String(r[2] || '') === String(s.year) && (r[3] || '') === s.month &&
            (r[5] || '').trim() === agent && 'Week ' + nWeek(r[4]) === wk;
@@ -10481,6 +10534,428 @@ document.addEventListener('keydown', function(e){
   var td = e.target.closest && e.target.closest('#dash-matrix-tbody td.ns-mx-click');
   if (td){ e.preventDefault(); openMatrixCell(td); }
 });
+})();
+</script>
+
+
+<style id="ns-header-filters-css">
+/* ---- header filters: the one place to filter every page ---- */
+.ns-hf{display:flex;align-items:center;gap:6px;min-width:0;}
+.ns-hf[hidden],.ns-hf select[hidden],.ns-hf-reset[hidden]{display:none!important;}
+.ns-hf select{height:34px;width:auto;min-width:0;max-width:190px;flex:none;padding:0 28px 0 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-primary);font:inherit;font-size:13px;cursor:pointer;
+  -webkit-appearance:none;appearance:none;text-overflow:ellipsis;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a93a2' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 9px center;}
+.ns-hf select:hover{border-color:var(--border-strong);}
+.ns-hf select:focus-visible{outline:2px solid var(--legacy);outline-offset:1px;}
+.ns-hf select.is-set{border-color:var(--text-secondary);font-weight:600;}
+#hf-campaign{font-weight:600;}
+.ns-hf-reset{height:34px;padding:0 10px;border:0;border-radius:8px;background:none;color:var(--text-secondary);font:inherit;font-size:13px;cursor:pointer;flex:none;}
+.ns-hf-reset:hover{color:var(--text-primary);background:var(--surface-2);}
+.ns-hf-reset:focus-visible{outline:2px solid var(--legacy);outline-offset:1px;}
+/* the old per-page filters now live in the header */
+#dash-year-sel,#dash-month-sel,#audits-year-sel,#audits-month-sel,
+#profile-year-sel,#profile-month-sel,#profile-agent-sel,#page-profiles .agent-selector-label,
+#page-reports .filter-bar .filter-group{display:none!important;}
+#page-reports .filter-bar{padding-top:0;padding-bottom:0;min-height:0;border:0;background:none;box-shadow:none;margin-bottom:8px;}
+#page-profiles .agent-selector-row{justify-content:flex-end;}
+/* campaign is chosen in the top header; the sidebar switcher stays in the page only as the engine it drives */
+#ns-sidebar .ns-camp{display:none!important;}
+@media(max-width:1280px){body.ns-hf-on #ns-header .ns-crumb{display:none;}body.ns-hf-on .ns-hf{margin-right:auto;}}
+@media(max-width:900px){
+  body.ns-hf-on .ns-hf{flex:1;overflow-x:auto;scrollbar-width:none;padding:2px 0;}
+  body.ns-hf-on .ns-hf::-webkit-scrollbar{display:none;}
+  .ns-hf select{flex:none;max-width:160px;}
+}
+</style>
+
+<script id="ns-header-filters-js">
+(function(){
+'use strict';
+function $(id){ return document.getElementById(id); }
+var KEYS = ['year','month','week','agent','auditor'];
+/* which page select each header filter drives */
+var MAP = {
+  dashboard: { year:'dash-year-sel', month:'dash-month-sel' },
+  audits:    { year:'dash-year-sel', month:'dash-month-sel' },
+  profiles:  { year:'profile-year-sel', month:'profile-month-sel', agent:'profile-agent-sel' },
+  reports:   { year:'rpt-year', month:'rpt-month', week:'rpt-week', agent:'rpt-agent', auditor:'rpt-auditor' }
+};
+var ALL_LABEL = { year:'All years', month:'All months', week:'All weeks', agent:'All agents', auditor:'All auditors' };
+var now = new Date();
+var DEF = { year:String(now.getFullYear()), month:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()], week:'all', agent:'all', auditor:'all' };
+var G = { year:DEF.year, month:DEF.month, week:'all', agent:'all', auditor:'all' };
+
+function page(){ return (typeof currentPage !== 'undefined') ? currentPage : 'scorecard'; }
+function norm(v){ return (v === '' || v == null) ? 'all' : String(v); }   // profile agent list uses '' for "all"
+function hasOpt(sel, v){ for (var i = 0; i < sel.options.length; i++) if (sel.options[i].value === v) return true; return false; }
+function denorm(sel, v){ return (v === 'all' && !hasOpt(sel, 'all') && hasOpt(sel, '')) ? '' : v; }
+
+function rerender(pg){
+  try {
+    if (pg === 'dashboard' || pg === 'audits'){ if (window.nsSyncAuditFilters) nsSyncAuditFilters(); refreshDashPage(); }
+    else if (pg === 'profiles') renderAgentProfile();
+    else if (pg === 'reports') applyReportFilters();
+  } catch (e) { console.warn('Header filters:', e); }
+}
+
+/* header <- page selects (options + current values) */
+var pulling = false, synced = null;   // synced = page whose selects already carry the header state
+function pull(){
+  var pg = page(), m = MAP[pg], box = $('ns-hf');
+  if (!box) return;
+  if (m && synced !== pg) { push(); return; }
+  if (!m) synced = pg;
+  box.hidden = false;   // campaign is always available; the other filters only on data pages
+  document.body.classList.toggle('ns-hf-on', !!m);
+  if (!m){
+    KEYS.forEach(function(k){ var h = $('hf-' + k); if (h) h.hidden = true; });
+    var r0 = $('hf-reset'); if (r0) r0.hidden = true;
+    pullCampaign(); return;
+  }
+  pulling = true;
+  KEYS.forEach(function(k){
+    var h = $('hf-' + k), src = m[k] ? $(m[k]) : null;
+    if (!h) return;
+    h.hidden = !src;
+    if (!src) return;
+    var html = '';
+    for (var i = 0; i < src.options.length; i++){
+      var o = src.options[i], v = norm(o.value);
+      var label = v === 'all' ? ALL_LABEL[k] : o.textContent;
+      html += '<option value="' + v.replace(/"/g,'&quot;') + '">' + label.replace(/[&<>]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }) + '</option>';
+    }
+    if (h.innerHTML !== html) h.innerHTML = html;
+    var cur = norm(src.value);
+    h.value = cur; G[k] = cur;
+    h.classList.toggle('is-set', (k === 'week' || k === 'agent' || k === 'auditor') && cur !== 'all');
+  });
+  pullCampaign();
+  var r = $('hf-reset');
+  if (r) r.hidden = !KEYS.some(function(k){ var h = $('hf-' + k); return h && !h.hidden && G[k] !== DEF[k] && hasOpt(h, DEF[k]); });
+  pulling = false;
+}
+
+/* page selects <- header state (when a page opens) */
+function push(){
+  var pg = page(), m = MAP[pg];
+  synced = pg;
+  if (!m) { pull(); return; }
+  KEYS.forEach(function(k){
+    var src = m[k] ? $(m[k]) : null; if (!src) return;
+    var v = denorm(src, G[k]);
+    if (hasOpt(src, v)) src.value = v;
+  });
+  rerender(pg);
+  pull();
+}
+
+/* campaign: mirrors the sidebar switcher both ways */
+function campBtns(){ return [].slice.call(document.querySelectorAll('#ns-camp-menu button[data-brand]')); }
+function pullCampaign(){
+  var h = $('hf-campaign'); if (!h) return;
+  var btns = campBtns();
+  if (!h.options.length) h.innerHTML = btns.map(function(b){ return '<option value="' + b.getAttribute('data-brand') + '">' + b.textContent.trim() + '</option>'; }).join('');
+  var name = ($('ns-camp-name') || {}).textContent || '';
+  btns.forEach(function(b){ if (b.textContent.trim() === name.trim()) h.value = b.getAttribute('data-brand'); });
+}
+
+function onHeaderChange(k){
+  var pg = page(), m = MAP[pg], h = $('hf-' + k), src = m && m[k] ? $(m[k]) : null;
+  if (!h || !src) return;
+  G[k] = h.value;
+  src.value = denorm(src, h.value);
+  rerender(pg);
+  pull();
+}
+
+function init(){
+  if (!$('ns-hf')) return;
+  KEYS.forEach(function(k){ var h = $('hf-' + k); if (h) h.addEventListener('change', function(){ onHeaderChange(k); }); });
+  var hc = $('hf-campaign');
+  if (hc) hc.addEventListener('change', function(){
+    var b = document.querySelector('#ns-camp-menu button[data-brand="' + hc.value + '"]'); if (b) b.click();
+  });
+  campBtns().forEach(function(b){ b.addEventListener('click', function(){ setTimeout(function(){ pull(); }, 0); }); });
+  var rs = $('hf-reset');
+  if (rs) rs.addEventListener('click', function(){ KEYS.forEach(function(k){ G[k] = DEF[k]; }); push(); });
+
+  /* keep the header in step when a page rebuilds its lists (data load, campaign switch) */
+  var mo = new MutationObserver(function(){ if (!pulling) pull(); });
+  ['dash-year-sel','dash-month-sel','profile-year-sel','profile-month-sel','profile-agent-sel','rpt-year','rpt-month','rpt-week','rpt-agent','rpt-auditor']
+    .forEach(function(id){ var el = $(id); if (el) mo.observe(el, { childList:true }); });
+
+  /* re-sync after page changes and after renders that may change values (e.g. opening an agent from the roster) */
+  var prevAfter = window.nsAfterShowPage;
+  window.nsAfterShowPage = function(pg){ var r = prevAfter ? prevAfter.apply(this, arguments) : undefined; synced = null; push(); setTimeout(pull, 0); return r; };
+  ['renderAgentProfile','refreshDashPage','applyReportFilters'].forEach(function(fn){
+    var orig = window[fn]; if (typeof orig !== 'function') return;
+    window[fn] = function(){ var r = orig.apply(this, arguments); if (!pulling) setTimeout(pull, 0); return r; };
+  });
+  pull();
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+
+
+<style id="ns-dup-missed-css">
+/* ---- Missed items report ---- */
+.nsm-head{gap:16px;flex-wrap:wrap;}
+.nsm-sort{display:inline-flex;padding:3px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border-subtle);}
+.nsm-sort button{height:28px;padding:0 12px;border:0;border-radius:6px;background:none;color:var(--text-tertiary);font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;}
+.nsm-sort button[aria-pressed="true"]{background:var(--surface);color:var(--text-primary);box-shadow:var(--shadow-xs);}
+.nsm-sort button:focus-visible,.nsm-view:focus-visible,.nsm-more:focus-visible{outline:2px solid var(--legacy);outline-offset:1px;}
+.nsm-note{padding:10px 18px;font-size:12px;color:var(--text-secondary);background:var(--surface-2);border-bottom:1px solid var(--border-subtle);}
+.nsm-state{padding:36px 18px;text-align:center;font-size:13px;color:var(--text-tertiary);}
+.nsm-state b{display:block;color:var(--text-primary);font-size:13.5px;margin-bottom:4px;}
+.nsm-table td{vertical-align:top;}
+.nsm-t{font-size:13px;font-weight:600;color:var(--text-primary);line-height:1.4;}
+.nsm-s{font-size:11.5px;color:var(--text-tertiary);margin-top:2px;}
+.nsm-b{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:10px;font-size:10.5px;font-weight:600;vertical-align:1px;background:var(--na-bg);color:var(--na);}
+.nsm-b.major{background:var(--major-bg);color:var(--major);}
+.nsm-b.minor{background:var(--minor-bg);color:var(--minor);}
+.nsm-b.ztp{background:var(--ztp-bg);color:var(--ztp);}
+.nsm-n{font-size:15px;font-weight:700;color:var(--no);font-variant-numeric:tabular-nums;}
+.nsm-of{font-size:11.5px;color:var(--text-tertiary);}
+.nsm-rate{display:flex;align-items:center;gap:8px;min-width:140px;}
+.nsm-bar{flex:1;height:6px;border-radius:3px;background:var(--border-subtle);overflow:hidden;}
+.nsm-bar i{display:block;height:100%;background:var(--no);border-radius:3px;}
+.nsm-pct{font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums;min-width:38px;text-align:right;color:var(--text-primary);}
+.nsm-who{font-size:12px;color:var(--text-secondary);line-height:1.5;}
+.nsm-view{height:28px;padding:0 10px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text-primary);font:inherit;font-size:12px;cursor:pointer;white-space:nowrap;}
+.nsm-view:hover{border-color:var(--border-strong);}
+.nsm-foot{padding:10px 18px;border-top:1px solid var(--border-subtle);text-align:center;}
+.nsm-more{border:0;background:none;color:var(--legacy);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;padding:4px 8px;border-radius:6px;}
+@media(max-width:760px){.nsm-hide-sm{display:none;}.nsm-rate{min-width:90px;}}
+</style>
+
+<script id="ns-dup-missed-js">
+(function(){
+'use strict';
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function nTxt(v){ return String(v || '').trim().toLowerCase().replace(/\s+/g,' '); }
+function nId(v){ return String(v || '').toLowerCase().replace(/[^a-z0-9]/g,''); }
+function nWeek(v){ var m = String(v || '').match(/\d+/); return m ? m[0] : ''; }
+function nMonth(v){ return String(v || '').trim().slice(0,3).toLowerCase(); }
+function nNum(v){ var m = String(v || '').replace(/,/g,'').match(/\d+(\.\d+)?/); return m ? String(parseFloat(m[0])) : ''; }
+function nCamp(v){ var t = nTxt(v); return (/^legacy/.test(t) && /chat/.test(t)) ? 'legacy chat' : t.split(' ')[0]; }
+function minuteOf(v){ if (!v) return null; var d = new Date(v); return isNaN(d) ? null : Math.floor(d.getTime() / 60000); }
+function when(v){ var d = new Date(v); return isNaN(d) ? (v || '') : d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }); }
+function apiOk(){ return typeof SHEETS_API_KEY !== 'undefined' && SHEETS_API_KEY && SHEETS_API_KEY !== 'YOUR_API_KEY_HERE'; }
+function sheetsUrl(range){
+  return 'https://sheets.googleapis.com/v4/spreadsheets/' + QA_SPREADSHEET_ID + '/values/' + encodeURIComponent(range) + '?key=' + SHEETS_API_KEY;
+}
+function fetchJSON(url, ms){
+  var ctl = ('AbortController' in window) ? new AbortController() : null;
+  var t = ctl ? setTimeout(function(){ ctl.abort(); }, ms || 10000) : null;
+  return fetch(url, ctl ? { signal: ctl.signal } : {}).then(function(res){
+    return res.json().catch(function(){ return {}; }).then(function(j){
+      if (t) clearTimeout(t);
+      if (!res.ok){ var msg = (j && j.error && j.error.message) || ('HTTP ' + res.status); var e = new Error(msg); e.missingTab = /Unable to parse range/i.test(msg); throw e; }
+      return j;
+    });
+  }, function(e){ if (t) clearTimeout(t); throw e; });
+}
+
+/* =========================================================
+   1) DUPLICATE CHECK — runs just before an audit is logged.
+   Re-reads the QA Log so audits logged by other QAs count too.
+   ========================================================= */
+window.nsCheckDuplicates = async function(o){
+  var rows = null, btn = o.btn ? document.getElementById(o.btn) : null, label = btn ? btn.textContent : '';
+  if (btn){ btn.disabled = true; btn.textContent = 'Checking\u2026'; }
+  try {
+    if (apiOk()){
+      var j = await fetchJSON(sheetsUrl("'" + QA_LOG_SHEET_NAME + "'!A2:M"), 8000);
+      rows = j.values || [];
+      if (typeof sharedState !== 'undefined' && sharedState.loaded) sharedState.allRows = rows;   // keep the app's copy current
+    }
+  } catch (e) { rows = null; }
+  if (btn){ btn.disabled = false; btn.textContent = label; }
+  if (!rows){
+    if (typeof sharedState !== 'undefined' && sharedState.loaded){
+      rows = sharedState.allRows || [];
+      if (typeof showToast === 'function') showToast('Couldn\u2019t reach the sheet, so duplicates were checked against data loaded earlier.', true);
+    } else {
+      if (typeof showToast === 'function') showToast('Couldn\u2019t reach the sheet to check for duplicates. Logging anyway.', true);
+      return true;
+    }
+  }
+
+  var camp = nCamp(o.campaign), id = nId(o.id), dt = minuteOf(o.dt);
+  var sameId = [], sameNo = [];
+  rows.forEach(function(r){
+    if (nCamp(r[1]) !== camp) return;
+    var idHit = false;
+    if (id && nId(r[8]) === id){
+      var rdt = minuteOf(r[9]);
+      idHit = !(dt !== null && rdt !== null && rdt !== dt);   // same number but a different call time = a different call
+    }
+    if (idHit){ sameId.push(r); return; }
+    if (String(r[2] || '').trim() === String(o.year) && nMonth(r[3]) === nMonth(o.month) && nWeek(r[4]) === nWeek(o.week) &&
+        nTxt(r[5]) === nTxt(o.agent) && nNum(r[6]) && nNum(r[6]) === nNum(o.auditNo)) sameNo.push(r);
+  });
+  if (!sameId.length && !sameNo.length) return true;
+
+  function desc(r){
+    return (r[5] || 'Unknown agent') + ', ' + [r[3], r[2]].filter(Boolean).join(' ') + ' week ' + (nWeek(r[4]) || '?') +
+      ', audit ' + (r[6] || '?') + ' (' + (r[7] || 'no score') + ')' + (r[0] ? ', logged ' + when(r[0]) : '') + (r[12] ? ' by ' + r[12] : '');
+  }
+  var parts = [];
+  if (sameId.length){
+    var what = o.kind === 'chat' ? 'This chat' : (dt !== null ? 'This call' : 'A call with this ' + (o.idLabel || 'ID'));
+    parts.push(what + ' (' + o.idLabel + ' ' + o.id + ') was already audited:\n' +
+      sameId.slice(-3).map(function(r){ return '\u2022 ' + desc(r); }).join('\n') + (sameId.length > 3 ? '\n\u2022 and ' + (sameId.length - 3) + ' more' : ''));
+  }
+  if (sameNo.length){
+    parts.push('Audit ' + o.auditNo + ' already exists for ' + o.agent + ' in ' + o.month + ' ' + o.year + ' week ' + nWeek(o.week) + ':\n' +
+      sameNo.slice(-2).map(function(r){ return '\u2022 ' + (o.idLabel || 'ID') + ' ' + (r[8] || '\u2014') + ', ' + (r[7] || 'no score') + (r[0] ? ', logged ' + when(r[0]) : ''); }).join('\n') +
+      '\nCheck the audit number before logging.');
+  }
+  parts.push('Logging this adds another entry to the spreadsheet.');
+  return await nsConfirm({ tone:'warn', title: sameId.length ? 'This audit may already be logged' : 'This audit number is already used',
+    message: parts.join('\n\n'), confirmText:'Log anyway', cancelText:'Go back', focusCancel:true });
+};
+
+/* =========================================================
+   2) MISSED ITEMS REPORT — reads the item-by-item answers
+   saved in the QA Details tab.
+   ========================================================= */
+var DETAILS_SHEET = 'QA Details';
+var det = { rows:null, at:0, p:null, missing:false, parsed:{} };
+var sortBy = 'count', showAll = false, lastList = [];
+var TOP = 15, MIN_RATE_N = 3;
+
+function loadDetails(force){
+  if (!force && det.rows && Date.now() - det.at < 180000) return Promise.resolve(det.rows);
+  if (det.p) return det.p;
+  det.p = fetchJSON(sheetsUrl("'" + DETAILS_SHEET + "'!A2:J"), 30000)
+    .then(function(j){ det.rows = j.values || []; det.missing = false; det.at = Date.now(); det.parsed = {}; det.p = null; return det.rows; })
+    .catch(function(e){ det.p = null; if (e.missingTab){ det.rows = []; det.missing = true; det.at = Date.now(); return det.rows; } throw e; });
+  return det.p;
+}
+function keyOf(r){ return [nCamp(r[1]), String(r[2] || '').trim(), nMonth(r[3]), nWeek(r[4]), nTxt(r[5]), nNum(r[6])].join('|'); }
+function parsed(i){
+  if (!(i in det.parsed)){ try { det.parsed[i] = JSON.parse(det.rows[i][9] || ''); } catch (e) { det.parsed[i] = null; } }
+  return det.parsed[i];
+}
+function badgeCls(b){ b = (b || '').toLowerCase(); return b.indexOf('major') > -1 ? 'major' : b.indexOf('minor') > -1 ? 'minor' : (b.indexOf('ztp') > -1 || b.indexOf('zero') > -1 || b.indexOf('critical') > -1) ? 'ztp' : ''; }
+function shortName(n){ var p = String(n || '').split(','); return p.length > 1 ? p[1].trim().split(' ')[0] + ' ' + p[0].trim().charAt(0) + '.' : n; }
+
+function compute(mainRows){
+  var idx = {};
+  det.rows.forEach(function(r, i){ var k = keyOf(r); (idx[k] = idx[k] || []).push(i); });
+  var items = {}, matched = 0, skippedNoAudit = 0, forms = {};
+  mainRows.forEach(function(r){
+    var cand = idx[keyOf(r)]; if (!cand) return;
+    var pick = cand[cand.length - 1], rid = nId(r[8]);
+    if (rid) for (var c = cand.length - 1; c >= 0; c--) if (nId(det.rows[cand[c]][8]) === rid){ pick = cand[c]; break; }
+    var d = parsed(pick); if (!d) return;
+    matched++;
+    if (d.noAudit){ skippedNoAudit++; return; }
+    forms[d.form || ''] = 1;
+    (d.sections || []).forEach(function(s){
+      (s.i || []).forEach(function(it){
+        if (it.g !== undefined || !it.t) return;
+        var x = it.x || (/^no$/i.test(it.r) ? 'n' : /^yes$/i.test(it.r) ? 'y' : '');
+        if (x !== 'y' && x !== 'n') return;              // N/A and unscored items don't count
+        var k = (d.form || '') + '|' + (s.t || '') + '|' + it.t;
+        var e = items[k] || (items[k] = { t:it.t, n:it.n, sec:s.t, form:d.form, b:it.b, scored:0, missed:0, who:{}, rows:[] });
+        e.scored++;
+        if (x === 'n'){ e.missed++; var a = (r[5] || '').trim(); e.who[a] = (e.who[a] || 0) + 1; e.rows.push(r); }
+      });
+    });
+  });
+  var list = Object.keys(items).map(function(k){ var e = items[k]; e.rate = e.scored ? e.missed / e.scored : 0; return e; })
+    .filter(function(e){ return e.missed > 0; });
+  return { list:list, matched:matched, noAudit:skippedNoAudit, multiForm:Object.keys(forms).length > 1 };
+}
+
+function setState(html){ var b = document.getElementById('nsm-body'); if (b) b.innerHTML = '<div class="nsm-state">' + html + '</div>'; }
+
+function render(force){
+  var panel = document.getElementById('rpt-panel-missed');
+  if (!panel || !panel.classList.contains('active')) return;
+  if (!apiOk()){ setState('<b>Google Sheets isn\u2019t connected</b>Add the Sheets API key to load saved audit forms.'); return; }
+  if (typeof sharedState === 'undefined' || !sharedState.loaded){ setState('Select Refresh Data to load audits.'); return; }
+  if (!det.rows || force) setState('Reading saved audit forms\u2026');
+  loadDetails(force).then(function(){
+    if (!panel.classList.contains('active')) return;
+    if (det.missing){ setState('<b>Full forms aren\u2019t being saved yet</b>The \u201cQA Details\u201d tab doesn\u2019t exist in the QA spreadsheet.'); return; }
+    var main = (typeof getFilteredReportRows === 'function') ? getFilteredReportRows() : [];
+    var res = compute(main);
+    lastList = res.list;
+    var scoredAudits = res.matched - res.noAudit;
+    if (!main.length){ setState('<b>No audits match these filters</b>Change the filters in the header to see more.'); return; }
+    if (!scoredAudits){ setState('<b>No saved forms for these audits</b>Item-by-item answers are only stored for audits logged after full forms started being saved. Older audits have their score only.'); return; }
+
+    var sorted = res.list.slice().sort(sortBy === 'rate'
+      ? function(a, b){ var ao = a.scored >= MIN_RATE_N, bo = b.scored >= MIN_RATE_N; if (ao !== bo) return ao ? -1 : 1; return b.rate - a.rate || b.missed - a.missed; }
+      : function(a, b){ return b.missed - a.missed || b.rate - a.rate; });
+    var shown = showAll ? sorted : sorted.slice(0, TOP);
+
+    var note = 'Based on ' + scoredAudits + ' audit' + (scoredAudits === 1 ? '' : 's') + ' with saved forms';
+    var older = main.length - res.matched;
+    if (older > 0) note += '. ' + older + ' older audit' + (older === 1 ? ' was' : 's were') + ' logged before forms were saved and ' + (older === 1 ? 'isn\u2019t' : 'aren\u2019t') + ' included';
+    if (res.noAudit) note += '. ' + res.noAudit + ' \u201cno audit\u201d week' + (res.noAudit === 1 ? ' is' : 's are') + ' skipped';
+    note += '.';
+    if (sortBy === 'rate') note += ' Items scored fewer than ' + MIN_RATE_N + ' times are listed last.';
+
+    var body = document.getElementById('nsm-body');
+    if (!sorted.length){
+      body.innerHTML = '<div class="nsm-note">' + esc(note) + '</div><div class="nsm-state"><b>Nothing was missed</b>Every scored item in these audits was marked Yes.</div>';
+      return;
+    }
+    var html = '<div class="nsm-note">' + esc(note) + '</div><div style="overflow-x:auto"><table class="data-table nsm-table"><thead><tr>' +
+      '<th>Criterion</th><th class="right">Missed</th><th>Miss rate</th><th class="nsm-hide-sm">Most often missed by</th><th></th></tr></thead><tbody>';
+    shown.forEach(function(e){
+      var i = lastList.indexOf(e);
+      var who = Object.keys(e.who).sort(function(a, b){ return e.who[b] - e.who[a]; });
+      var whoTxt = who.slice(0, 3).map(function(a){ return esc(shortName(a)) + ' (' + e.who[a] + ')'; }).join(', ') + (who.length > 3 ? ', +' + (who.length - 3) + ' more' : '');
+      var pct = Math.round(e.rate * 100);
+      html += '<tr><td><div class="nsm-t">' + (e.n ? esc(e.n) + '. ' : '') + esc(e.t) + (e.b ? '<span class="nsm-b ' + badgeCls(e.b) + '">' + esc(e.b) + '</span>' : '') + '</div>' +
+        '<div class="nsm-s">' + esc(e.sec || '') + (res.multiForm && e.form ? ', ' + esc(e.form) : '') + '</div></td>' +
+        '<td class="right"><div class="nsm-n">' + e.missed + '</div><div class="nsm-of">of ' + e.scored + '</div></td>' +
+        '<td><div class="nsm-rate"><div class="nsm-bar"><i style="width:' + pct + '%"></i></div><span class="nsm-pct">' + pct + '%</span></div></td>' +
+        '<td class="nsm-hide-sm"><div class="nsm-who">' + whoTxt + '</div></td>' +
+        '<td class="right"><button type="button" class="nsm-view" data-nsm-view="' + i + '" aria-label="View the ' + e.missed + ' audits that missed ' + esc(e.t) + '">View audits</button></td></tr>';
+    });
+    html += '</tbody></table></div>';
+    if (sorted.length > TOP) html += '<div class="nsm-foot"><button type="button" class="nsm-more" data-nsm-more="1">' + (showAll ? 'Show top ' + TOP : 'Show all ' + sorted.length + ' items') + '</button></div>';
+    body.innerHTML = html;
+  }).catch(function(e){
+    setState('<b>Couldn\u2019t load saved forms</b>' + esc(e.message || '') + '. Check your connection, then select Refresh Data.');
+  });
+}
+
+document.addEventListener('click', function(e){
+  var s = e.target.closest('[data-nsm-sort]');
+  if (s){
+    sortBy = s.getAttribute('data-nsm-sort');
+    document.querySelectorAll('[data-nsm-sort]').forEach(function(b){ b.setAttribute('aria-pressed', b === s ? 'true' : 'false'); });
+    render(false); return;
+  }
+  if (e.target.closest('[data-nsm-more]')){ showAll = !showAll; render(false); return; }
+  var v = e.target.closest('[data-nsm-view]');
+  if (v){
+    var it = lastList[+v.getAttribute('data-nsm-view')];
+    if (it && window.nsOpenAuditForm){
+      var rows = it.rows.slice().sort(function(a, b){ return new Date(b[0] || 0) - new Date(a[0] || 0); });
+      nsOpenAuditForm(rows, 0);
+    }
+  }
+});
+
+/* redraw with the report filters; reload forms when the report data is refreshed */
+if (typeof window.applyReportFilters === 'function'){
+  var _arf = window.applyReportFilters;
+  window.applyReportFilters = function(){ var r = _arf.apply(this, arguments); try { render(false); } catch (e) {} return r; };
+}
+if (typeof window.loadAndRefreshReports === 'function'){
+  var _lrr = window.loadAndRefreshReports;
+  window.loadAndRefreshReports = function(){ det.at = 0; return _lrr.apply(this, arguments); };
+}
 })();
 </script>
 
