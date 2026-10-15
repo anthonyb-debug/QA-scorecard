@@ -11002,5 +11002,125 @@ if (typeof window.loadAndRefreshReports === 'function'){
 })();
 </script>
 
+
+<script id="ns-agent-roster-js">
+/* =========================================================
+   AGENT ROSTER — agents come from the "Agent Roster" tab.
+   Columns: A Agent Name | B Campaign | C Team Leader | D Status
+   If the tab can't be read, the built-in lists keep working.
+   ========================================================= */
+(function(){
+'use strict';
+var ROSTER_SHEET = 'Agent Roster';
+var CAMP = { 'legacy':'L', 'legacy chat':'LC', 'banyan':'B', 'takahami':'T' };
+var GROUP = { L:'Legacy Agents', LC:'Legacy Chat Agents', B:'Banyan Agents', T:'Takahami Agents' };
+var R = null;            // { L:[], LC:[], B:[], T:[], tl:{ 'L|name':'TL' } }
+var lastAt = 0, busy = false;
+var autoTL = {};         // last team leader we filled per form, so a manual choice is never overwritten
+
+function $(id){ return document.getElementById(id); }
+function norm(v){ return String(v || '').trim().replace(/\s+/g,' '); }
+function apiOk(){ return typeof SHEETS_API_KEY !== 'undefined' && SHEETS_API_KEY && SHEETS_API_KEY !== 'YOUR_API_KEY_HERE'; }
+function esc(t){ return String(t).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+function parse(values){
+  var r = { L:[], LC:[], B:[], T:[], tl:{} }, seen = {};
+  (values || []).forEach(function(row){
+    var name = norm(row[0]), camp = CAMP[norm(row[1]).toLowerCase()], tl = norm(row[2]), st = norm(row[3]).toLowerCase();
+    if (!name || !camp) return;
+    if (st && st !== 'active') return;                      // Inactive (or anything not Active) drops off
+    var k = camp + '|' + name.toLowerCase();
+    if (seen[k]) return; seen[k] = 1;
+    r[camp].push(name);
+    if (tl) r.tl[k] = tl;
+  });
+  ['L','LC','B','T'].forEach(function(c){ r[c].sort(function(a, b){ return a.localeCompare(b); }); });
+  return r;
+}
+
+/* ---- scorecard dropdowns ---- */
+function chatActive(){ var t = $('L-tab-chat'); return !!(t && t.classList.contains('active')); }
+function fillAgentSelect(prefix){
+  if (!R) return;
+  var sel = $(prefix + '-agent'); if (!sel) return;
+  var key = prefix === 'L' ? (chatActive() && R.LC.length ? 'LC' : 'L') : prefix;
+  var list = R[key]; if (!list || !list.length) return;    // nothing in the sheet for this campaign: keep the built-in list
+  var cur = sel.value;
+  var html = '<option value="">Select Agent\u2026</option><optgroup label="\u2014 ' + GROUP[key] + ' \u2014">' +
+    list.map(function(n){ return '<option>' + esc(n) + '</option>'; }).join('') + '</optgroup>';
+  if (cur && list.indexOf(cur) < 0) html += '<optgroup label="\u2014 Not on the roster \u2014"><option>' + esc(cur) + '</option></optgroup>';
+  sel.innerHTML = html;
+  sel.value = cur;
+}
+function fillAllSelects(){ ['L','B','T'].forEach(fillAgentSelect); }
+
+/* ---- team leader auto-fill ---- */
+function onAgentChange(prefix){
+  if (!R) return;
+  var sel = $(prefix + '-agent'), tlSel = $(prefix + '-teamLeader'); if (!sel || !tlSel) return;
+  var key = prefix === 'L' ? (chatActive() ? 'LC' : 'L') : prefix;
+  var name = norm(sel.value).toLowerCase();
+  var tl = R.tl[key + '|' + name] || (key === 'LC' ? R.tl['L|' + name] : '');
+  if (!tl) return;
+  var cur = tlSel.value;
+  if (cur && cur !== autoTL[prefix]) return;                 // the QA picked a team leader themselves
+  var has = false;
+  for (var i = 0; i < tlSel.options.length; i++) if (tlSel.options[i].value === tl || tlSel.options[i].textContent === tl){ has = true; tl = tlSel.options[i].value || tl; break; }
+  if (!has){ var o = document.createElement('option'); o.value = tl; o.textContent = tl; tlSel.appendChild(o); }
+  tlSel.value = tl; autoTL[prefix] = tl;
+  tlSel.dispatchEvent(new Event('change', { bubbles:true }));
+}
+['L','B','T'].forEach(function(p){
+  var sel = $(p + '-agent'); if (sel) sel.addEventListener('change', function(){ onAgentChange(p); });
+});
+
+/* ---- dashboard / audits / agents lists ---- */
+function applyLists(){
+  if (!R || typeof DASH_AGENTS === 'undefined') return;
+  ['L','B','T'].forEach(function(c){ if (R[c].length) DASH_AGENTS[c] = R[c].slice(); });
+  if (typeof DASH_AGENTS_LC_FIXED !== 'undefined'){
+    DASH_AGENTS_LC_FIXED.length = 0;
+    R.LC.forEach(function(n){ DASH_AGENTS_LC_FIXED.push(n); });
+  }
+  try { if (typeof populateProfileAgentSel === 'function') populateProfileAgentSel(); } catch (e) {}
+  try { if (window.nsRenderRoster) nsRenderRoster(); } catch (e) {}
+  try {
+    var pg = (typeof currentPage !== 'undefined') ? currentPage : '';
+    if ((pg === 'dashboard' || pg === 'audits') && typeof refreshDashPage === 'function') refreshDashPage();
+    if (pg === 'profiles' && typeof renderAgentProfile === 'function') renderAgentProfile();
+  } catch (e) {}
+}
+
+function load(force){
+  if (!apiOk() || busy) return;
+  if (!force && R && Date.now() - lastAt < 60000) return;
+  busy = true;
+  var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + QA_SPREADSHEET_ID + '/values/' +
+    encodeURIComponent("'" + ROSTER_SHEET + "'!A2:D") + '?key=' + SHEETS_API_KEY;
+  fetch(url).then(function(res){ return res.json().then(function(j){ if (!res.ok) throw new Error((j.error && j.error.message) || res.status); return j; }); })
+    .then(function(j){
+      busy = false; lastAt = Date.now();
+      var r = parse(j.values);
+      if (!r.L.length && !r.LC.length && !r.B.length && !r.T.length){ console.warn('Agent Roster tab is empty; using the built-in agent lists.'); return; }
+      R = r; window.nsRoster = R;
+      fillAllSelects(); applyLists();
+    })
+    .catch(function(e){ busy = false; lastAt = Date.now(); console.warn('Agent Roster not loaded; using the built-in agent lists.', e && e.message); });
+}
+
+/* Legacy shares one agent list for Call and Chat: swap it when the form changes */
+if (typeof window.showTab === 'function'){
+  var _st = window.showTab;
+  window.showTab = function(prefix){ var r = _st.apply(this, arguments); if (prefix === 'L'){ try { fillAgentSelect('L'); } catch (e) {} } return r; };
+}
+/* pick up roster edits whenever the audit data is refreshed */
+if (typeof window.loadSharedData === 'function'){
+  var _lsd = window.loadSharedData;
+  window.loadSharedData = function(){ try { load(true); } catch (e) {} return _lsd.apply(this, arguments); };
+}
+load(true);
+})();
+</script>
+
 </body>
 </html>
