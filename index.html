@@ -4372,6 +4372,7 @@ body {
         <span style="display:flex;align-items:center;gap:5px"><span style="display:flex;gap:3px"><span style="width:5px;height:5px;border-radius:50%;background:var(--yes)"></span><span style="width:5px;height:5px;border-radius:50%;background:var(--yes)"></span></span>Audits met</span>
         <span style="display:flex;align-items:center;gap:5px"><span style="display:flex;gap:3px"><span style="width:5px;height:5px;border-radius:50%;background:var(--major)"></span><span style="width:5px;height:5px;border-radius:50%;background:var(--dot-empty)"></span></span>Partial</span>
         <span style="display:flex;align-items:center;gap:5px"><span class="qa-score-pill qa-satisfactory" style="font-size:10px">87%</span>Score by tier</span>
+        <span style="display:flex;align-items:center;gap:5px"><span class="mx-noaudit">No audit</span>Week excused</span>
         <span style="display:flex;align-items:center;gap:5px;color:var(--yes);font-weight:600">&#9650; Improving</span>
         <span style="display:flex;align-items:center;gap:5px;color:var(--ztp);font-weight:600">&#9660; Regressing</span>
       </div>
@@ -6636,7 +6637,7 @@ function renderDashMatrix(){
   const tbody = document.getElementById('dash-matrix-tbody');
   if (!thead || !tbody || !st) return;
   const mode = dashMatrixMode;
-  const wkH = st.reqWks.map((w,i) => `<th>Wk ${i+1}</th>`).join('');
+  const wkH = st.reqWks.map(w => `<th>Wk ${w.replace(/\D/g,'')}</th>`).join('');
   thead.innerHTML = `<tr><th class="agent-th">Agent</th>${wkH}<th>Total</th><th>Trend</th><th>Change</th></tr>`;
   tbody.innerHTML = '';
   if (st.reqWks.length === 0){
@@ -6646,6 +6647,7 @@ function renderDashMatrix(){
   st.rows.forEach(function(r){
     let cells = '';
     r.weeks.forEach(function(w){
+      if (w.noAudit){ cells += '<td><span class="mx-noaudit">No audit</span></td>'; return; }
       if (mode === 'scores'){
         cells += '<td>' + (w.avg === null ? '<span class="trend-wk-score na">—</span>' : `<span class="qa-score-pill ${mxScoreCls(w.avg)}">${w.avg.toFixed(1)}%</span>`) + '</td>';
       } else if (mode === 'coverage'){
@@ -6660,8 +6662,8 @@ function renderDashMatrix(){
     cells += `<td><span class="trend-direction ${r.dirClass}">${r.dirLabel}</span></td>`;
     cells += `<td><span class="trend-delta ${r.deltaClass}">${r.deltaText}</span></td>`;
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td class="agent-td">${r.name}</td>${cells}`;
-    try { st.reqWks.forEach(function(wk, wi){ var td = tr.children[wi+1]; if (td && r.weeks[wi] && r.weeks[wi].cnt > 0) { td.className = 'ns-mx-click'; td.setAttribute('data-ns-wk', wk); td.setAttribute('data-ns-agent', r.name); td.tabIndex = 0; td.setAttribute('aria-label', 'View ' + r.name + ' ' + wk + ' audit forms'); } }); } catch (e) {}
+    tr.innerHTML = `<td class="agent-td">${r.name}${r.offRoster ? ' <span class="mx-offroster" title="Not an active agent on the Agent Roster">Not on roster</span>' : ''}</td>${cells}`;
+    try { st.reqWks.forEach(function(wk, wi){ var td = tr.children[wi+1]; if (td && r.weeks[wi] && r.weeks[wi].logged > 0) { td.className = 'ns-mx-click'; td.setAttribute('data-ns-wk', wk); td.setAttribute('data-ns-agent', r.name); td.tabIndex = 0; td.setAttribute('aria-label', 'View ' + r.name + ' ' + wk + ' audit forms'); } }); } catch (e) {}
     tbody.appendChild(tr);
   });
 }
@@ -6676,12 +6678,18 @@ function refreshDashPage() {
   const year = document.getElementById('dash-year-sel')?.value || '';
   const month = document.getElementById('dash-month-sel')?.value || '';
   const agents = DASH_AGENTS[prefix];
+  // week label from the sheet: 1–4; audits logged as Week 5 before it was removed count as Week 4
+  const mxWk = v => { const raw = (v||'').toString().trim(); const m = raw.match(/\d+/); if (!m) return raw; const n = Math.min(+m[0], 4); return n >= 1 ? 'Week ' + n : raw; };
 
   const filtered = getAllRows().filter(r =>
     (r[1]||'') === brand &&
     String(r[2]||'') === String(year) &&
     (r[3]||'') === month
   );
+
+  const rosterSet = new Set(agents);
+  const offRoster = Array.from(new Set(filtered.map(r => (r[5]||'').trim()).filter(n => n && !rosterSet.has(n)))).sort((a,b) => a.localeCompare(b));
+  const mxAgents = agents.concat(offRoster);
 
   // ── KPIs ──
   const scores = filtered.map(r => parseScore(r[7])).filter(s => s !== null);
@@ -6694,14 +6702,14 @@ function refreshDashPage() {
 
   // coverage
   const counts = {};
-  agents.forEach(a => { counts[a] = {'Week 1':0,'Week 2':0,'Week 3':0,'Week 4':0}; });
+  mxAgents.forEach(a => { counts[a] = {'Week 1':0,'Week 2':0,'Week 3':0,'Week 4':0}; });
   // scored audits and "no audit" weeks, kept apart for the KPIs (the matrix still uses counts)
   const scored = {}, excused = {};
-  agents.forEach(a => { scored[a] = {'Week 1':0,'Week 2':0,'Week 3':0,'Week 4':0}; excused[a] = {}; });
+  mxAgents.forEach(a => { scored[a] = {'Week 1':0,'Week 2':0,'Week 3':0,'Week 4':0}; excused[a] = {}; });
   filtered.forEach(r => {
     const a = (r[5]||'').trim();
     const raw = (r[4]||'').toString().trim();
-    const w = /^\d$/.test(raw) ? 'Week '+raw : (/^Week\s*\d$/i.test(raw) ? 'Week '+raw.replace(/\D/g,'') : raw);
+    const w = mxWk(raw);
     if (counts[a] && counts[a].hasOwnProperty(w)) counts[a][w]++;
     if (scored[a] && scored[a].hasOwnProperty(w)) { if (isNA(r)) excused[a][w] = true; else scored[a][w]++; }
   });
@@ -6710,7 +6718,7 @@ function refreshDashPage() {
   filtered.forEach(r => {
     if (r[4]) {
       const raw = r[4].toString().trim();
-      const w = /^\d$/.test(raw) ? 'Week '+raw : (/^Week\s*\d$/i.test(raw) ? 'Week '+raw.replace(/\D/g,'') : raw);
+      const w = mxWk(raw);
       weeksWithData.add(w);
     }
   });
@@ -6738,7 +6746,7 @@ function refreshDashPage() {
   // ── Trend chart: audits per week ──
   const trendChart = document.getElementById('dash-trend-chart');
   if (reqWks.length > 0) {
-    const wkCounts = reqWks.map(w => filtered.filter(r => !isNA(r) && 'Week ' + ((r[4]||'').toString().match(/\d+/)||[''])[0] === w).length);
+    const wkCounts = reqWks.map(w => filtered.filter(r => !isNA(r) && mxWk(r[4]) === w).length);
     const maxWk = Math.max(...wkCounts, 1);
     trendChart.innerHTML = wkCounts.map((cnt, i) => {
       const h = Math.round((cnt/maxWk)*90);
@@ -6823,7 +6831,7 @@ function refreshDashPage() {
     const wkRows = filtered.filter(r => {
       const name = (r[5]||'').trim();
       const raw  = (r[4]||'').toString().trim();
-      const normW = /^\d$/.test(raw) ? 'Week '+raw : (/^Week\s*\d$/i.test(raw) ? 'Week '+raw.replace(/\D/g,'') : raw);
+      const normW = mxWk(raw);
       return name === agentName && normW === week;
     });
     const sc = wkRows.map(r => parseScore(r[7])).filter(s => s !== null);
@@ -6857,9 +6865,9 @@ function refreshDashPage() {
   }
 
   // ── Combined weekly matrix (coverage + score) ──
-  const matrixRows = agents.map(a => {
-    const weeks = reqWks.map(w => ({ cnt: counts[a][w], avg: agentWeekAvg(a, w) }));
-    const total = allWks.reduce((s,w) => s + counts[a][w], 0);
+  const matrixRows = mxAgents.map(a => {
+    const weeks = reqWks.map(w => ({ cnt: scored[a][w], logged: counts[a][w], noAudit: !!excused[a][w] && scored[a][w] === 0, avg: agentWeekAvg(a, w) }));
+    const total = allWks.reduce((s,w) => s + scored[a][w], 0);
     const weekAvgs = weeks.map(w => w.avg);
     const valid = weekAvgs.filter(v => v !== null);
     let dirClass, dirLabel, deltaClass, deltaText;
@@ -6875,7 +6883,7 @@ function refreshDashPage() {
       else if (delta < -1){ dirClass='trend-down'; dirLabel='▼ Regressing'; deltaClass='down'; deltaText=delta.toFixed(1)+'%'; }
       else { dirClass='trend-flat'; dirLabel='→ Stable'; deltaClass='flat'; deltaText=(delta>=0?'+':'')+delta.toFixed(1)+'%'; }
     }
-    return { name:a, weeks, total, dirClass, dirLabel, deltaClass, deltaText };
+    return { name:a, offRoster: !rosterSet.has(a), weeks, total, dirClass, dirLabel, deltaClass, deltaText };
   });
   dashMatrixState = { reqWks, rpw: RPW, month, year, rows: matrixRows };
   renderDashMatrix();
@@ -6889,7 +6897,7 @@ function refreshDashPage() {
 
   if (qaScoresTheadEl && qaScoresTbodyEl) {
     // Build header with only required weeks
-    const qaWkHeaders = reqWks.map((w,i) => `<th>Wk ${i+1}</th>`).join('');
+    const qaWkHeaders = reqWks.map(w => `<th>Wk ${w.replace(/\D/g,'')}</th>`).join('');
     qaScoresTheadEl.innerHTML = `<tr><th class="agent-th">Agent</th>${qaWkHeaders}<th>Monthly avg</th></tr>`;
 
     qaScoresTbodyEl.innerHTML = '';
@@ -6914,7 +6922,7 @@ function refreshDashPage() {
         const wkRows = filtered.filter(r => {
           const name = (r[5]||'').trim();
           const raw = (r[4]||'').toString().trim();
-          const normW = /^\d$/.test(raw) ? 'Week '+raw : (/^Week\s*\d$/i.test(raw) ? 'Week '+raw.replace(/\D/g,'') : raw);
+          const normW = mxWk(raw);
           return name === a && normW === w;
         });
         const wkAllRawScores = wkRows.map(r => (r[7]||'').toString().trim().toUpperCase());
@@ -10093,6 +10101,8 @@ button.wbc-audit-row{background:none;border:0;font:inherit;color:inherit;cursor:
 button.wbc-audit-row:hover{background:var(--surface-2);}
 button.wbc-audit-row:hover .wbc-audit-label{color:var(--text-primary);text-decoration:underline;text-underline-offset:2px;}
 #dash-matrix-tbody td.ns-mx-click{cursor:pointer;}
+.mx-noaudit{display:inline-block;font-size:10.5px;font-weight:500;color:var(--text-tertiary);border:1px dashed var(--border-strong);border-radius:999px;padding:1px 8px;white-space:nowrap;}
+.mx-offroster{display:inline-block;margin-left:6px;font-size:10px;font-weight:500;color:var(--text-tertiary);background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:0 5px;vertical-align:1px;white-space:nowrap;}
 #dash-matrix-tbody td.ns-mx-click:hover{background:var(--surface-2);}
 
 body.nsv-open{overflow:hidden;}
@@ -10541,7 +10551,7 @@ function openMatrixCell(td){
   var brand = { L:'Legacy', LC:'Legacy Chat', B:'Banyan', T:'Takahami' }[typeof dashActiveCampaign !== 'undefined' ? dashActiveCampaign : 'L'];
   var rows = getAllRows().filter(function(r){
     return (r[1] || '') === brand && String(r[2] || '') === String(s.year) && (r[3] || '') === s.month &&
-           (r[5] || '').trim() === agent && 'Week ' + nWeek(r[4]) === wk;
+           (r[5] || '').trim() === agent && 'Week ' + Math.min(+nWeek(r[4]) || 0, 4) === wk;
   }).sort(function(a, b){ return new Date(a[0] || 0) - new Date(b[0] || 0); });
   open(rows, 0);
 }
