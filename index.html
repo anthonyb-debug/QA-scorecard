@@ -10959,5 +10959,48 @@ if (typeof window.loadAndRefreshReports === 'function'){
 })();
 </script>
 
+
+<style id="ns-scorecard-print-fix-css">
+/* Call QA / Chat QA tabs are replaced by the campaign picker in the top header */
+.audit-header .header-inner-tabs{display:none!important;}
+
+/* Printing an audit form from the viewer.
+   The app-wide print rule hides every direct child of <body>; let the viewer through. */
+@media print{
+  html,body{background:#fff!important;height:auto!important;overflow:visible!important;}
+  body.nsv-open{padding:0!important;margin:0!important;}
+  body.nsv-open > .nsv-overlay{display:block!important;position:static!important;inset:auto!important;padding:0!important;margin:0!important;
+    background:none!important;opacity:1!important;overflow:visible!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;}
+  body.nsv-open .nsv{display:block!important;width:100%!important;max-width:none!important;min-height:0!important;margin:0!important;
+    border:0!important;border-radius:0!important;box-shadow:none!important;transform:none!important;overflow:visible!important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+    /* always print in light colours, even when the app is in dark mode */
+    --bg:#f4f6f8;--surface:#fff;--surface-2:#f7f9fb;--border:#e4e8ee;--border-subtle:#eef1f5;--border-strong:#d3dae2;
+    --text-primary:#1e232b;--text-secondary:#5b6472;--text-tertiary:#6b7482;
+    --legacy:#1f3a5f;--legacy-chat:#2b6a7a;--banyan:#2f7d5a;--takahami:#5b5188;
+    --major:#97671b;--major-bg:#f4eddc;--minor:#3a5c8a;--minor-bg:#eaf0f7;--ztp:#b4453f;--ztp-bg:#f6eae9;
+    --yes:#2f7d5a;--yes-bg:#e8f1ec;--no:#b4453f;--no-bg:#f6eae9;--na:#6b7280;--na-bg:#f2f4f6;
+    background:#fff!important;color:#1e232b;}
+  body.nsv-open .nsv-x,body.nsv-open .nsv-switch,body.nsv-open .nsv-toggle,body.nsv-open .nsv-foot .acts{display:none!important;}
+  body.nsv-open .nsv-sec,body.nsv-open .nsv-item{break-inside:avoid;page-break-inside:avoid;}
+  @page{margin:12mm;}
+}
+</style>
+
+<script id="ns-scorecard-title-js">
+/* With the Call QA / Chat QA tabs gone, the Legacy title says which form is open */
+(function(){
+  if (typeof window.showTab !== 'function') return;
+  var orig = window.showTab;
+  function sync(){
+    var t = document.querySelector('#brand-legacy .audit-title');
+    var chat = document.getElementById('L-tab-chat');
+    if (t) t.textContent = (chat && chat.classList.contains('active')) ? 'Legacy Chat Quality Scorecard' : 'Legacy Quality Scorecard';
+  }
+  window.showTab = function(prefix){ var r = orig.apply(this, arguments); if (prefix === 'L') { try { sync(); } catch (e) {} } return r; };
+  sync();
+})();
+</script>
+
 </body>
 </html>
